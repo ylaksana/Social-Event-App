@@ -27,6 +27,7 @@ class MainActivity : AppCompatActivity() {
     private val viewModel: MainViewModel by viewModels()
     private lateinit var navController : NavController
 
+
     private fun initActionBar(actionBar: ActionBar) {
         // Disable the default and enable the custom
         actionBar.setDisplayShowTitleEnabled(false)

@@ -7,13 +7,20 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.NavController
+import androidx.navigation.NavDirections
+import androidx.navigation.findNavController
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.ui.AppBarConfiguration
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import com.example.apfinalproject.R
 import com.example.apfinalproject.databinding.HomeFragmentBinding
 
 class HomeFragment: Fragment() {
 //     XXX initialize viewModel
     private val viewModel: MainViewModel by activityViewModels()
     private var _binding: HomeFragmentBinding? = null
+    private lateinit var navController : NavController
 //     This property is only valid between onCreateView and onDestroyView.
     private val binding get() = _binding!!
 
@@ -23,6 +30,14 @@ class HomeFragment: Fragment() {
     }
 
     private fun initSwipeLayout(swipe : SwipeRefreshLayout) {
+    }
+
+    private fun NavController.safeNavigate(direction: NavDirections) {
+        currentDestination?.
+        getAction(direction.actionId)?.
+        run {
+            navigate(direction)
+        }
     }
 
     override fun onCreateView(
@@ -38,6 +53,10 @@ class HomeFragment: Fragment() {
         super.onViewCreated(view, savedInstanceState)
         Log.d(javaClass.simpleName, "onViewCreated")
         // XXX Write me.
+        navController = findNavController()
+        _binding?.chatButton?.setOnClickListener{
+            navController.safeNavigate(HomeFragmentDirections.actionHomeFragmentToChatFragment())
+        }
 
     }
 }

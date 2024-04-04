@@ -1,5 +1,7 @@
 package com.example.apfinalproject.ui
 
-class MapFragment {
+import androidx.fragment.app.Fragment
+
+class MapFragment : Fragment() {
 
 }

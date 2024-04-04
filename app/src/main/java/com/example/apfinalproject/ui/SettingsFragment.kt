@@ -1,5 +1,7 @@
 package com.example.apfinalproject.ui
 
-class SettingsFragment {
+import androidx.fragment.app.Fragment
+
+class SettingsFragment: Fragment() {
 
 }

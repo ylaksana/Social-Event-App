@@ -1,4 +1,6 @@
 package com.example.apfinalproject.ui
 
-class ProfileFragment {
+import androidx.fragment.app.Fragment
+
+class ProfileFragment: Fragment() {
 }

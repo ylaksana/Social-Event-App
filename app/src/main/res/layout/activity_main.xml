@@ -7,13 +7,6 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <com.google.android.material.appbar.AppBarLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:theme="@style/AppTheme.AppBarOverlay">
-
-    </com.google.android.material.appbar.AppBarLayout>
-
     <include
         android:id="@+id/contentMain"
         layout="@layout/content_main" />
@@ -21,12 +14,11 @@
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:layout_gravity="fill_horizontal"
-        android:background="?attr/colorPrimary"
+        android:layout_height="wrap_content"
+
+        android:background="?attr/colorControlHighlight"
         app:layout_anchor="@+id/contentMain"
         app:layout_anchorGravity="bottom|center"
-        app:popupTheme="@style/AppTheme.PopupOverlay" />
-
+        app:popupTheme="@style/AppTheme.PopupOverlay"/>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

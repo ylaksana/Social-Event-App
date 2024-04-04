@@ -12,7 +12,7 @@
         android:src="@drawable/chat_outline"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        />
+        android:contentDescription="chat" />
 
     <EditText
         android:id="@+id/searchBar"
@@ -21,8 +21,12 @@
         app:layout_constraintStart_toEndOf="@id/chatButton"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="@id/chatButton"
-        android:imeOptions="actionDone"
+        app:layout_constraintTop_toTopOf="@id/chatButton"
         android:maxLines="1"
+        android:hint="Search"
+        android:autofillHints=""
+        android:imeOptions="actionSearch"
+        android:inputType="text"
         />
 
     <TextView

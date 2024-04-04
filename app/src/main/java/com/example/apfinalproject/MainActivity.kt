@@ -18,6 +18,7 @@ import com.example.apfinalproject.databinding.ActionBarBinding
 import com.example.apfinalproject.databinding.ActivityMainBinding
 import com.example.apfinalproject.MainActivity
 import com.example.apfinalproject.ui.HomeFragment
+import com.example.apfinalproject.ui.HomeFragmentDirections
 import com.example.apfinalproject.ui.MainViewModel
 
 class MainActivity : AppCompatActivity() {
@@ -25,6 +26,15 @@ class MainActivity : AppCompatActivity() {
     private var actionBarBinding: ActionBarBinding? = null
     private val viewModel: MainViewModel by viewModels()
     private lateinit var navController : NavController
+
+    private fun initActionBar(actionBar: ActionBar) {
+        // Disable the default and enable the custom
+        actionBar.setDisplayShowTitleEnabled(false)
+        actionBar.setDisplayShowCustomEnabled(true)
+        actionBarBinding = ActionBarBinding.inflate(layoutInflater)
+        // Apply the custom view
+        actionBar.customView = actionBarBinding?.root
+    }
 
     // An Android nightmare
     // https://stackoverflow.com/questions/1109022/close-hide-the-android-soft-keyboard
@@ -47,39 +57,40 @@ class MainActivity : AppCompatActivity() {
             navigate(direction)
         }
     }
-    private fun actionBarTitleLaunchSubreddit() {
+    private fun actionBarTitleLaunchProfile() {
         // XXX Write me actionBarBinding, safeNavigate
-        actionBarBinding?.actionTitle?.setOnClickListener {
-            navController.safeNavigate(HomeFragmentDirections.actionHomeFragmentToSubreddits())
+        actionBarBinding?.profileButton?.setOnClickListener{
+            navController.safeNavigate(HomeFragmentDirections.actionHomeFragmentToProfileFragment())
         }
     }
-    private fun actionBarLaunchFavorites() {
+    private fun actionBarLaunchMap() {
         // XXX Write me actionBarBinding, safeNavigate
-        actionBarBinding?.actionFavorite?.setOnClickListener {
-            navController.safeNavigate(HomeFragmentDirections.actionHomeFragmentToFavorites())
+        actionBarBinding?.mapButton?.setOnClickListener {
+            navController.safeNavigate(HomeFragmentDirections.actionHomeFragmentToMapFragment())
         }
     }
 
-    // XXX check out addTextChangedListener
-    private fun actionBarSearch() {
+    private fun actionBarLaunchSettings() {
         // XXX Write me
-        actionBarBinding?.actionSearch?.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-            }
-
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                val text = s.toString()
-                // Do something with the text
-                Log.d("netSubreddits",  "${viewModel.subreddits}")
-                Log.d("netPosts",  "${viewModel.posts}")
-                viewModel.setSearchTerm(text)
-            }
-
-            override fun afterTextChanged(s: Editable?) {
-            }
-        })
-
+        actionBarBinding?.settingsButton?.setOnClickListener {
+            navController.safeNavigate(HomeFragmentDirections.actionHomeFragmentToSettingsFragment())
+        }
     }
+
+    private fun actionBarCreateEvent() {
+        // XXX Write me
+        actionBarBinding?.createButton?.setOnClickListener {
+            navController.safeNavigate(HomeFragmentDirections.actionHomeFragmentToCreateEventFragment())
+        }
+    }
+
+    private fun actionBarEventList() {
+        // XXX Write me
+        actionBarBinding?.eventListButton?.setOnClickListener {
+            navController.safeNavigate(HomeFragmentDirections.actionHomeFragmentToCreateEventFragment())
+        }
+    }
+
     private fun initTitleObservers() {
         // Observe title changes
     }
@@ -94,11 +105,12 @@ class MainActivity : AppCompatActivity() {
         }
 
         initTitleObservers()
-        actionBarTitleLaunchSubreddit()
-        actionBarLaunchFavorites()
-        actionBarSearch()
-//
-//
+        actionBarTitleLaunchProfile()
+        actionBarLaunchMap()
+        actionBarLaunchSettings()
+        actionBarCreateEvent()
+        actionBarEventList()
+
         // Set up our nav graph
         navController = findNavController(R.id.main_frame)
         val appBarConfiguration = AppBarConfiguration(navController.graph)

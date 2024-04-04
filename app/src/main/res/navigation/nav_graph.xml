@@ -7,8 +7,7 @@
     <!--Home Fragment-->
     <fragment
         android:id="@+id/homeFragment"
-        android:name="com.example.apfinalproject.ui.HomeFragment"
-        android:label="Home">
+        android:name="com.example.apfinalproject.ui.HomeFragment">
 
         <!--Navigation to other fragments-->
 
@@ -47,8 +46,7 @@
     <!--OneEvent Fragment-->
     <fragment
         android:id="@+id/oneEventFragment"
-        android:name="com.example.apfinalproject.ui.OneEvent"
-        android:label="OneEvent">
+        android:name="com.example.apfinalproject.ui.OneEvent">
 
         <action
             android:id="@+id/action_oneEventFragment_to_profileFragment"
@@ -59,8 +57,7 @@
     <!--createEvent Fragment-->
     <fragment
         android:id="@+id/createEventFragment"
-        android:name="com.example.apfinalproject.ui.CreateEventFragment"
-        android:label="CreateEvent">
+        android:name="com.example.apfinalproject.ui.CreateEventFragment">
 
         <!--CreateEvent to OneEvent-->
         <action
@@ -72,14 +69,12 @@
     <!--Chat Fragment-->
     <fragment
         android:id="@+id/chatFragment"
-        android:name="com.example.apfinalproject.ui.ChatFragment"
-        android:label="Chat"/>
+        android:name="com.example.apfinalproject.ui.ChatFragment" />
 
     <!--Map Fragment-->
     <fragment
         android:id="@+id/mapFragment"
-        android:name="com.example.apfinalproject.ui.MapFragment"
-        android:label="Map">
+        android:name="com.example.apfinalproject.ui.MapFragment">
 
         <!--Map to OneEvent-->
     <action
@@ -91,14 +86,12 @@
     <!--Profile Fragment-->
     <fragment
         android:id="@+id/profileFragment"
-        android:name="com.example.apfinalproject.ui.ProfileFragment"
-        android:label="Profile"/>
+        android:name="com.example.apfinalproject.ui.ProfileFragment" />
 
     <!--Settings Fragment-->
     <fragment
         android:id="@+id/settingsFragment"
-        android:name="com.example.apfinalproject.ui.SettingsFragment"
-        android:label="Settings"/>
+        android:name="com.example.apfinalproject.ui.SettingsFragment" />
 
 
 </navigation>

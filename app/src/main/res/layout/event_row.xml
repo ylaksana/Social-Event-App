@@ -15,18 +15,20 @@
         tools:context=".MainActivity">
 
         <TextView
-            android:id="@+id/title"
+            android:id="@+id/eventTitle"
+            android:text="Event Title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="4dp"
             android:textSize="16sp"
-            app:layout_constraintBottom_toTopOf="@id/selfText"
+            app:layout_constraintBottom_toTopOf="@id/eventDescription"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
-            android:id="@+id/selfText"
+            android:id="@+id/eventDescription"
+            android:text="This is the TextView Containing the Event Description"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
@@ -36,7 +38,42 @@
             app:layout_constraintBottom_toTopOf="@+id/image"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/title" />
+            app:layout_constraintTop_toBottomOf="@id/eventTitle" />
+
+        <TextView
+            android:id="@+id/eventDate"
+            android:text="00/00/0000"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="4dp"
+            android:textSize="12sp"
+            app:layout_constraintTop_toBottomOf="@id/eventDescription"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/statsLayout" />
+
+        <TextView
+            android:id="@+id/eventTime"
+            android:text="00:00"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="4dp"
+            android:textSize="12sp"
+            app:layout_constraintStart_toEndOf="@id/eventDate"
+            app:layout_constraintTop_toBottomOf="@id/eventDescription"
+            app:layout_constraintBottom_toTopOf="@id/statsLayout" />
+
+        <TextView
+            android:id="@+id/eventLocation"
+            android:text="Event Location"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="4dp"
+            android:textSize="12sp"
+            app:layout_constraintTop_toBottomOf="@id/eventDescription"
+            app:layout_constraintStart_toEndOf="@id/eventTime"
+            app:layout_constraintBottom_toTopOf="@id/statsLayout"
+            app:layout_constraintEnd_toEndOf="parent"/>
 
         <ImageView
             android:id="@+id/image"
@@ -48,7 +85,7 @@
             app:layout_constraintBottom_toTopOf="@+id/statsLayout"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/selfText" />
+            app:layout_constraintTop_toBottomOf="@id/eventDescription" />
 
         <LinearLayout
             android:id="@+id/statsLayout"

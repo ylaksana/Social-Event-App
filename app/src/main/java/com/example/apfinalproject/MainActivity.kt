@@ -5,12 +5,17 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
 import android.view.inputmethod.InputMethodManager
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import com.example.apfinalproject.ui.MainViewModel
+import com.example.apfinalproject.databinding.ActivityMainBinding
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.apfinalproject.ui.EventAdapter
+
 
 class MainActivity : AppCompatActivity() {
-
 //    private var actionBarBinding: ActionBarBinding? = null
-//    private val viewModel: MainViewModel by viewModels()
+    private val viewModel: MainViewModel by viewModels()
 //    private lateinit var navController : NavController
 //
 //    // An Android nightmare
@@ -89,10 +94,21 @@ class MainActivity : AppCompatActivity() {
 //        }
 //    }
 //
-//    override fun onCreate(savedInstanceState: Bundle?) {
-//        super.onCreate(savedInstanceState)
-//        val activityMainBinding = ActivityMainBinding.inflate(layoutInflater)
-//        setContentView(activityMainBinding.root)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        val activityMainBinding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(activityMainBinding.root)
+
+        activityMainBinding.contentMain.recyclerView.layoutManager = LinearLayoutManager(this)
+        val adapter = EventAdapter(viewModel) {}
+        val eventList = viewModel.observeEvents()
+        Log.d("MainActivity", "eventList length: ${eventList.size}")
+        adapter.submitList(eventList)
+        activityMainBinding.contentMain.recyclerView.adapter = adapter
+
+
+
+
 //        setSupportActionBar(activityMainBinding.toolbar)
 //        supportActionBar?.let{
 //            initActionBar(it)
@@ -112,5 +128,5 @@ class MainActivity : AppCompatActivity() {
 //        // onSupportNavigateUp().
 //        activityMainBinding.toolbar.setupWithNavController(navController, appBarConfiguration)
 //        //setupActionBarWithNavController(navController, appBarConfiguration)
-//    }
+    }
 }

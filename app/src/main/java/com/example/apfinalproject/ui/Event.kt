@@ -1,33 +1,37 @@
 package com.example.apfinalproject.ui
 
-public class Event(
+class Event(
     private val id: String,
     private var title: String,
     private var description: String,
     private var date: String,
     private var time: String,
     private var location: String,
-    private val creator: String) {
-    public fun getEventID(): String {
+    private val creator: String,
+    private val imageName: String) {
+    fun getEventID(): String {
         return this.id
     }
-    public fun getEventTitle(): String {
+    fun getEventTitle(): String {
         return this.title
     }
-    public fun getEventDescription(): String {
+    fun getEventDescription(): String {
         return this.description
     }
-    public fun getEventDate(): String {
+    fun getEventDate(): String {
         return this.date
     }
-    public fun getEventTime(): String {
+    fun getEventTime(): String {
         return this.time
     }
-    public fun getEventLocation(): String {
+    fun getEventLocation(): String {
         return this.location
     }
-    public fun getEventCreator(): String {
+    fun getEventCreator(): String {
         return this.creator
+    }
+    fun getEventImageName(): String {
+        return this.imageName
     }
 
     // Events with the same ID are considered equal.

@@ -6,10 +6,13 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.ListAdapter
 import com.example.apfinalproject.databinding.EventRowBinding
+import com.example.apfinalproject.api.ImageRepository
 
 class EventAdapter(private val viewModel: MainViewModel,
+                   private val imageRepo: ImageRepository,
                    private val navigateToOneEvent: (Event) -> Unit)
     : ListAdapter<Event, EventAdapter.EventViewHolder>(EventDiff()) {
+
     inner class EventViewHolder(val eventRowBinding: EventRowBinding)
         : RecyclerView.ViewHolder(eventRowBinding.root) {}
 
@@ -26,6 +29,7 @@ class EventAdapter(private val viewModel: MainViewModel,
         eventRowBinding.eventTime.text = event.getEventTime()
         eventRowBinding.eventLocation.text = event.getEventLocation()
         eventRowBinding.eventDescription.text = event.getEventDescription()
+        eventRowBinding.image.setImageBitmap(imageRepo.get(event.getEventImageName()))
     }
 
     class EventDiff : DiffUtil.ItemCallback<Event>() {

@@ -8,7 +8,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+//import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.apfinalproject.databinding.ContentMainBinding
 
 class HomeFragment: Fragment() {
@@ -20,13 +20,13 @@ class HomeFragment: Fragment() {
 
     // Set up the adapter and recycler view
     private fun initAdapter(binding: ContentMainBinding) {
-        val adapter = EventAdapter(viewModel) {}
-        val eventList = viewModel.observeEvents()
-        Log.d("HomeFragment", "eventList length: ${eventList.size}")
-        adapter.submitList(eventList)
-
-        binding.recyclerView.layoutManager = LinearLayoutManager(context)
-        binding.recyclerView.adapter = adapter
+//        val adapter = EventAdapter(viewModel) {}
+//        val eventList = viewModel.observeEvents()
+//        Log.d("HomeFragment", "eventList length: ${eventList.size}")
+//        adapter.submitList(eventList)
+//
+//        binding.recyclerView.layoutManager = LinearLayoutManager(context)
+//        binding.recyclerView.adapter = adapter
 
     }
 //

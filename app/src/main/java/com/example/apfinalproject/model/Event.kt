@@ -1,4 +1,4 @@
-package com.example.apfinalproject.ui
+package com.example.apfinalproject.model
 
 class Event(
     private val id: String,

@@ -86,7 +86,7 @@
     <!--Profile Fragment-->
     <fragment
         android:id="@+id/profileFragment"
-        android:name="com.example.apfinalproject.ui.ProfileFragment" />
+        android:name="com.example.apfinalproject.ui.user.ProfileFragment" />
 
     <!--Settings Fragment-->
     <fragment

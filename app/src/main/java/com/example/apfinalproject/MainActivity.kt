@@ -7,13 +7,6 @@ import android.util.Log
 
 //import android.view.inputmethod.InputMethodManager
 import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
-import com.example.apfinalproject.ui.MainViewModel
-import com.example.apfinalproject.databinding.ActivityMainBinding
-import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.apfinalproject.api.ImageRepository
-import com.example.apfinalproject.ui.EventAdapter
-
 import android.view.inputmethod.InputMethodManager
 import androidx.activity.viewModels
 import androidx.appcompat.app.ActionBar
@@ -26,8 +19,6 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
 import com.example.apfinalproject.databinding.ActionBarBinding
 import com.example.apfinalproject.databinding.ActivityMainBinding
-import com.example.apfinalproject.MainActivity
-import com.example.apfinalproject.ui.HomeFragment
 import com.example.apfinalproject.ui.HomeFragmentDirections
 import com.example.apfinalproject.ui.MainViewModel
 
@@ -110,16 +101,6 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         val activityMainBinding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(activityMainBinding.root)
-    
-        // Move this to home fragment
-        activityMainBinding.contentMain.recyclerView.layoutManager = LinearLayoutManager(this)
-        val imageRepo = ImageRepository(this)
-        val adapter = EventAdapter(viewModel, imageRepo) {}
-        val eventList = viewModel.observeEvents()
-        Log.d("MainActivity", "eventList length: ${eventList.size}")
-        adapter.submitList(eventList)
-        activityMainBinding.contentMain.recyclerView.adapter = adapter
-
         setSupportActionBar(activityMainBinding.toolbar)
         supportActionBar?.let{
             initActionBar(it)

@@ -11,14 +11,13 @@
         android:id="@+id/contentMain"
         layout="@layout/content_main" />
 
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
 
-        android:background="?attr/colorControlHighlight"
-        app:layout_anchor="@+id/contentMain"
-        app:layout_anchorGravity="bottom|center"
-        app:popupTheme="@style/AppTheme.PopupOverlay"/>
-
+            android:background="?attr/colorPrimary"
+            app:layout_anchor="@+id/contentMain"
+            app:layout_anchorGravity="bottom|center"
+            app:popupTheme="@style/AppTheme.PopupOverlay"/>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

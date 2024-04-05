@@ -65,6 +65,7 @@ class OneEvent: Fragment(){
         binding.eventName.text = args.Event.getEventTitle()
         binding.posterName.text = args.Event.getEventCreator()
 
+        // TODO("add imageRepo")
         try {
             // Open an input stream to read the image from the assets
             Log.d("imageName","${args.Event.getEventImageName()}.jpg")

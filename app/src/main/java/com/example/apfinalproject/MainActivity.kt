@@ -32,7 +32,6 @@ class MainActivity : AppCompatActivity() {
     private val viewModel: MainViewModel by viewModels()
     private lateinit var navController : NavController
 
-
     private fun initActionBar(actionBar: ActionBar) {
         // Disable the default and enable the custom
         actionBar.setDisplayShowTitleEnabled(false)
@@ -40,6 +39,8 @@ class MainActivity : AppCompatActivity() {
         actionBarBinding = ActionBarBinding.inflate(layoutInflater)
         // Apply the custom view
         actionBar.customView = actionBarBinding?.root
+        viewModel.initActionBarBinding(actionBarBinding!!)
+
     }
 
     // An Android nightmare
@@ -105,21 +106,15 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val activityMainBinding = ActivityMainBinding.inflate(layoutInflater)
+        Log.d("navController", "before1")
         setContentView(activityMainBinding.root)
-    
-        // Move this to home fragment
-        activityMainBinding.contentMain.recyclerView.layoutManager = LinearLayoutManager(this)
-        val imageRepo = ImageRepository(this)
-        val adapter = EventAdapter(viewModel, imageRepo) {}
-        val eventList = viewModel.observeEvents()
-        Log.d("MainActivity", "eventList length: ${eventList.size}")
-        adapter.submitList(eventList)
-        activityMainBinding.contentMain.recyclerView.adapter = adapter
-
+        Log.d("navController", "before2")
         setSupportActionBar(activityMainBinding.toolbar)
+        Log.d("navController", "before3")
         supportActionBar?.let{
             initActionBar(it)
         }
+        Log.d("navController", "before4")
 
         initTitleObservers()
         actionBarTitleLaunchProfile()
@@ -129,7 +124,9 @@ class MainActivity : AppCompatActivity() {
         actionBarEventList()
 
         // Set up our nav graph
+        Log.d("navController", "before5")
         navController = findNavController(R.id.main_frame)
+        Log.d("navController", "passed")
         val appBarConfiguration = AppBarConfiguration(navController.graph)
         // If we have a toolbar (not actionbar) we don't need to override
         // onSupportNavigateUp().

@@ -1,10 +1,13 @@
 package com.example.apfinalproject.ui
 
+import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toolbar
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.NavController
@@ -14,6 +17,7 @@ import androidx.navigation.fragment.navArgs
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.apfinalproject.databinding.HomeFragmentBinding
 import com.example.apfinalproject.databinding.OneEventBinding
+import java.io.IOException
 
 class OneEvent: Fragment(){
     private val viewModel : MainViewModel by activityViewModels()
@@ -43,6 +47,7 @@ class OneEvent: Fragment(){
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         Log.d(javaClass.simpleName, "onViewCreated")
+        (activity as? AppCompatActivity)?.supportActionBar?.hide()
         navController = findNavController()
 
         binding.profileLink.setOnClickListener{
@@ -59,10 +64,31 @@ class OneEvent: Fragment(){
         binding.eventDate.text = args.Event.getEventDate()
         binding.eventName.text = args.Event.getEventTitle()
         binding.posterName.text = args.Event.getEventCreator()
+
+        try {
+            // Open an input stream to read the image from the assets
+            Log.d("imageName","${args.Event.getEventImageName()}.jpg")
+            context?.assets?.open("${args.Event.getEventImageName()}.jpg").use { inputStream ->
+                // Convert the input stream into a Drawable
+                val drawable = Drawable.createFromStream(inputStream, null)
+                // Set the Drawable as the ImageView background
+                binding.eventImage.background = drawable
+            }
+        } catch (e: IOException) {
+            e.printStackTrace()
+            // Handle the exception, e.g., if the image file is not found
+        }
+
+        binding.backButton.setOnClickListener{
+            navController.popBackStack()
+            viewModel.showActionBar()
+        }
+
     }
 
     override fun onDestroyView() {
         _binding = null
+        (activity as? AppCompatActivity)?.supportActionBar?.show()
         super.onDestroyView()
     }
 

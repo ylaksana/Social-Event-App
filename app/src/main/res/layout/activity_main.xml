@@ -9,14 +9,15 @@
 
     <include
         android:id="@+id/contentMain"
-        layout="@layout/content_main" />
+        layout="@layout/content_main"
+        />
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-
-        android:background="?attr/colorControlHighlight"
+        android:layout_gravity="fill_horizontal"
+        android:background="?attr/colorAccent"
         app:layout_anchor="@+id/contentMain"
         app:layout_anchorGravity="bottom|center"
         app:popupTheme="@style/AppTheme.PopupOverlay"/>

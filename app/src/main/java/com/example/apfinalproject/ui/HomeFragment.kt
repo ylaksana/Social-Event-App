@@ -19,6 +19,8 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.apfinalproject.R
+import com.example.apfinalproject.api.ImageRepository
+import com.example.apfinalproject.databinding.ActivityMainBinding
 import com.example.apfinalproject.databinding.HomeFragmentBinding
 
 class HomeFragment: Fragment() {
@@ -26,6 +28,7 @@ class HomeFragment: Fragment() {
     private val viewModel: MainViewModel by activityViewModels()
     private var _binding: HomeFragmentBinding? = null
     private lateinit var navController : NavController
+    private val activityMainBinding: ActivityMainBinding? = null
 //     This property is only valid between onCreateView and onDestroyView.
     private val binding get() = _binding!!
 
@@ -35,6 +38,7 @@ class HomeFragment: Fragment() {
     }
 
     private fun initSwipeLayout(swipe : SwipeRefreshLayout) {
+
     }
 
     private fun NavController.safeNavigate(direction: NavDirections) {
@@ -57,6 +61,21 @@ class HomeFragment: Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         Log.d(javaClass.simpleName, "onViewCreated")
+
+        // Move this to home fragment
+        val rv = binding.eventRV
+        rv.layoutManager = LinearLayoutManager(context)
+        val imageRepo = context?.let {
+            ImageRepository(it)
+        }
+        val adapter = imageRepo?.let { EventAdapter(viewModel, it) {event ->
+                findNavController().navigate(HomeFragmentDirections.actionHomeFragmentToOneEventFragment(event))
+            }
+        }
+        val eventList = viewModel.observeEvents()
+        Log.d("MainActivity", "eventList length: ${eventList.size}")
+        adapter?.submitList(eventList)
+        rv.adapter = adapter
         navController = findNavController()
         binding.chatButton.setOnClickListener{
             navController.safeNavigate(HomeFragmentDirections.actionHomeFragmentToChatFragment())

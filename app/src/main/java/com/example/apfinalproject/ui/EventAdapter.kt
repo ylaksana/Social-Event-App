@@ -5,6 +5,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.ListAdapter
+import com.example.apfinalproject.MainActivity
 import com.example.apfinalproject.databinding.EventRowBinding
 import com.example.apfinalproject.api.ImageRepository
 
@@ -14,7 +15,21 @@ class EventAdapter(private val viewModel: MainViewModel,
     : ListAdapter<Event, EventAdapter.EventViewHolder>(EventDiff()) {
 
     inner class EventViewHolder(val eventRowBinding: EventRowBinding)
-        : RecyclerView.ViewHolder(eventRowBinding.root) {}
+        : RecyclerView.ViewHolder(eventRowBinding.root) {
+            init{
+                itemView.setOnClickListener {
+                    val position = bindingAdapterPosition
+                    if (position != RecyclerView.NO_POSITION) {
+                        // Get the RedditPost
+                        val post = getItem(position)
+                        // Go to OnePost
+                        navigateToOneEvent(post)
+                        viewModel.hideActionBar()
+                    }
+                }
+            }
+
+        }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): EventViewHolder {
         val eventRowBinding = EventRowBinding.inflate(LayoutInflater.from(parent.context), parent, false)

@@ -13,4 +13,10 @@ class User(var name: String) {
     fun removeInterest(interest: String) {
         interests.remove(interest)
     }
+    fun addPastEvent(event: Event) {
+        pastEvents.add(event)
+    }
+    fun removePastEvent(event: Event) {
+        pastEvents.remove(event)
+    }
 }

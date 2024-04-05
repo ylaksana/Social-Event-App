@@ -16,6 +16,10 @@ class MainViewModel(): ViewModel() {
         user.addInterest("Interest 1")
         user.addInterest("Interest 2")
         user.addInterest("Interest 3")
+
+        val dummyEvents = EventList.getAll()
+        user.addPastEvent(dummyEvents[0])
+        user.addPastEvent(dummyEvents[1])
         return user
     }
 
@@ -30,6 +34,12 @@ class MainViewModel(): ViewModel() {
 
     fun observeActiveUser(): LiveData<User> {
         return activeUser
+    }
+
+    fun observePastEvents(): List<Event> {
+        val user = activeUser.value
+        // I don't think this could ever be null, user is created after login
+        return user!!.pastEvents
     }
 
 }

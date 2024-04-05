@@ -22,8 +22,6 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
 import com.example.apfinalproject.databinding.ActionBarBinding
 import com.example.apfinalproject.databinding.ActivityMainBinding
-import com.example.apfinalproject.MainActivity
-import com.example.apfinalproject.ui.HomeFragment
 import com.example.apfinalproject.ui.HomeFragmentDirections
 import com.example.apfinalproject.ui.MainViewModel
 

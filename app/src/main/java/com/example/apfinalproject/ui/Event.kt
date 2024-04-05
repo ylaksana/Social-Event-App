@@ -4,7 +4,7 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 class Event(
-    private val id: String,
+    val id: String,
     private var title: String,
     private var description: String,
     private var date: String,

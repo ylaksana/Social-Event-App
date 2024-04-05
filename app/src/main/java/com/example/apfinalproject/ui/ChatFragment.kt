@@ -1,5 +1,7 @@
 package com.example.apfinalproject.ui
 
-class ChatFragment {
+import androidx.fragment.app.Fragment
+
+class ChatFragment: Fragment() {
 
 }

@@ -1,6 +1,97 @@
 <?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/nav_graph">
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/homeFragment">
+
+    <!--Home Fragment-->
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="com.example.apfinalproject.ui.HomeFragment">
+
+        <!--Navigation to other fragments-->
+
+        <!--Home to OneEvent-->
+        <action
+            android:id="@+id/action_homeFragment_to_oneEventFragment"
+            app:destination="@id/oneEventFragment" />
+
+        <!--Home to CreateEvent-->
+        <action
+            android:id="@+id/action_homeFragment_to_createEventFragment"
+            app:destination="@id/createEventFragment" />
+
+        <!--Home to Chat-->
+        <action
+            android:id="@+id/action_homeFragment_to_chatFragment"
+            app:destination="@id/chatFragment" />
+
+        <!--Home to Profile-->
+        <action
+            android:id="@+id/action_homeFragment_to_profileFragment"
+            app:destination="@id/profileFragment" />
+
+        <!--Home to Settings-->
+        <action
+            android:id="@+id/action_homeFragment_to_settingsFragment"
+            app:destination="@id/settingsFragment" />
+
+        <!--Home to Map-->
+        <action
+            android:id="@+id/action_homeFragment_to_mapFragment"
+            app:destination="@id/mapFragment" />
+
+        </fragment>
+
+    <!--OneEvent Fragment-->
+    <fragment
+        android:id="@+id/oneEventFragment"
+        android:name="com.example.apfinalproject.ui.OneEvent">
+
+        <action
+            android:id="@+id/action_oneEventFragment_to_profileFragment"
+            app:destination="@id/profileFragment"/>
+
+    </fragment>
+
+    <!--createEvent Fragment-->
+    <fragment
+        android:id="@+id/createEventFragment"
+        android:name="com.example.apfinalproject.ui.CreateEventFragment">
+
+        <!--CreateEvent to OneEvent-->
+        <action
+            android:id="@+id/action_createEventFragment_to_oneEventFragment"
+            app:destination="@id/oneEventFragment" />
+
+    </fragment>
+
+    <!--Chat Fragment-->
+    <fragment
+        android:id="@+id/chatFragment"
+        android:name="com.example.apfinalproject.ui.ChatFragment" />
+
+    <!--Map Fragment-->
+    <fragment
+        android:id="@+id/mapFragment"
+        android:name="com.example.apfinalproject.ui.MapFragment">
+
+        <!--Map to OneEvent-->
+    <action
+        android:id="@+id/action_mapFragment_to_oneEventFragment"
+        app:destination="@id/oneEventFragment" />
+
+    </fragment>
+
+    <!--Profile Fragment-->
+    <fragment
+        android:id="@+id/profileFragment"
+        android:name="com.example.apfinalproject.ui.ProfileFragment" />
+
+    <!--Settings Fragment-->
+    <fragment
+        android:id="@+id/settingsFragment"
+        android:name="com.example.apfinalproject.ui.SettingsFragment" />
+
 
 </navigation>

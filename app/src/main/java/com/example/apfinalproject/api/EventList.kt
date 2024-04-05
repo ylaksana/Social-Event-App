@@ -19,5 +19,4 @@ object EventList {
         Event("5", "Circuit of the Americas", "Description 5", "Date 5", "Time 5", "Location 5", "Host 5", "image5"),
         Event("6", "The Bats!", "Description 6", "Date 6", "Time 6", "Location 6", "Host 6", "image6"),
     )
-
 }

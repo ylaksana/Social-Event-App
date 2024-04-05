@@ -19,6 +19,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.apfinalproject.R
+import com.example.apfinalproject.api.ImageRepository
 import com.example.apfinalproject.databinding.HomeFragmentBinding
 
 class HomeFragment: Fragment() {
@@ -31,7 +32,19 @@ class HomeFragment: Fragment() {
 
     // Set up the adapter and recycler view
     private fun initAdapter(binding: HomeFragmentBinding) {
+        binding.eventRV.layoutManager = LinearLayoutManager(context)
+        val imageRepo = ImageRepository(context)
 
+        val adapter = EventAdapter(viewModel, imageRepo) {
+            // Navigate to OneEvent
+//            val action = HomeFragmentDirections.actionHomeFragmentToOneEventFragment(it)
+//            findNavController().navigate(action)
+        }
+
+        val eventList = viewModel.observeEvents()
+        Log.d("MainActivity", "eventList length: ${eventList.size}")
+        adapter.submitList(eventList)
+        binding.eventRV.adapter = adapter
     }
 
     private fun initSwipeLayout(swipe : SwipeRefreshLayout) {
@@ -61,5 +74,6 @@ class HomeFragment: Fragment() {
         _binding?.chatButton?.setOnClickListener{
             navController.safeNavigate(HomeFragmentDirections.actionHomeFragmentToChatFragment())
         }
+        initAdapter(binding)
     }
 }

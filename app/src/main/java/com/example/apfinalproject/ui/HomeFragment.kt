@@ -5,7 +5,12 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.LinearLayoutManager
+//import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import com.example.apfinalproject.databinding.ContentMainBinding
+
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.NavController
 import androidx.navigation.NavDirections
@@ -52,11 +57,9 @@ class HomeFragment: Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         Log.d(javaClass.simpleName, "onViewCreated")
-        // XXX Write me.
         navController = findNavController()
         _binding?.chatButton?.setOnClickListener{
             navController.safeNavigate(HomeFragmentDirections.actionHomeFragmentToChatFragment())
         }
-
     }
 }

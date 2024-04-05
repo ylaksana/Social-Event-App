@@ -58,7 +58,7 @@ class HomeFragment: Fragment() {
         super.onViewCreated(view, savedInstanceState)
         Log.d(javaClass.simpleName, "onViewCreated")
         navController = findNavController()
-        _binding?.chatButton?.setOnClickListener{
+        binding.chatButton.setOnClickListener{
             navController.safeNavigate(HomeFragmentDirections.actionHomeFragmentToChatFragment())
         }
     }

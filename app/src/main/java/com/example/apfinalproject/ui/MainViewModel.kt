@@ -1,6 +1,5 @@
 package com.example.apfinalproject.ui
 
-import androidx.lifecycle.ViewModel
 import com.example.apfinalproject.api.EventList
 import android.util.Log
 import android.view.View

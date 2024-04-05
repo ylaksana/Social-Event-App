@@ -48,9 +48,19 @@
         android:id="@+id/oneEventFragment"
         android:name="com.example.apfinalproject.ui.OneEvent">
 
+        <!--OneEvent to Profile-->
         <action
             android:id="@+id/action_oneEventFragment_to_profileFragment"
             app:destination="@id/profileFragment"/>
+
+        <!--OneEvent to CreateEvent-->
+        <action
+            android:id="@+id/action_oneEventFragment_to_createEventFragment"
+            app:destination="@id/createEventFragment"/>
+
+        <argument
+            android:name="Event"
+            app:argType="com.example.apfinalproject.ui.Event" />
 
     </fragment>
 

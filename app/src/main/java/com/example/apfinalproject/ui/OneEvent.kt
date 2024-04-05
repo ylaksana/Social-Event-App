@@ -1,9 +1,69 @@
 package com.example.apfinalproject.ui
 
+import android.os.Bundle
+import android.util.Log
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.NavController
+import androidx.navigation.NavDirections
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import com.example.apfinalproject.databinding.HomeFragmentBinding
+import com.example.apfinalproject.databinding.OneEventBinding
 
 class OneEvent: Fragment(){
     private val viewModel : MainViewModel by activityViewModels()
+    private var _binding: OneEventBinding? = null
+    private lateinit var navController : NavController
+    //     This property is only valid between onCreateView and onDestroyView.
+    private val binding get() = _binding!!
+    private val args: OneEventArgs by navArgs()
+
+    private fun NavController.safeNavigate(direction: NavDirections) {
+        currentDestination?.
+        getAction(direction.actionId)?.
+        run {
+            navigate(direction)
+        }
+    }
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        _binding = OneEventBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        Log.d(javaClass.simpleName, "onViewCreated")
+        navController = findNavController()
+
+        binding.profileLink.setOnClickListener{
+            navController.safeNavigate(OneEventDirections.actionOneEventFragmentToProfileFragment())
+        }
+
+        binding.editEventButton.setOnClickListener {
+            navController.safeNavigate(OneEventDirections.actionOneEventFragmentToCreateEventFragment())
+        }
+
+        binding.eventDescription.text = args.Event.getEventDescription()
+        binding.eventLocation.text = args.Event.getEventLocation()
+        binding.eventTime.text = args.Event.getEventTime()
+        binding.eventDate.text = args.Event.getEventDate()
+        binding.eventName.text = args.Event.getEventTitle()
+        binding.posterName.text = args.Event.getEventCreator()
+    }
+
+    override fun onDestroyView() {
+        _binding = null
+        super.onDestroyView()
+    }
 
 }

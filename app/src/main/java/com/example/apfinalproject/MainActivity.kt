@@ -7,15 +7,11 @@ import android.util.Log
 
 //import android.view.inputmethod.InputMethodManager
 import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
-import com.example.apfinalproject.ui.MainViewModel
-import com.example.apfinalproject.databinding.ActivityMainBinding
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.apfinalproject.api.ImageRepository
 import com.example.apfinalproject.ui.EventAdapter
 
 import android.view.inputmethod.InputMethodManager
-import androidx.activity.viewModels
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.LifecycleOwner

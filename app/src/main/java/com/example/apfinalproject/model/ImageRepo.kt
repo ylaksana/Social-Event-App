@@ -1,4 +1,4 @@
-package com.example.apfinalproject.api
+package com.example.apfinalproject.model
 
 import android.graphics.BitmapFactory
 import android.graphics.Bitmap

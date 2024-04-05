@@ -1,9 +1,7 @@
 // Contains mock data for the events to build the RecyclerView
 // Code modeled after the RecyclerView FC
 
-package com.example.apfinalproject.api
-
-import com.example.apfinalproject.ui.Event
+package com.example.apfinalproject.model
 
 object EventList {
     fun getAll(): List<Event> {return list

@@ -9,18 +9,14 @@ import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 //import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-import com.example.apfinalproject.databinding.ContentMainBinding
 
-import androidx.fragment.app.activityViewModels
 import androidx.navigation.NavController
 import androidx.navigation.NavDirections
-import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
-import androidx.navigation.ui.AppBarConfiguration
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-import com.example.apfinalproject.R
-import com.example.apfinalproject.api.ImageRepository
+import com.example.apfinalproject.model.ImageRepository
 import com.example.apfinalproject.databinding.HomeFragmentBinding
+import com.example.apfinalproject.model.EventAdapter
 
 class HomeFragment: Fragment() {
 //     XXX initialize viewModel

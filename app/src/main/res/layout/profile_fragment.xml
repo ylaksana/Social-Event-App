@@ -42,6 +42,14 @@
         app:layout_constraintTop_toBottomOf="@id/profileBio"
         app:layout_constraintStart_toStartOf="parent" />
 
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/profileInterestsTitle"
+        android:background="@color/colorPrimaryDark" />
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/interestsRV"
         android:layout_width="match_parent"
@@ -59,6 +67,14 @@
         app:layout_constraintTop_toBottomOf="@id/interestsRV"
         app:layout_constraintBottom_toTopOf="@id/pastEventsRV"
         app:layout_constraintStart_toStartOf="parent"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/profileEventsTitle"
+        android:background="@color/colorPrimaryDark" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/pastEventsRV"

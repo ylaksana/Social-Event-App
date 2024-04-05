@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.apfinalproject.ui.InterestAdapter
 import com.example.apfinalproject.ui.MainViewModel
 import com.example.apfinalproject.ui.PastEventAdapter
 import com.example.apfinalproject.databinding.ProfileFragmentBinding
@@ -18,14 +19,23 @@ class ProfileFragment: Fragment() {
     private var _binding: ProfileFragmentBinding? = null
     private val binding get() = _binding!!
 
-    private fun initAdapter(binding: ProfileFragmentBinding) {
+    private fun initAdapters(binding: ProfileFragmentBinding) {
         binding.pastEventsRV.layoutManager = LinearLayoutManager(context)
         val adapter = PastEventAdapter(viewModel) {
             // Navigate to OneEvent
         }
         binding.pastEventsRV.adapter = adapter
-        val eventList = viewModel.observePastEvents()
-        adapter.submitList(eventList)
+        viewModel.observePastEvents().observe(viewLifecycleOwner) {
+            adapter.submitList(it)
+        }
+
+        binding.interestsRV.layoutManager = LinearLayoutManager(context)
+        val interestAdapter = InterestAdapter(viewModel)
+        binding.interestsRV.adapter = interestAdapter
+        viewModel.observeInterests().observe(viewLifecycleOwner) {
+            interestAdapter.submitList(it)
+        }
+
     }
 
     override fun onCreateView(
@@ -43,6 +53,6 @@ class ProfileFragment: Fragment() {
             binding.userName.text = it.name
             binding.profileBio.text = it.bio
         }
-        initAdapter(binding)
+        initAdapters(binding)
     }
 }

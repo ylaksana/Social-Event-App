@@ -5,6 +5,8 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.apfinalproject.model.Event
 import com.example.apfinalproject.model.EventList
+import com.example.apfinalproject.model.InterestCategories
+import com.example.apfinalproject.model.InterestCategories.Interest
 import com.example.apfinalproject.ui.user.User
 
 class MainViewModel(): ViewModel() {
@@ -13,9 +15,10 @@ class MainViewModel(): ViewModel() {
         val user = User("User")
         user.bio = "This is a bio"
         user.profilePicture = "profilePicture"
-        user.addInterest("Interest 1")
-        user.addInterest("Interest 2")
-        user.addInterest("Interest 3")
+        user.addInterest(Interest("Music", "Jazz"))
+        user.addInterest(Interest("Movies", "Action"))
+        user.addInterest(Interest("Food", "Italian"))
+        user.addInterest(Interest("Sports", "Basketball"))
 
         val dummyEvents = EventList.getAll()
         user.addPastEvent(dummyEvents[0])
@@ -36,10 +39,16 @@ class MainViewModel(): ViewModel() {
         return activeUser
     }
 
-    fun observePastEvents(): List<Event> {
+    fun observePastEvents(): LiveData<MutableList<Event>> {
         val user = activeUser.value
         // I don't think this could ever be null, user is created after login
         return user!!.pastEvents
+    }
+
+    fun observeInterests(): LiveData<MutableList<Interest>> {
+        val user = activeUser.value
+        // I don't think this could ever be null, user is created after login
+        return user!!.userInterests
     }
 
 }

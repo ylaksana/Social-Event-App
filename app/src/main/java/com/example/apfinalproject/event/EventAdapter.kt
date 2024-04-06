@@ -1,13 +1,13 @@
-package com.example.apfinalproject.ui
+package com.example.apfinalproject.event
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.ListAdapter
-import com.example.apfinalproject.MainActivity
 import com.example.apfinalproject.databinding.EventRowBinding
 import com.example.apfinalproject.api.ImageRepository
+import com.example.apfinalproject.ui.MainViewModel
 
 class EventAdapter(private val viewModel: MainViewModel,
                    private val imageRepo: ImageRepository,

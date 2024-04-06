@@ -1,4 +1,4 @@
-package com.example.apfinalproject.ui
+package com.example.apfinalproject.event
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 

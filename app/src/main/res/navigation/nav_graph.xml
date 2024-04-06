@@ -60,7 +60,7 @@
 
         <argument
             android:name="Event"
-            app:argType="com.example.apfinalproject.ui.Event" />
+            app:argType="com.example.apfinalproject.event.Event" />
 
     </fragment>
 
@@ -96,7 +96,7 @@
     <!--Profile Fragment-->
     <fragment
         android:id="@+id/profileFragment"
-        android:name="com.example.apfinalproject.ui.ProfileFragment" />
+        android:name="com.example.apfinalproject.user.ProfileFragment" />
 
     <!--Settings Fragment-->
     <fragment

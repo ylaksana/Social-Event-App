@@ -8,10 +8,10 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="PLACEHOLDER" />
-                  <option name="mobileSdkAppId" value="" />
-                  <option name="projectId" value="" />
-                  <option name="projectNumber" value="" />
+                  <option name="appId" value="com.example.apfinalproject" />
+                  <option name="mobileSdkAppId" value="1:946096662958:android:d04319c99741d42102003f" />
+                  <option name="projectId" value="swipemeet-f9370" />
+                  <option name="projectNumber" value="946096662958" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />

@@ -1,14 +1,17 @@
-package com.example.apfinalproject.model
+package com.example.apfinalproject.event
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
 
+@Parcelize
 class Event(
-    private val id: String,
+    val id: String,
     private var title: String,
     private var description: String,
     private var date: String,
     private var time: String,
     private var location: String,
     private val creator: String,
-    private val imageName: String) {
+    private val imageName: String) : Parcelable{
     fun getEventID(): String {
         return this.id
     }

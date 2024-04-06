@@ -1,4 +1,4 @@
-package com.example.apfinalproject.ui.user
+package com.example.apfinalproject.user
 
 import android.os.Bundle
 import android.view.LayoutInflater

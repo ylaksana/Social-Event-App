@@ -26,7 +26,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@id/backButton"
         app:layout_constraintBottom_toBottomOf="@id/backButton"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
 
 
     <!-- Text Input for Name -->
@@ -75,8 +75,6 @@
             android:text="Female" />
     </RadioGroup>
 
-    <!-- Submit Button -->
-    <
 
     <Button
         android:id="@+id/finishButton"

@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.example.apfinalproject.model.Event
+import com.example.apfinalproject.event.Event
 import com.example.apfinalproject.databinding.PastEventRowBinding
 
 class PastEventAdapter(private val viewModel: MainViewModel,

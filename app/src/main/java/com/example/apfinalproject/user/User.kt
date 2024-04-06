@@ -1,10 +1,8 @@
-package com.example.apfinalproject.ui.user
+package com.example.apfinalproject.user
 
 import androidx.lifecycle.MutableLiveData
-import com.example.apfinalproject.model.Event
-import com.example.apfinalproject.model.InterestCategories
-import com.example.apfinalproject.model.InterestCategories.Interest
-
+import com.example.apfinalproject.event.Event
+import com.example.apfinalproject.interest.InterestCategories.Interest
 
 class User(var name: String) {
     var bio: String = "Wow... nothing's here yet!"

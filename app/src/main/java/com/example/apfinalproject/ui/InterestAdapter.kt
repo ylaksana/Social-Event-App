@@ -5,7 +5,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.example.apfinalproject.model.InterestCategories.Interest
+import com.example.apfinalproject.interest.InterestCategories.Interest
 import com.example.apfinalproject.databinding.InterestItemBinding
 
 class InterestAdapter(private val viewModel: MainViewModel)

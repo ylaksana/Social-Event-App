@@ -1,26 +1,20 @@
 package com.example.apfinalproject.ui
 
-import com.example.apfinalproject.api.EventList
-import android.util.Log
-import android.view.View
+import com.example.apfinalproject.event.EventList
 import androidx.core.view.isGone
-import androidx.core.view.isVisible
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.apfinalproject.model.Event
-import com.example.apfinalproject.model.EventList
-import com.example.apfinalproject.model.InterestCategories
-import com.example.apfinalproject.model.InterestCategories.Interest
-import com.example.apfinalproject.ui.user.User
-
-import androidx.lifecycle.viewModelScope
 import com.example.apfinalproject.databinding.ActionBarBinding
-import com.example.apfinalproject.databinding.ActivityMainBinding
-import kotlinx.coroutines.launch
-import retrofit2.HttpException
+import com.example.apfinalproject.event.Event
+import com.example.apfinalproject.user.User
+import com.example.apfinalproject.interest.InterestCategories.Interest
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.LiveData
+
 
 class MainViewModel(): ViewModel() {
+    private var actionBarBinding : ActionBarBinding? = null
+    private var events: List<Event> = EventList.getAll()
+
     private fun createDummyUser(): User {
         // Dummy function to create a User object
         val user = User("User")
@@ -40,12 +34,6 @@ class MainViewModel(): ViewModel() {
     private var activeUser = MutableLiveData<User>().apply {
         this.postValue(createDummyUser())
     }
-    private var actionBarBinding : ActionBarBinding? = null
-    private var events: List<Event> = EventList.getAll()
-
-    fun observeEvents(): List<Event> {
-        return events
-    }
 
     fun observeActiveUser(): LiveData<User> {
         return activeUser
@@ -63,6 +51,9 @@ class MainViewModel(): ViewModel() {
         return user!!.userInterests
     }
 
+    fun observeEvents(): List<Event> {
+        return events
+    }
 
     fun initActionBarBinding(it: ActionBarBinding) {
         actionBarBinding = it

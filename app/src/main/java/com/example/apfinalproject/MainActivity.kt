@@ -7,14 +7,10 @@ import android.util.Log
 
 //import android.view.inputmethod.InputMethodManager
 import androidx.activity.viewModels
-import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.apfinalproject.api.ImageRepository
-import com.example.apfinalproject.ui.EventAdapter
 
 import android.view.inputmethod.InputMethodManager
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.LifecycleOwner
 import androidx.navigation.NavController
 import androidx.navigation.NavDirections
 import androidx.navigation.findNavController

@@ -20,11 +20,14 @@ import com.example.apfinalproject.databinding.ActionBarBinding
 import com.example.apfinalproject.databinding.ActivityMainBinding
 import com.example.apfinalproject.ui.HomeFragmentDirections
 import com.example.apfinalproject.ui.MainViewModel
+import com.example.apfinalproject.user.AuthUser
+import com.example.apfinalproject.user.invalidUser
 
 class MainActivity : AppCompatActivity() {
     private var actionBarBinding: ActionBarBinding? = null
     private val viewModel: MainViewModel by viewModels()
     private lateinit var navController : NavController
+    private lateinit var authUser : AuthUser
 
     private fun initActionBar(actionBar: ActionBar) {
         // Disable the default and enable the custom
@@ -126,5 +129,23 @@ class MainActivity : AppCompatActivity() {
         // onSupportNavigateUp().
         activityMainBinding.toolbar.setupWithNavController(navController, appBarConfiguration)
         //setupActionBarWithNavController(navController, appBarConfiguration)
+    }
+
+    override fun onStart() {
+        super.onStart()
+        Log.d("MainActivity", "onStart")
+        authUser = AuthUser(activityResultRegistry)
+        lifecycle.addObserver(authUser)
+
+        authUser.observeActiveUser().observe(this) {
+            // XXX Write me, user status has changed
+            if (it == null) {
+                Log.d("MainActivity", "User is logged out")
+                viewModel.setActiveAuthUser(invalidUser)
+            } else {
+                Log.d("MainActivity", "User is logged in")
+                viewModel.setActiveAuthUser(it)
+            }
+        }
     }
 }

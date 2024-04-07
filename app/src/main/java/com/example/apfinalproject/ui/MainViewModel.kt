@@ -9,15 +9,17 @@ import com.example.apfinalproject.user.User
 import com.example.apfinalproject.interest.InterestCategories.Interest
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.LiveData
+import com.example.apfinalproject.user.invalidUser
 
 
 class MainViewModel(): ViewModel() {
     private var actionBarBinding : ActionBarBinding? = null
     private var events: List<Event> = EventList.getAll()
+    private var activeUser = invalidUser
 
     private fun createDummyUser(): User {
         // Dummy function to create a User object
-        val user = User("User")
+        val user = User("User", "fakeEmail", "fakeUid")
         user.bio = "This is a bio"
         user.profilePicture = "profilePicture"
         user.addInterest(Interest("Music", "Jazz"))
@@ -36,24 +38,21 @@ class MainViewModel(): ViewModel() {
         return user
     }
 
-    private var activeUser = MutableLiveData<User>().apply {
-        this.postValue(createDummyUser())
+    // MainActivity gets updates on this via live data and informs view model
+    fun setActiveAuthUser(user: User) {
+        activeUser = user
     }
 
-    fun observeActiveUser(): LiveData<User> {
+    fun getActiveUser(): User {
         return activeUser
     }
 
     fun observePastEvents(): LiveData<MutableList<Event>> {
-        val user = activeUser.value
-        // I don't think this could ever be null, user is created after login
-        return user!!.pastEvents
+        return activeUser.pastEvents
     }
 
     fun observeInterests(): LiveData<MutableList<Interest>> {
-        val user = activeUser.value
-        // I don't think this could ever be null, user is created after login
-        return user!!.userInterests
+        return activeUser.userInterests
     }
 
     fun observeEvents(): List<Event> {

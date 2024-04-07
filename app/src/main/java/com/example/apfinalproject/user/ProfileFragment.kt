@@ -51,10 +51,9 @@ class ProfileFragment: Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel.observeActiveUser().observe(viewLifecycleOwner) {
-            binding.userName.text = it.name
-            binding.profileBio.text = it.bio
-        }
+        val user = viewModel.getActiveUser()
+        binding.userName.text = user.name
+        binding.profileBio.text = user.bio
         initAdapters(binding)
     }
 }

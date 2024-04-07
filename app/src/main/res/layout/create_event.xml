@@ -152,7 +152,20 @@
                 app:layout_constraintStart_toStartOf="parent"/>
 
 
-
+            <EditText
+                android:id="@+id/editTextReason"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Why are you interested in the event?"
+                android:inputType="textMultiLine"
+                android:gravity="top|start"
+                android:maxLines="20"
+                android:minLines="6"
+                android:scrollbars="vertical"
+                app:layout_constraintBottom_toTopOf="@id/finishButton"
+                app:layout_constraintTop_toBottomOf="@id/typeTitle"
+                app:layout_constraintStart_toStartOf="parent"
+                android:layout_margin="8dp"/>
 
 
             <Button
@@ -165,10 +178,6 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
                 />
-
-
-
-
 
 
         </androidx.constraintlayout.widget.ConstraintLayout>

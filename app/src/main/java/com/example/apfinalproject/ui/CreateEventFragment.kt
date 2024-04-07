@@ -51,6 +51,7 @@ class CreateEventFragment: Fragment(){
         viewModel.hideActionBar()
 
         binding.backButton.setOnClickListener {
+            navController = findNavController()
             navController.popBackStack()
             viewModel.showActionBar()
 

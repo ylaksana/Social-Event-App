@@ -24,6 +24,11 @@ class MainViewModel(): ViewModel() {
         user.addInterest(Interest("Movies", "Action"))
         user.addInterest(Interest("Food", "Italian"))
         user.addInterest(Interest("Sports", "Basketball"))
+        user.addInterest(Interest("Music", "Rock"))
+        user.addInterest(Interest("Movies", "Comedy"))
+        user.addInterest(Interest("Food", "Mexican"))
+        user.addInterest(Interest("Sports", "Soccer"))
+        user.addInterest(Interest("Music", "Pop"))
 
         val dummyEvents = EventList.getAll()
         user.addPastEvent(dummyEvents[0])

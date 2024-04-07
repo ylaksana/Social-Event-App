@@ -5,6 +5,7 @@ import com.example.apfinalproject.event.Event
 import com.example.apfinalproject.interest.InterestCategories.Interest
 
 class User(var name: String) {
+    val id: Int = -1
     var bio: String = "Wow... nothing's here yet!"
     var profilePicture: String = ""
     var userInterests: MutableLiveData<MutableList<Interest>> = MutableLiveData(mutableListOf())

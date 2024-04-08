@@ -21,7 +21,7 @@ import com.example.apfinalproject.databinding.ActivityMainBinding
 import com.example.apfinalproject.ui.HomeFragmentDirections
 import com.example.apfinalproject.ui.MainViewModel
 import com.example.apfinalproject.user.AuthUser
-import com.example.apfinalproject.user.invalidUser
+import com.example.apfinalproject.user.invalidUserUid
 
 class MainActivity : AppCompatActivity() {
     private var actionBarBinding: ActionBarBinding? = null
@@ -103,11 +103,8 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val activityMainBinding = ActivityMainBinding.inflate(layoutInflater)
-        Log.d("navController", "before1")
         setContentView(activityMainBinding.root)
-        Log.d("navController", "before2")
         setSupportActionBar(activityMainBinding.toolbar)
-        Log.d("navController", "before3")
         supportActionBar?.let{
             initActionBar(it)
         }
@@ -121,9 +118,7 @@ class MainActivity : AppCompatActivity() {
         actionBarEventList()
 
         // Set up our nav graph
-        Log.d("navController", "before5")
         navController = findNavController(R.id.main_frame)
-        Log.d("navController", "passed")
         val appBarConfiguration = AppBarConfiguration(navController.graph)
         // If we have a toolbar (not actionbar) we don't need to override
         // onSupportNavigateUp().
@@ -137,13 +132,13 @@ class MainActivity : AppCompatActivity() {
         authUser = AuthUser(activityResultRegistry)
         lifecycle.addObserver(authUser)
 
-        authUser.observeActiveUser().observe(this) {
+        authUser.observeActiveUserUid().observe(this) {
             // XXX Write me, user status has changed
             if (it == null) {
                 Log.d("MainActivity", "User is logged out")
-                viewModel.setActiveAuthUser(invalidUser)
+                viewModel.setActiveAuthUser(invalidUserUid)
             } else {
-                Log.d("MainActivity", "User is logged in")
+                Log.d("MainActivity", "User is logged in with uid $it")
                 viewModel.setActiveAuthUser(it)
             }
         }

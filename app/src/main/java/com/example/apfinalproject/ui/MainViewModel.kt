@@ -1,5 +1,6 @@
 package com.example.apfinalproject.ui
 
+import android.util.Log
 import com.example.apfinalproject.event.EventList
 import androidx.core.view.isGone
 import androidx.lifecycle.ViewModel
@@ -7,47 +8,77 @@ import com.example.apfinalproject.databinding.ActionBarBinding
 import com.example.apfinalproject.event.Event
 import com.example.apfinalproject.user.User
 import com.example.apfinalproject.interest.InterestCategories.Interest
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import com.example.apfinalproject.ViewModelDBHelper
 import com.example.apfinalproject.user.invalidUser
-
+import com.example.apfinalproject.user.invalidUserUid
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
 
 class MainViewModel(): ViewModel() {
+    private val TAG = "MainViewModel"
     private var actionBarBinding : ActionBarBinding? = null
     private var events: List<Event> = EventList.getAll()
-    private var activeUser = invalidUser
+    private var activeUser: User = invalidUser
 
-    private fun createDummyUser(): User {
-        // Dummy function to create a User object
-        val user = User("User", "fakeEmail", "fakeUid")
-        user.bio = "This is a bio"
-        user.profilePicture = "profilePicture"
-        user.addInterest(Interest("Music", "Jazz"))
-        user.addInterest(Interest("Movies", "Action"))
-        user.addInterest(Interest("Food", "Italian"))
-        user.addInterest(Interest("Sports", "Basketball"))
-
-        val dummyEvents = EventList.getAll()
-        user.addPastEvent(dummyEvents[0])
-        user.addPastEvent(dummyEvents[1])
-        return user
+    // Convert these to Event/Interest objects later
+    private var pastEventsLiveData = MutableLiveData<List<Event>>().apply {
+        this.postValue(listOf())
     }
+    private var interestsLiveData = MutableLiveData<List<String>>().apply {
+        this.postValue(listOf())
+    }
+    private val db = ViewModelDBHelper()
 
     // MainActivity gets updates on this via live data and informs view model
-    fun setActiveAuthUser(user: User) {
-        activeUser = user
+    fun setActiveAuthUser(uid: String) {
+        if (uid != invalidUserUid) {
+            db.fetchUserByUid(uid) {
+                activeUser = it!!
+                Log.d(TAG, "setActiveAuthUser: ${activeUser.displayName} ${activeUser.email} ${activeUser.uid} ${activeUser.bio}")
+
+                interestsLiveData.postValue(activeUser.userInterests)
+                convertEventAndPost(activeUser.pastEvents)
+            }
+            Log.d(TAG, "setActiveAuthUser: $uid")
+        } else {
+            activeUser = invalidUser
+            pastEventsLiveData.postValue(listOf())
+            interestsLiveData.postValue(listOf())
+            Log.d(TAG, "setActiveAuthUser: invalid user")
+        }
+    }
+
+    private fun convertEventAndPost(eventIdList: List<String>) {
+        val eventList = mutableListOf<Event>()
+        CoroutineScope(Dispatchers.IO).launch {
+            eventIdList.map {eventID ->
+                val event = async {
+                    db.fetchEventByUid(eventID) {fetchedEvent ->
+                        fetchedEvent?.let {
+                            eventList.add(it)
+                        }
+                    }
+                }
+                event.await()
+            }
+        }
+        pastEventsLiveData.postValue(eventList)
     }
 
     fun getActiveUser(): User {
         return activeUser
     }
 
-    fun observePastEvents(): LiveData<MutableList<Event>> {
-        return activeUser.pastEvents
+    fun observePastEvents(): LiveData<List<Event>> {
+        return pastEventsLiveData
     }
 
-    fun observeInterests(): LiveData<MutableList<Interest>> {
-        return activeUser.userInterests
+    fun observeInterests(): LiveData<List<String>> {
+        return interestsLiveData
     }
 
     fun observeEvents(): List<Event> {

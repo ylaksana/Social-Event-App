@@ -91,7 +91,7 @@ class MainActivity : AppCompatActivity() {
     private fun actionBarEventList() {
         // XXX Write me
         actionBarBinding?.eventListButton?.setOnClickListener {
-            navController.safeNavigate(HomeFragmentDirections.actionHomeFragmentToCreateEventFragment())
+            navController.safeNavigate(HomeFragmentDirections.actionHomeFragmentToEventListFragment())
         }
     }
 

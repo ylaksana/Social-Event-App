@@ -76,6 +76,10 @@ dependencies {
     kapt libs.androidx.annotation
     annotationProcessor libs.glide.compiler
 
+    // OpenStreetMap
+    implementation libs.osmdroid.android // Check for the latest version
+    implementation libs.osmdroid.wms // Optional, for WMS support
+
     // Debugging and testing
     androidTestImplementation libs.androidx.espresso.core
     androidTestImplementation libs.androidx.espresso.contrib

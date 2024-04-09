@@ -24,10 +24,11 @@ import kotlinx.coroutines.launch
 class MainViewModel(): ViewModel() {
     private val TAG = "MainViewModel"
     private var actionBarBinding : ActionBarBinding? = null
-    private var events: List<Event> = EventList.getAll()
+    private var events: MutableLiveData<List<Event>> = MutableLiveData(EventList.getAll())
     private var activeUser: User = invalidUser
     private val storage = Storage()
 
+    
     // Convert these to Event/Interest objects later
     private var pastEventsLiveData = MutableLiveData<List<Event>>().apply {
         this.postValue(listOf())
@@ -86,7 +87,7 @@ class MainViewModel(): ViewModel() {
         return interestsLiveData
     }
 
-    fun observeEvents(): List<Event> {
+    fun observeEvents(): LiveData<List<Event>> {
         return events
     }
 

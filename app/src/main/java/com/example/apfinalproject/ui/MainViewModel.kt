@@ -8,7 +8,6 @@ import androidx.lifecycle.ViewModel
 import com.example.apfinalproject.databinding.ActionBarBinding
 import com.example.apfinalproject.event.Event
 import com.example.apfinalproject.user.User
-import com.example.apfinalproject.interest.InterestCategories.Interest
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.example.apfinalproject.ViewModelDBHelper
@@ -24,11 +23,17 @@ import kotlinx.coroutines.launch
 class MainViewModel(): ViewModel() {
     private val TAG = "MainViewModel"
     private var actionBarBinding : ActionBarBinding? = null
-    private var events: MutableLiveData<List<Event>> = MutableLiveData(EventList.getAll())
+//    private var events: MutableLiveData<List<Event>> = MutableLiveData(EventList.getAll())
     private var activeUser: User = invalidUser
     private val storage = Storage()
+    private val db = ViewModelDBHelper()
 
-    
+    private var events = MutableLiveData<List<Event>>().apply {
+        db.fetchEvents { eventList ->
+            this.postValue(eventList)
+        }
+    }
+
     // Convert these to Event/Interest objects later
     private var pastEventsLiveData = MutableLiveData<List<Event>>().apply {
         this.postValue(listOf())
@@ -37,7 +42,7 @@ class MainViewModel(): ViewModel() {
         this.postValue(listOf())
     }
     
-    private val db = ViewModelDBHelper()
+
 
     // MainActivity gets updates on this via live data and informs view model
     fun setActiveAuthUser(uid: String) {
@@ -47,7 +52,7 @@ class MainViewModel(): ViewModel() {
                 Log.d(TAG, "setActiveAuthUser: ${activeUser.displayName} ${activeUser.email} ${activeUser.uid} ${activeUser.bio}")
 
                 interestsLiveData.postValue(activeUser.userInterests)
-                convertEventAndPost(activeUser.pastEvents)
+                convertToEventAndPost(activeUser.pastEvents)
             }
             Log.d(TAG, "setActiveAuthUser: $uid")
         } else {
@@ -58,10 +63,12 @@ class MainViewModel(): ViewModel() {
         }
     }
 
-    private fun convertEventAndPost(eventIdList: List<String>) {
+    // Converts list of event IDs to list of events, then posts to live data
+    private fun convertToEventAndPost(eventIdList: List<String>) {
         val eventList = mutableListOf<Event>()
         CoroutineScope(Dispatchers.IO).launch {
             eventIdList.map {eventID ->
+                // Fetches event on background thread
                 val event = async {
                     db.fetchEventByUid(eventID) {fetchedEvent ->
                         fetchedEvent?.let {

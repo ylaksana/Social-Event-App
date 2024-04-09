@@ -65,6 +65,7 @@ class ProfileFragment: Fragment() {
         val user = viewModel.getActiveUser()
         binding.userName.text = user.first_name
         binding.profileBio.text = user.bio
+        viewModel.fetchUserImage(user.profile_image, binding.profileImage)
     }
 
     override fun onDestroyView() {

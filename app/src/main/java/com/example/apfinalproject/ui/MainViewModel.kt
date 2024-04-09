@@ -2,6 +2,7 @@ package com.example.apfinalproject.ui
 
 import android.util.Log
 import com.example.apfinalproject.event.EventList
+import android.widget.ImageView
 import androidx.core.view.isGone
 import androidx.lifecycle.ViewModel
 import com.example.apfinalproject.databinding.ActionBarBinding
@@ -11,6 +12,8 @@ import com.example.apfinalproject.interest.InterestCategories.Interest
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.example.apfinalproject.ViewModelDBHelper
+import com.example.apfinalproject.glide.Glide
+import com.example.apfinalproject.Storage
 import com.example.apfinalproject.user.invalidUser
 import com.example.apfinalproject.user.invalidUserUid
 import kotlinx.coroutines.CoroutineScope
@@ -23,6 +26,7 @@ class MainViewModel(): ViewModel() {
     private var actionBarBinding : ActionBarBinding? = null
     private var events: List<Event> = EventList.getAll()
     private var activeUser: User = invalidUser
+    private val storage = Storage()
 
     // Convert these to Event/Interest objects later
     private var pastEventsLiveData = MutableLiveData<List<Event>>().apply {
@@ -95,5 +99,19 @@ class MainViewModel(): ViewModel() {
 
     fun showActionBar(){
         actionBarBinding?.root?.isGone = false
+    }
+
+    fun fetchUserImage(uuid: String, imageView: ImageView) {
+        Log.d(TAG, "fetchUserImage: $uuid")
+        val path = storage.getUserPhoto(uuid)
+        Log.d(TAG, "fetchUserImage: $path")
+        Glide.fetch(path, imageView)
+    }
+
+    fun fetchEventImage(uuid: String, imageView: ImageView) {
+        Log.d(TAG, "fetchEventImage: $uuid")
+        val path = storage.getEventPhoto(uuid)
+        Log.d(TAG, "fetchEventImage: $path")
+        Glide.fetch(path, imageView)
     }
 }

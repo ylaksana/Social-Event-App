@@ -1,9 +1,5 @@
 package com.example.apfinalproject.user
 
-import androidx.lifecycle.MutableLiveData
-import com.example.apfinalproject.event.Event
-import com.example.apfinalproject.interest.InterestCategories.Interest
-
 class User(private val nullableName: String? = null,
            private val nullableEmail: String? = null,
            val uid: String = "-1") {
@@ -13,7 +9,7 @@ class User(private val nullableName: String? = null,
     val first_name: String = ""
     val last_name: String = ""
     var bio: String = "Wow... nothing's here yet!"
-    var profilePicture: String = ""
+    var profile_image: String = ""
 
     // These need to be lists of strings because Firestore can't
     // unpack livedata or other objects

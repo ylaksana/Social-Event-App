@@ -21,8 +21,8 @@ class AuthUser(private val registry: ActivityResultRegistry) :
         private const val TAG = "AuthUser"
     }
     private lateinit var signInLauncher: ActivityResultLauncher<Intent>
-    private var activeUser = MutableLiveData<User>().apply {
-        this.postValue(invalidUser)
+    private var activeUserUid = MutableLiveData<String>().apply {
+        this.postValue(invalidUserUid)
     }
     private var pendingLogin = false
     init {
@@ -31,19 +31,18 @@ class AuthUser(private val registry: ActivityResultRegistry) :
         FirebaseAuth.getInstance().addAuthStateListener(this)
     }
 
-    fun observeActiveUser(): MutableLiveData<User> {
-        return activeUser
+    fun observeActiveUserUid(): MutableLiveData<String> {
+        return activeUserUid
     }
 
     // Update active user LiveData upon a change of state for our FirebaseUser
     private fun activeUserUpdate(firebaseUser: FirebaseUser?) {
         if(firebaseUser == null) {
-            activeUser.postValue(invalidUser)
+            activeUserUid.postValue(invalidUserUid)
             login()
         } else {
-            val user = User(firebaseUser.displayName,
-                firebaseUser.email, firebaseUser.uid)
-            activeUser.postValue(user)
+            Log.d(TAG, "authUserUpdate ${firebaseUser.uid}")
+            activeUserUid.postValue(firebaseUser.uid)
         }
     }
 

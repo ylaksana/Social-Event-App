@@ -50,14 +50,15 @@ androidx-orchestrator = { module = "androidx.test:orchestrator", version.ref = "
 androidx-recyclerview = { module = "androidx.recyclerview:recyclerview", version.ref = "recyclerview" }
 androidx-rules = { module = "androidx.test:rules", version.ref = "core" }
 androidx-runner = { module = "androidx.test:runner", version.ref = "runner" }
-compiler = { module = "com.github.bumptech.glide:compiler", version.ref = "glide" }
-#converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "converterGson" }
-flexbox = { module = "com.google.android:flexbox", version.ref = "flexbox" }
 firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebaseBom" }
 firebase-analytics = { group = "com.google.firebase", name = "firebase-analytics-ktx"}
 firebase-auth = { group = "com.google.firebase", name = "firebase-auth-ktx"}
+firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore-ktx"}
+firebase-storage = { group = "com.google.firebase", name = "firebase-storage-ktx"}
 firebase-ui-auth = { group = "com.firebaseui", name = "firebase-ui-auth", version.ref = "firebaseUi" }
+firebase-ui-storage = { group = "com.firebaseui", name = "firebase-ui-storage", version.ref = "firebaseUi" }
 glide = { module = "com.github.bumptech.glide:glide", version.ref = "glide" }
+glide-compiler = { module = "com.github.bumptech.glide:compiler", version.ref = "glide" }
 google-flexbox = { module = "com.google.android.flexbox:flexbox", version.ref = "flexbox" }
 gradle = { module = "com.android.tools.build:gradle", version.ref = "gradle" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }

@@ -4,16 +4,17 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 class Event(
-    val id: String,
-    private var title: String,
-    private var description: String,
-    private var date: String,
-    private var time: String,
-    private var location: String,
-    private val creator: String,
-    private val imageName: String) : Parcelable{
+    val uid: String = "-1",
+    var title: String = "No Title",
+    var description: String = "No Description",
+    var date: String = "No Date",
+    var time: String = "No Time",
+    var location: String = "No Location",
+    val creator: String = "No Creator",
+    val imageName: String = "No Image") : Parcelable{
+
     fun getEventID(): String {
-        return this.id
+        return this.uid
     }
     fun getEventTitle(): String {
         return this.title
@@ -41,13 +42,13 @@ class Event(
     // Not sure if this is the best way to do it, but it works for now.
     override fun equals(other: Any?): Boolean =
         if (other is Event) {
-            id == other.id
+            uid == other.uid
         } else {
             false
         }
 
     override fun hashCode(): Int {
-        var result = id.hashCode()
+        var result = uid.hashCode()
         result = 31 * result + title.hashCode()
         result = 31 * result + description.hashCode()
         result = 31 * result + date.hashCode()

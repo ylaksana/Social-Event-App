@@ -35,8 +35,9 @@ object Glide {
     fun fetch(storageReference: StorageReference, imageView: ImageView) {
         // Layout engine does not know size of imageView
         // Hardcoding this here is a bad idea.  What would be better?
-        val width = 400
-        val height = 400
+
+        val width = imageView.layoutParams.width
+        val height = imageView.layoutParams.height
         GlideApp.with(imageView.context)
             .asBitmap() // Try to display animated Gifs and video still
             .load(storageReference)

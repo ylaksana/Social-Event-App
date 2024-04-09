@@ -4,6 +4,7 @@ class User(private val nullableName: String? = null,
            private val nullableEmail: String? = null,
            val uid: String = "-1") {
     val displayName: String = nullableName ?: "User logged out"
+
     val email: String = nullableEmail ?: "User logged out"
 
     val first_name: String = ""

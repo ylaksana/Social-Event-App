@@ -8,12 +8,11 @@ import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.flexbox.*
 import com.example.apfinalproject.ui.InterestAdapter
 import com.example.apfinalproject.ui.MainViewModel
 import com.example.apfinalproject.ui.PastEventAdapter
 import com.example.apfinalproject.databinding.ProfileFragmentBinding
-
-
 
 class ProfileFragment: Fragment() {
     private val viewModel: MainViewModel by activityViewModels()
@@ -31,8 +30,11 @@ class ProfileFragment: Fragment() {
         viewModel.observePastEvents().observe(viewLifecycleOwner) {
             adapter.submitList(it)
         }
-
-        binding.interestsRV.layoutManager = LinearLayoutManager(context)
+        binding.interestsRV.layoutManager = FlexboxLayoutManager(context).apply {
+            flexDirection = FlexDirection.ROW
+            flexWrap = FlexWrap.WRAP
+            justifyContent = JustifyContent.FLEX_START
+        }
         val interestAdapter = InterestAdapter(viewModel)
         binding.interestsRV.adapter = interestAdapter
         viewModel.observeInterests().observe(viewLifecycleOwner) {

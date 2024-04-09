@@ -35,6 +35,7 @@ class MainViewModel(): ViewModel() {
     private var interestsLiveData = MutableLiveData<List<String>>().apply {
         this.postValue(listOf())
     }
+    
     private val db = ViewModelDBHelper()
 
     // MainActivity gets updates on this via live data and informs view model

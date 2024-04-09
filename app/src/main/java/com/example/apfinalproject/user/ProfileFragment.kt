@@ -1,6 +1,7 @@
 package com.example.apfinalproject.user
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -17,8 +18,10 @@ class ProfileFragment: Fragment() {
     private val viewModel: MainViewModel by activityViewModels()
     private var _binding: ProfileFragmentBinding? = null
     private val binding get() = _binding!!
+    private val TAG = "ProfileFragment"
 
     private fun initAdapters(binding: ProfileFragmentBinding) {
+        Log.d(TAG, "initAdapters")
         binding.pastEventsRV.layoutManager = LinearLayoutManager(context)
         val adapter = PastEventAdapter(viewModel) {
             // Navigate to OneEvent
@@ -38,6 +41,13 @@ class ProfileFragment: Fragment() {
             interestAdapter.submitList(it)
         }
 
+
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        Log.d(TAG, "onCreate")
+        super.onCreate(savedInstanceState)
+
     }
 
     override fun onCreateView(
@@ -45,15 +55,24 @@ class ProfileFragment: Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        Log.d(TAG, "onCreateView")
         _binding = ProfileFragmentBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        Log.d(TAG, "onViewCreated")
         super.onViewCreated(view, savedInstanceState)
-        val user = viewModel.getActiveUser()
-        binding.userName.text = user.name
-        binding.profileBio.text = user.bio
         initAdapters(binding)
+        val user = viewModel.getActiveUser()
+        binding.userName.text = user.first_name
+        binding.profileBio.text = user.bio
+        viewModel.fetchUserImage(user.profile_image, binding.profileImage)
+    }
+
+    override fun onDestroyView() {
+        Log.d(TAG, "onDestroyView")
+        super.onDestroyView()
+        _binding = null
     }
 }

@@ -1,5 +1,6 @@
 package com.example.apfinalproject.ui
 
+import android.util.Log
 import com.example.apfinalproject.event.EventList
 import androidx.core.view.isGone
 import androidx.lifecycle.ViewModel
@@ -14,7 +15,8 @@ import com.example.apfinalproject.user.invalidUser
 
 class MainViewModel(): ViewModel() {
     private var actionBarBinding : ActionBarBinding? = null
-    private var events: List<Event> = EventList.getAll()
+    private var getEvents :List<Event> = EventList.getAll()
+    private var events: MutableLiveData<List<Event>> = MutableLiveData(getEvents)
     private var activeUser = invalidUser
 
     private fun createDummyUser(): User {
@@ -55,7 +57,7 @@ class MainViewModel(): ViewModel() {
         return activeUser.userInterests
     }
 
-    fun observeEvents(): List<Event> {
+    fun observeEvents(): LiveData<List<Event>> {
         return events
     }
 
@@ -69,5 +71,12 @@ class MainViewModel(): ViewModel() {
 
     fun showActionBar(){
         actionBarBinding?.root?.isGone = false
+    }
+
+    fun removePhotoAt(position: Int) {
+        // Remove photo at position
+        val eventList = events.value?.toMutableList()
+        eventList?.removeAt(position)
+        events.postValue(eventList!!)
     }
 }

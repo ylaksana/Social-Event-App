@@ -13,6 +13,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.navigation.NavController
 import androidx.navigation.NavDirections
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.ItemTouchHelper
+import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.apfinalproject.api.ImageRepository
 import com.example.apfinalproject.databinding.ActivityMainBinding
@@ -28,21 +30,31 @@ class HomeFragment: Fragment() {
 //     This property is only valid between onCreateView and onDestroyView.
     private val binding get() = _binding!!
 
-    // Set up the adapter and recycler view
-    private fun initAdapter(binding: HomeFragmentBinding) {
-
-    }
-
-    private fun initSwipeLayout(swipe : SwipeRefreshLayout) {
-
-    }
-
     private fun NavController.safeNavigate(direction: NavDirections) {
         currentDestination?.
         getAction(direction.actionId)?.
         run {
             navigate(direction)
         }
+    }
+
+    private fun initTouchHelper(): ItemTouchHelper {
+        val simpleItemTouchCallback =
+            object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT)
+            {
+                override fun onMove(recyclerView: RecyclerView,
+                                    viewHolder: RecyclerView.ViewHolder,
+                                    target: RecyclerView.ViewHolder): Boolean {
+                    return true
+                }
+                override fun onSwiped(viewHolder: RecyclerView.ViewHolder,
+                                      direction: Int) {
+                    val position = viewHolder.bindingAdapterPosition
+                    Log.d(javaClass.simpleName, "Swipe delete $position")
+                    viewModel.removePhotoAt(position)
+                }
+            }
+        return ItemTouchHelper(simpleItemTouchCallback)
     }
 
     override fun onCreateView(
@@ -60,6 +72,7 @@ class HomeFragment: Fragment() {
 
         // Move this to home fragment
         val rv = binding.eventRV
+        initTouchHelper().attachToRecyclerView(rv)
         rv.layoutManager = LinearLayoutManager(context)
         val imageRepo = context?.let {
             ImageRepository(it)
@@ -68,13 +81,20 @@ class HomeFragment: Fragment() {
                 findNavController().navigate(HomeFragmentDirections.actionHomeFragmentToOneEventFragment(event))
             }
         }
-        val eventList = viewModel.observeEvents()
-        Log.d("MainActivity", "eventList length: ${eventList.size}")
-        adapter?.submitList(eventList)
+
+        viewModel.observeEvents().observe(viewLifecycleOwner) {
+            Log.d("MainActivity", "eventList length: ${it.size}")
+            adapter?.submitList(it)
+        }
+
         rv.adapter = adapter
+
+
+
         navController = findNavController()
         binding.chatButton.setOnClickListener{
             navController.safeNavigate(HomeFragmentDirections.actionHomeFragmentToChatFragment())
         }
     }
+
 }

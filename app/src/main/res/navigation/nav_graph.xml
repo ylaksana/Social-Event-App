@@ -36,6 +36,11 @@
             android:id="@+id/action_homeFragment_to_settingsFragment"
             app:destination="@id/settingsFragment" />
 
+        <!--Home to Event List-->
+        <action
+            android:id="@+id/action_homeFragment_to_eventListFragment"
+            app:destination="@id/eventListFragment" />
+
         <!--Home to Map-->
         <action
             android:id="@+id/action_homeFragment_to_mapFragment"
@@ -64,6 +69,8 @@
 
     </fragment>
 
+
+
     <!--createEvent Fragment-->
     <fragment
         android:id="@+id/createEventFragment"
@@ -76,10 +83,14 @@
 
     </fragment>
 
+
+
     <!--Chat Fragment-->
     <fragment
         android:id="@+id/chatFragment"
         android:name="com.example.apfinalproject.ui.ChatFragment" />
+
+
 
     <!--Map Fragment-->
     <fragment
@@ -93,15 +104,33 @@
 
     </fragment>
 
+
+
     <!--Profile Fragment-->
     <fragment
         android:id="@+id/profileFragment"
         android:name="com.example.apfinalproject.user.ProfileFragment" />
 
+
+
     <!--Settings Fragment-->
     <fragment
         android:id="@+id/settingsFragment"
         android:name="com.example.apfinalproject.ui.SettingsFragment" />
+
+
+
+    <!--EventList Fragment-->
+    <fragment
+        android:id="@+id/eventListFragment"
+        android:name="com.example.apfinalproject.ui.EventListFragment">
+
+        <!--EventList to Event-->
+        <action
+            android:id="@+id/action_homeFragment_to_oneEventFragment"
+            app:destination="@id/oneEventFragment" />
+
+    </fragment>
 
 
 </navigation>

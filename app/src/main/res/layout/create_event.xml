@@ -60,21 +60,39 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:hint="Event Address"
-                app:layout_constraintBottom_toTopOf="@id/editTextDate"
+                app:layout_constraintBottom_toTopOf="@id/spinnerMonth"
                 app:layout_constraintTop_toBottomOf="@id/editTextFirstName"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 android:layout_margin="8dp"/>
 
-            <EditText
-                android:id="@+id/editTextDate"
+            <Spinner
+                android:id="@+id/spinnerMonth"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:hint="Enter date of event (MMDDYY)"
                 app:layout_constraintBottom_toTopOf="@id/editTextDescription"
                 app:layout_constraintTop_toBottomOf="@id/editTextAddress"
                 app:layout_constraintStart_toStartOf="parent"
                 android:layout_margin="8dp"/>
+
+            <Spinner
+                android:id="@+id/spinnerDay"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintBottom_toTopOf="@id/editTextDescription"
+                app:layout_constraintTop_toBottomOf="@id/editTextAddress"
+                app:layout_constraintStart_toEndOf="@id/spinnerMonth"
+                android:layout_margin="8dp"/>
+
+            <Spinner
+                android:id="@+id/spinnerYear"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintBottom_toTopOf="@id/editTextDescription"
+                app:layout_constraintTop_toBottomOf="@id/editTextAddress"
+                app:layout_constraintStart_toEndOf="@id/spinnerDay"
+                android:layout_margin="8dp"/>
+
 
             <EditText
                 android:id="@+id/editTextDescription"
@@ -87,28 +105,39 @@
                 android:minLines="6"
                 android:scrollbars="vertical"
                 app:layout_constraintBottom_toTopOf="@id/timeTitle"
-                app:layout_constraintTop_toBottomOf="@id/editTextDate"
+                app:layout_constraintTop_toBottomOf="@id/spinnerMonth"
                 app:layout_constraintStart_toStartOf="parent"
                 android:layout_margin="8dp"/>
 
-            <EditText
-                android:id="@+id/editTextHours"
+            <Spinner
+                android:id="@+id/spinnerHours"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:hint="Hour"
+                android:hint="Hours"
                 app:layout_constraintBottom_toTopOf="@id/typeTitle"
                 app:layout_constraintTop_toBottomOf="@id/timeTitle"
                 app:layout_constraintStart_toStartOf="parent"
                 android:layout_margin="8dp"/>
 
-            <EditText
-                android:id="@+id/editTextMinutes"
+            <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:hint="Min"
-                app:layout_constraintBottom_toTopOf="@id/editTextHours"
-                app:layout_constraintTop_toBottomOf="@id/editTextHours"
-                app:layout_constraintStart_toEndOf="@id/editTextHours"
+                android:text=" : "
+                android:textSize="18sp"
+                app:layout_constraintStart_toEndOf="@id/spinnerHours"
+                app:layout_constraintEnd_toStartOf="@id/spinnerMinutes"
+                app:layout_constraintTop_toTopOf="@id/spinnerHours"
+                app:layout_constraintBottom_toBottomOf="@id/spinnerHours"
+                />
+
+            <Spinner
+                android:id="@+id/spinnerMinutes"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:hint="Minutes"
+                app:layout_constraintBottom_toTopOf="@id/spinnerHours"
+                app:layout_constraintTop_toBottomOf="@id/spinnerHours"
+                app:layout_constraintStart_toEndOf="@id/spinnerHours"
                 android:layout_margin="8dp"/>
 
             <TextView
@@ -119,7 +148,7 @@
                 android:textSize="18sp"
                 android:layout_marginHorizontal="8dp"
                 app:layout_constraintTop_toBottomOf="@id/editTextDescription"
-                app:layout_constraintBottom_toTopOf="@id/editTextHours"
+                app:layout_constraintBottom_toTopOf="@id/spinnerHours"
                 app:layout_constraintStart_toStartOf="parent"/>
 
 
@@ -128,9 +157,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="8dp"
-                app:layout_constraintStart_toEndOf="@id/editTextMinutes"
-                app:layout_constraintTop_toTopOf="@id/editTextMinutes"
-                app:layout_constraintBottom_toBottomOf="@id/editTextMinutes"
+                app:layout_constraintStart_toEndOf="@id/spinnerMinutes"
+                app:layout_constraintTop_toTopOf="@id/spinnerMinutes"
+                app:layout_constraintBottom_toBottomOf="@id/spinnerMinutes"
                 />
 
             <TextView
@@ -141,10 +170,11 @@
                 android:textSize="18sp"
                 android:layout_margin="8dp"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/editTextHours"
+                app:layout_constraintTop_toBottomOf="@id/spinnerHours"
                 />
 
             <Spinner
+                android:id="@+id/spinnerEvent"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="10dp"

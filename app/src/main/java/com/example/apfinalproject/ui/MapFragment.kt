@@ -85,7 +85,7 @@ class MapFragment : Fragment() {
 
                 // Initialize the map controller here
                 val mapController = mapView.controller
-                mapController.setZoom(17.0)
+                mapController.setZoom(18.5)
                 mapController.setCenter(GeoPoint(startLat, startLong))
             }
         }

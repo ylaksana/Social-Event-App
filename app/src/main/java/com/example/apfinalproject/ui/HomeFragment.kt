@@ -69,7 +69,7 @@ class HomeFragment: Fragment() {
         super.onViewCreated(view, savedInstanceState)
         Log.d(javaClass.simpleName, "onViewCreated")
 
-        // Move this to home fragment
+        // Event List
         val rv = binding.eventRV
         initTouchHelper().attachToRecyclerView(rv)
         rv.layoutManager = LinearLayoutManager(context)
@@ -80,6 +80,12 @@ class HomeFragment: Fragment() {
                 findNavController().navigate(HomeFragmentDirections.actionHomeFragmentToOneEventFragment(event))
             }
         }
+
+        // Filters
+        val filterRV = binding.filtersRV
+        filterRV.layoutManager = LinearLayoutManager(context)
+        filterRV.adapter =
+
 
         viewModel.observeEvents().observe(viewLifecycleOwner) {
             Log.d("MainActivity", "eventList length: ${it.size}")

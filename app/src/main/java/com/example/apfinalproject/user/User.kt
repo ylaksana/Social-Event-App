@@ -4,13 +4,13 @@ class User(private val nullableName: String? = null,
            private val nullableEmail: String? = null,
            val uid: String = "-1") {
     val displayName: String = nullableName ?: "User logged out"
-
     val email: String = nullableEmail ?: "User logged out"
 
-    val first_name: String = ""
-    val last_name: String = ""
+    val firstName: String = ""
+    val lastName: String = ""
     var bio: String = "Wow... nothing's here yet!"
-    var profile_image: String = ""
+    var profileImage: String = ""
+    val conversationIDs: List<String> = listOf()
 
     // These need to be lists of strings because Firestore can't
     // unpack livedata or other objects

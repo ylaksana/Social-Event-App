@@ -19,7 +19,6 @@ import androidx.navigation.ui.setupWithNavController
 import com.example.apfinalproject.databinding.ActionBarBinding
 import com.example.apfinalproject.databinding.ActivityMainBinding
 import com.example.apfinalproject.ui.HomeFragmentDirections
-import com.example.apfinalproject.ui.MainViewModel
 import com.example.apfinalproject.user.AuthUser
 import com.example.apfinalproject.user.invalidUserUid
 

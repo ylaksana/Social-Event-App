@@ -10,7 +10,7 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.flexbox.*
 import com.example.apfinalproject.ui.InterestAdapter
-import com.example.apfinalproject.ui.MainViewModel
+import com.example.apfinalproject.MainViewModel
 import com.example.apfinalproject.ui.PastEventAdapter
 import com.example.apfinalproject.databinding.ProfileFragmentBinding
 
@@ -65,9 +65,9 @@ class ProfileFragment: Fragment() {
         super.onViewCreated(view, savedInstanceState)
         initAdapters(binding)
         val user = viewModel.getActiveUser()
-        binding.userName.text = user.first_name
+        binding.userName.text = user.firstName
         binding.profileBio.text = user.bio
-        viewModel.fetchUserImage(user.profile_image, binding.profileImage)
+        viewModel.fetchUserImage(user.profileImage, binding.profileImage)
     }
 
     override fun onDestroyView() {

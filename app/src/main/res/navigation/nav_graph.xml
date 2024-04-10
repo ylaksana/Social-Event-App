@@ -21,10 +21,10 @@
             android:id="@+id/action_homeFragment_to_createEventFragment"
             app:destination="@id/createEventFragment" />
 
-        <!--Home to Chat-->
+        <!--Home to ChatList-->
         <action
-            android:id="@+id/action_homeFragment_to_chatFragment"
-            app:destination="@id/chatFragment" />
+            android:id="@+id/action_homeFragment_to_chatListFragment"
+            app:destination="@id/chatListFragment" />
 
         <!--Home to Profile-->
         <action
@@ -85,11 +85,28 @@
 
 
 
-    <!--Chat Fragment-->
+    <!--Chat List Fragment-->
+    <fragment
+        android:id="@+id/chatListFragment"
+        android:name="com.example.apfinalproject.ui.ChatListFragment" >
+
+        <!--ChatList to Chat-->
+        <action
+            android:id="@+id/action_chatListFragment_to_chatFragment"
+            app:destination="@id/chatFragment" />
+
+    </fragment>
+
+<!--    Chat Fragment-->
     <fragment
         android:id="@+id/chatFragment"
-        android:name="com.example.apfinalproject.ui.ChatFragment" />
+        android:name="com.example.apfinalproject.ui.ChatFragment">
 
+        <argument
+            android:name="Conversation"
+            app:argType="com.example.apfinalproject.chat.Conversation"/>
+
+    </fragment>
 
 
     <!--Map Fragment-->

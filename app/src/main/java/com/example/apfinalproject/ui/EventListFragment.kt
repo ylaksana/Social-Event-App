@@ -12,6 +12,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.apfinalproject.MainViewModel
 import com.example.apfinalproject.R
 import com.example.apfinalproject.api.ImageRepository
 import com.example.apfinalproject.databinding.ActivityMainBinding

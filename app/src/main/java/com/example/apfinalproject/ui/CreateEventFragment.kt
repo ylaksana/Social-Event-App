@@ -13,6 +13,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.navigation.NavController
 import androidx.navigation.NavDirections
 import androidx.navigation.fragment.findNavController
+import com.example.apfinalproject.MainViewModel
 import com.example.apfinalproject.R
 import com.example.apfinalproject.databinding.ActivityMainBinding
 import com.example.apfinalproject.databinding.CreateEventBinding

@@ -1,6 +1,7 @@
 package com.example.apfinalproject
 
 import android.util.Log
+import com.example.apfinalproject.chat.Conversation
 import com.example.apfinalproject.event.Event
 import com.example.apfinalproject.user.User
 import com.example.apfinalproject.user.invalidUser
@@ -52,6 +53,8 @@ class ViewModelDBHelper {
                 resultListener(invalidUser)
             }
     }
+
+
 
     fun createUser(
         user: User,

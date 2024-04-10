@@ -1,7 +1,6 @@
-package com.example.apfinalproject.ui
+package com.example.apfinalproject
 
 import android.util.Log
-import com.example.apfinalproject.event.EventList
 import android.widget.ImageView
 import androidx.core.view.isGone
 import androidx.lifecycle.ViewModel

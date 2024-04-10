@@ -7,7 +7,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.ListAdapter
 import com.example.apfinalproject.databinding.EventRowBinding
 import com.example.apfinalproject.api.ImageRepository
-import com.example.apfinalproject.ui.MainViewModel
+import com.example.apfinalproject.MainViewModel
 
 class EventAdapter(private val viewModel: MainViewModel,
                    private val imageRepo: ImageRepository,
@@ -28,7 +28,6 @@ class EventAdapter(private val viewModel: MainViewModel,
                     }
                 }
             }
-
         }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): EventViewHolder {

@@ -15,7 +15,7 @@ import androidx.navigation.NavDirections
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import com.example.apfinalproject.MainViewModel
 import com.example.apfinalproject.api.ImageRepository
 import com.example.apfinalproject.databinding.ActivityMainBinding
 import com.example.apfinalproject.databinding.HomeFragmentBinding
@@ -73,9 +73,13 @@ class HomeFragment: Fragment() {
         val rv = binding.eventRV
         initTouchHelper().attachToRecyclerView(rv)
         rv.layoutManager = LinearLayoutManager(context)
+
+        // TODO: use glide?
         val imageRepo = context?.let {
             ImageRepository(it)
         }
+
+
         val adapter = imageRepo?.let { EventAdapter(viewModel, it) {event ->
                 findNavController().navigate(HomeFragmentDirections.actionHomeFragmentToOneEventFragment(event))
             }
@@ -88,11 +92,9 @@ class HomeFragment: Fragment() {
 
         rv.adapter = adapter
 
-
-
         navController = findNavController()
         binding.chatButton.setOnClickListener{
-            navController.safeNavigate(HomeFragmentDirections.actionHomeFragmentToChatFragment())
+            navController.safeNavigate(HomeFragmentDirections.actionHomeFragmentToChatListFragment())
         }
     }
 

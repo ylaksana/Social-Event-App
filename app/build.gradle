@@ -69,6 +69,8 @@ dependencies {
     implementation libs.firebase.ui.auth
     implementation libs.firebase.ui.storage
 
+    // Google Sign In SDK
+    implementation libs.play.services.auth
 
     // Glide
     implementation libs.glide

@@ -6,7 +6,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toolbar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -14,8 +13,7 @@ import androidx.navigation.NavController
 import androidx.navigation.NavDirections
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-import com.example.apfinalproject.databinding.HomeFragmentBinding
+import com.example.apfinalproject.MainViewModel
 import com.example.apfinalproject.databinding.OneEventBinding
 import java.io.IOException
 

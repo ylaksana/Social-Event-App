@@ -1,7 +1,6 @@
-package com.example.apfinalproject.ui
+package com.example.apfinalproject
 
 import android.util.Log
-import com.example.apfinalproject.event.EventList
 import android.widget.ImageView
 import androidx.core.view.isGone
 import androidx.lifecycle.ViewModel
@@ -10,9 +9,7 @@ import com.example.apfinalproject.event.Event
 import com.example.apfinalproject.user.User
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.example.apfinalproject.ViewModelDBHelper
 import com.example.apfinalproject.glide.Glide
-import com.example.apfinalproject.Storage
 import com.example.apfinalproject.user.invalidUser
 import com.example.apfinalproject.user.invalidUserUid
 import kotlinx.coroutines.CoroutineScope

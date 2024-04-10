@@ -75,7 +75,7 @@ class EventListFragment : Fragment() {
         navController = findNavController()
         binding.backButton.setOnClickListener{
             navController.popBackStack()
-            viewModel.showActionBar()
+
         }
 
     }
@@ -83,6 +83,7 @@ class EventListFragment : Fragment() {
     override fun onDestroyView() {
         _binding = null
         (activity as? AppCompatActivity)?.supportActionBar?.show()
+        viewModel.showActionBar()
         super.onDestroyView()
     }
 }

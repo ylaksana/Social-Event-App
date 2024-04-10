@@ -75,7 +75,6 @@ class CreateEventFragment: Fragment(){
         binding.backButton.setOnClickListener {
             navController = findNavController()
             navController.popBackStack()
-            viewModel.showActionBar()
         }
 
         populateSpinner(spinnerMinutes, R.array.minutes_array)
@@ -89,6 +88,7 @@ class CreateEventFragment: Fragment(){
     override fun onDestroyView() {
         _binding = null
         (activity as? AppCompatActivity)?.supportActionBar?.show()
+        viewModel.showActionBar()
         super.onDestroyView()
     }
 

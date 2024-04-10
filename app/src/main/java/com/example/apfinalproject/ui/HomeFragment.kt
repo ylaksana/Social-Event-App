@@ -51,7 +51,6 @@ class HomeFragment: Fragment() {
                                       direction: Int) {
                     val position = viewHolder.bindingAdapterPosition
                     Log.d(javaClass.simpleName, "Swipe delete $position")
-                    viewModel.removePhotoAt(position)
                 }
             }
         return ItemTouchHelper(simpleItemTouchCallback)

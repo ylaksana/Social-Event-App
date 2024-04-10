@@ -8,18 +8,23 @@ import androidx.lifecycle.ViewModel
 import com.example.apfinalproject.databinding.ActionBarBinding
 import com.example.apfinalproject.event.Event
 import com.example.apfinalproject.user.User
-import com.example.apfinalproject.interest.InterestCategories.Interest
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
 import com.example.apfinalproject.ViewModelDBHelper
 import com.example.apfinalproject.glide.Glide
 import com.example.apfinalproject.Storage
+import com.example.apfinalproject.osm.OSMApi
+import com.example.apfinalproject.osm.OSMLocation
+import com.example.apfinalproject.osm.OSMRepository
 import com.example.apfinalproject.user.invalidUser
 import com.example.apfinalproject.user.invalidUserUid
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
+import retrofit2.HttpException
 
 class MainViewModel(): ViewModel() {
     private val TAG = "MainViewModel"
@@ -28,6 +33,39 @@ class MainViewModel(): ViewModel() {
     private var activeUser: User = invalidUser
     private val storage = Storage()
 
+
+    // OSM
+    private val osmAPI = OSMApi.create()
+    private val osmRepository = OSMRepository(osmAPI)
+    private var searchLocation = MutableLiveData<String>()
+
+    private var netLocations =  MediatorLiveData<List<OSMLocation>>().apply{
+        addSource(searchLocation) { term ->
+            try {
+                viewModelScope.launch(Dispatchers.IO) {
+                    val locations = osmRepository.fetchLocation(term)
+                    Log.d("OSM", "Fetched locations: $locations")
+                    if (locations.isNotEmpty()) {
+                        // Post the location to a LiveData object
+                        postValue(locations)
+                    }
+                }
+            } catch(e: HttpException) {
+            Log.e("HTTP Error", "Error fetching posts: ${e.code()}")
+            } catch(e: Exception) {
+            Log.e("General Error", "Error in fetching from API: ${e.message}")
+            }
+        }
+    }
+
+    fun observeLocations(): LiveData<List<OSMLocation>> {
+        Log.d("ObserveLocations", "Fetched locations: ${netLocations.value}")
+        return netLocations
+    }
+
+    fun setLocationTerm(term: String) {
+        searchLocation.postValue(term)
+    }
     
     // Convert these to Event/Interest objects later
     private var pastEventsLiveData = MutableLiveData<List<Event>>().apply {

@@ -28,7 +28,7 @@ class HomeFragment: Fragment() {
     private val viewModel: MainViewModel by activityViewModels()
     private var _binding: HomeFragmentBinding? = null
     private lateinit var navController : NavController
-    private val filtersList : List<String> = InterestCategories.getInterests()
+    private val filtersList : List<InterestCategories.Interest> = InterestCategories.getInterests()
 //     This property is only valid between onCreateView and onDestroyView.
     private val binding get() = _binding!!
 

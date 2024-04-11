@@ -19,21 +19,12 @@ class FilterAdapter(private val viewModel: MainViewModel)
     inner class VH(val rowPostBinding : InterestItemBinding)
         : RecyclerView.ViewHolder(rowPostBinding.root) {
         init {
-
             itemView.setOnClickListener {
                 val position = bindingAdapterPosition
                 val item = getItem(position)
-                if(item.selected){
-                    item.selected = false
-                    rowPostBinding.interestName.setBackgroundResource(R.drawable.interest_background)
-                } else {
-                    item.selected = true
-                    rowPostBinding.interestName.setBackgroundResource(R.drawable.interest_background_gray)
-
-                }
-
+                item.selected = !item.selected
+                notifyItemChanged(position)
             }
-
         }
     }
 
@@ -49,6 +40,11 @@ class FilterAdapter(private val viewModel: MainViewModel)
         val rowBinding = holder.rowPostBinding
         val item = getItem(position)
         rowBinding.interestName.text = item.category
+        if(item.selected){
+            rowBinding.interestName.setBackgroundResource(R.drawable.interest_background_gray)
+        } else {
+            rowBinding.interestName.setBackgroundResource(R.drawable.interest_background)
+        }
     }
 
     class InterestDiff : DiffUtil.ItemCallback<InterestCategories.Interest>() {

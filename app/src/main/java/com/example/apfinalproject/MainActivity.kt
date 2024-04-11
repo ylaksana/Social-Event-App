@@ -98,6 +98,10 @@ class MainActivity : AppCompatActivity() {
         // Observe title changes
     }
 
+    fun getAuthUser(): AuthUser {
+        return authUser
+    }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -135,12 +139,11 @@ class MainActivity : AppCompatActivity() {
             // XXX Write me, user status has changed
             if (it == null) {
                 Log.d("MainActivity", "User is logged out")
-                viewModel.setActiveAuthUser(invalidUserUid)
+                viewModel.setActiveAuthUserID(invalidUserUid)
             } else {
                 Log.d("MainActivity", "User is logged in with uid $it")
-                viewModel.setActiveAuthUser(it)
+                viewModel.setActiveAuthUserID(it)
             }
         }
     }
-
 }

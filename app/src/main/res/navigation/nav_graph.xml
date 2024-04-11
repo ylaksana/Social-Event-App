@@ -126,7 +126,26 @@
     <!--Profile Fragment-->
     <fragment
         android:id="@+id/profileFragment"
-        android:name="com.example.apfinalproject.user.ProfileFragment" />
+        android:name="com.example.apfinalproject.user.ProfileFragment" >
+
+        <!--Profile to EditProfile-->
+        <action
+            android:id="@+id/action_profileFragment_to_profileEditFragment"
+            app:destination="@id/profileEditFragment" />
+
+    </fragment>
+
+    <!--Profile Edit Fragment-->
+    <fragment
+        android:id="@+id/profileEditFragment"
+        android:name="com.example.apfinalproject.user.ProfileEditFragment" >
+
+        <!--EditProfile to Profile-->
+        <action
+            android:id="@+id/action_profileEditFragment_to_profileFragment"
+            app:destination="@id/profileFragment" />
+
+    </fragment>
 
 
 

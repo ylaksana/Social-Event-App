@@ -79,7 +79,9 @@ class AuthUser(private val registry: ActivityResultRegistry) :
     }
 
     fun logout() {
+        Log.d(TAG, "logout started")
         if(user() == null) return
+        Log.d(TAG, "Logging out")
         Firebase.auth.signOut()
     }
 }

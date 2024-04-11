@@ -12,6 +12,7 @@ class Event(
     var location: String = "No Location",
     val creator: String = "No Creator",
     val imageName: String = "No Image") : Parcelable{
+    // val interestedUsers: List<String> = listOf()
 
     fun getEventID(): String {
         return this.uid

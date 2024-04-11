@@ -23,6 +23,7 @@ import com.example.apfinalproject.event.EventAdapter
 
 class HomeFragment: Fragment() {
 //     XXX initialize viewModel
+    private val TAG = "HomeFragment"
     private val viewModel: MainViewModel by activityViewModels()
     private var _binding: HomeFragmentBinding? = null
     private lateinit var navController : NavController
@@ -69,9 +70,8 @@ class HomeFragment: Fragment() {
         super.onViewCreated(view, savedInstanceState)
         Log.d(javaClass.simpleName, "onViewCreated")
 
-        // Move this to home fragment
         val rv = binding.eventRV
-        initTouchHelper().attachToRecyclerView(rv)
+
         rv.layoutManager = LinearLayoutManager(context)
 
         // TODO: use glide?
@@ -79,19 +79,20 @@ class HomeFragment: Fragment() {
             ImageRepository(it)
         }
 
-
+        Log.d(TAG, "imageRepo: $imageRepo")
         val adapter = imageRepo?.let { EventAdapter(viewModel, it) {event ->
                 findNavController().navigate(HomeFragmentDirections.actionHomeFragmentToOneEventFragment(event))
             }
         }
-
+        Log.d(TAG, "adapter: $adapter")
+        rv.adapter = adapter
         viewModel.observeEvents().observe(viewLifecycleOwner) {
-            Log.d("MainActivity", "eventList length: ${it.size}")
+            Log.d(TAG, "eventList length: ${it.size}")
             adapter?.submitList(it)
         }
 
-        rv.adapter = adapter
 
+        initTouchHelper().attachToRecyclerView(rv)
         navController = findNavController()
         binding.chatButton.setOnClickListener{
             navController.safeNavigate(HomeFragmentDirections.actionHomeFragmentToChatListFragment())

@@ -7,6 +7,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.Fragment
+import androidx.navigation.NavController
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.flexbox.*
 import com.example.apfinalproject.ui.InterestAdapter
@@ -14,9 +16,11 @@ import com.example.apfinalproject.MainViewModel
 import com.example.apfinalproject.ui.PastEventAdapter
 import com.example.apfinalproject.databinding.ProfileFragmentBinding
 
+
 class ProfileFragment: Fragment() {
     private val viewModel: MainViewModel by activityViewModels()
     private var _binding: ProfileFragmentBinding? = null
+    private lateinit var navController : NavController
     private val binding get() = _binding!!
     private val TAG = "ProfileFragment"
 
@@ -65,9 +69,15 @@ class ProfileFragment: Fragment() {
         super.onViewCreated(view, savedInstanceState)
         initAdapters(binding)
         val user = viewModel.getActiveUser()
+        navController = findNavController()
         binding.userName.text = user.firstName
         binding.profileBio.text = user.bio
         viewModel.fetchUserImage(user.profileImage, binding.profileImage)
+
+        binding.editProfileButton.setOnClickListener {
+            // Navigate to EditProfile
+            navController.navigate(ProfileFragmentDirections.actionProfileFragmentToProfileEditFragment())
+        }
     }
 
     override fun onDestroyView() {

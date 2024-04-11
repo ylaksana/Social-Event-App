@@ -11,9 +11,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import com.example.apfinalproject.ViewModelDBHelper
 import com.example.apfinalproject.glide.Glide
-import com.example.apfinalproject.Storage
 import com.example.apfinalproject.osm.OSMApi
 import com.example.apfinalproject.osm.OSMLocation
 import com.example.apfinalproject.osm.OSMRepository
@@ -32,6 +30,7 @@ class MainViewModel(): ViewModel() {
     private var activeUser: User = invalidUser
     private val storage = Storage()
     private val db = ViewModelDBHelper()
+//    var authUser = AuthUser()
 
     private var events = MutableLiveData<List<Event>>().apply {
         db.fetchEvents { eventList ->
@@ -64,6 +63,10 @@ class MainViewModel(): ViewModel() {
         }
     }
 
+    fun getStorage(): Storage {
+        return storage
+    }
+
     fun observeLocations(): LiveData<List<OSMLocation>> {
         Log.d("ObserveLocations", "Fetched locations: ${netLocations.value}")
         return netLocations
@@ -85,7 +88,7 @@ class MainViewModel(): ViewModel() {
 
 
     // MainActivity gets updates on this via live data and informs view model
-    fun setActiveAuthUser(uid: String) {
+    fun setActiveAuthUserID(uid: String) {
         if (uid != invalidUserUid) {
             db.fetchUserByUid(uid) {
                 activeUser = it!!
@@ -93,6 +96,9 @@ class MainViewModel(): ViewModel() {
 
                 interestsLiveData.postValue(activeUser.userInterests)
                 convertToEventAndPost(activeUser.pastEvents)
+                db.fetchEvents { eventList ->
+                    events.postValue(eventList)
+                }
             }
             Log.d(TAG, "setActiveAuthUser: $uid")
         } else {
@@ -148,6 +154,11 @@ class MainViewModel(): ViewModel() {
 
     fun showActionBar(){
         actionBarBinding?.root?.isGone = false
+    }
+
+    fun updateUser(newUser: User) {
+        db.updateUser(activeUser.uid, newUser)
+        activeUser = newUser
     }
 
     fun fetchUserImage(uuid: String, imageView: ImageView) {

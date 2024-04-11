@@ -1,6 +1,7 @@
 package com.example.apfinalproject
 
 import android.util.Log
+import android.widget.Toast
 import com.example.apfinalproject.chat.Conversation
 import com.example.apfinalproject.event.Event
 import com.example.apfinalproject.user.User
@@ -163,6 +164,23 @@ class ViewModelDBHelper {
             .addOnFailureListener {
                 Log.d(TAG, "removeEvent failed", it)
                 resultListener(listOf())
+            }
+    }
+
+    fun updateUser(
+        userID: String,
+        newUser: User
+    ) {
+        Log.d(TAG, "updateUser started")
+        db.collection("users")
+            .document(userID)
+            .set(newUser)
+            .addOnSuccessListener {
+                Log.d(TAG, "updateUser succeeded")
+
+            }
+            .addOnFailureListener {
+                Log.d(TAG, "updateUser failed", it)
             }
     }
 }

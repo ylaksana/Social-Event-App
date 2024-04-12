@@ -70,9 +70,15 @@ class ProfileFragment: Fragment() {
         initAdapters(binding)
         val user = viewModel.getActiveUser()
         navController = findNavController()
-        binding.userName.text = user.firstName
-        binding.profileBio.text = user.bio
-        viewModel.fetchUserImage(user.profileImage, binding.profileImage)
+        if (user != null) {
+            binding.userName.text = user.firstName
+        }
+        if (user != null) {
+            binding.profileBio.text = user.bio
+        }
+        if (user != null) {
+            viewModel.fetchUserImage(user.profileImage, binding.profileImage)
+        }
 
         binding.editProfileButton.setOnClickListener {
             // Navigate to EditProfile

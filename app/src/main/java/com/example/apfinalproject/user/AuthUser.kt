@@ -6,6 +6,7 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.ActivityResultRegistry
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.firebase.ui.auth.AuthUI
 import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract
@@ -21,9 +22,7 @@ class AuthUser(private val registry: ActivityResultRegistry) :
         private const val TAG = "AuthUser"
     }
     private lateinit var signInLauncher: ActivityResultLauncher<Intent>
-    private var activeUserUid = MutableLiveData<String>().apply {
-        this.postValue(invalidUserUid)
-    }
+    private var activeUserUid = MutableLiveData<String>()
     private var pendingLogin = false
     init {
         // Listen to FirebaseAuth state
@@ -31,13 +30,14 @@ class AuthUser(private val registry: ActivityResultRegistry) :
         FirebaseAuth.getInstance().addAuthStateListener(this)
     }
 
-    fun observeActiveUserUid(): MutableLiveData<String> {
+    fun observeAuthId(): LiveData<String> {
         return activeUserUid
     }
 
     // Update active user LiveData upon a change of state for our FirebaseUser
     private fun activeUserUpdate(firebaseUser: FirebaseUser?) {
         if(firebaseUser == null) {
+            Log.d(TAG, "FirebaseUser is null")
             activeUserUid.postValue(invalidUserUid)
             login()
         } else {
@@ -84,4 +84,6 @@ class AuthUser(private val registry: ActivityResultRegistry) :
         Log.d(TAG, "Logging out")
         Firebase.auth.signOut()
     }
+
+
 }

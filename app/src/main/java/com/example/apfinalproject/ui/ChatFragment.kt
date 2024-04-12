@@ -53,10 +53,12 @@ class ChatFragment: Fragment() {
         val activeUser = viewModel.getActiveUser()
 
         // I think this is unnecessary because users are already in the conversation arg
-        chatDBHelper.getChatUsers(activeUser.uid, conversationID) { users ->
-            val otherUser = users.filter { it != activeUser.uid }
-            DBHelper.fetchUserByUid(otherUser[0]) {
-                binding.chatTitle.text = it?.firstName
+        if (activeUser != null) {
+            chatDBHelper.getChatUsers(activeUser.uid, conversationID) { users ->
+                val otherUser = users.filter { it != activeUser.uid }
+                DBHelper.fetchUserByUid(otherUser[0]) {
+                    binding.chatTitle.text = it?.firstName
+                }
             }
         }
 
@@ -67,19 +69,23 @@ class ChatFragment: Fragment() {
 
         binding.sendButton.setOnClickListener(){
             val messageText = binding.messageET.text.toString()
-            val message = Message(
-                senderID = activeUser.uid,
-                messageText = messageText
-            )
-            chatDBHelper.uploadMessage(conversationID, message) {
-                Log.d(TAG, "Message uploaded")
-                if (it) {
-                    chatAdapter!!.notifyItemChanged(chatAdapter!!.itemCount - 1)
-                    binding.chatRV.scrollToPosition(chatAdapter!!.itemCount - 1)
-                } else {
-                    Log.d(TAG, "Failed to upload message")
+            val message = activeUser?.let { it1 ->
+                Message(
+                    senderID = it1.uid,
+                    messageText = messageText
+                )
+            }
+            if (message != null) {
+                chatDBHelper.uploadMessage(conversationID, message) {
+                    Log.d(TAG, "Message uploaded")
+                    if (it) {
+                        chatAdapter!!.notifyItemChanged(chatAdapter!!.itemCount - 1)
+                        binding.chatRV.scrollToPosition(chatAdapter!!.itemCount - 1)
+                    } else {
+                        Log.d(TAG, "Failed to upload message")
+                    }
+                    // Update the conversation's last message and timestamp
                 }
-                // Update the conversation's last message and timestamp
             }
             binding.messageET.text.clear()
         }

@@ -34,12 +34,14 @@ class ChatAdapter(private val viewModel: MainViewModel,
         val activeUser = viewModel.getActiveUser()
         Log.d("ChatAdapter", "message sender: ${message.senderID}")
 
-        if (message.senderID == activeUser.uid) {
-            messageRowBinding.chatMessageTV.gravity = Gravity.END
-            messageRowBinding.chatTimeTV.gravity = Gravity.END
-        } else {
-            messageRowBinding.chatMessageTV.gravity = Gravity.START
-            messageRowBinding.chatTimeTV.gravity = Gravity.START
+        if (activeUser != null) {
+            if (message.senderID == activeUser.uid) {
+                messageRowBinding.chatMessageTV.gravity = Gravity.END
+                messageRowBinding.chatTimeTV.gravity = Gravity.END
+            } else {
+                messageRowBinding.chatMessageTV.gravity = Gravity.START
+                messageRowBinding.chatTimeTV.gravity = Gravity.START
+            }
         }
         messageRowBinding.chatMessageTV.text = message.messageText
 

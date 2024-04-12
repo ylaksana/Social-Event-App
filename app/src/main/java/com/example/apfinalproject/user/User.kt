@@ -40,23 +40,6 @@ class User(private val nullableName: String? = null,
         return newUser
     }
 
-//    fun addInterest(interest: Interest) {
-//        if (!userInterests.contains(interest)) {
-//            // Make sure that the interest is a valid interest and
-//            // that the user does not already have it
-//            userInterests.add(interest)
-//        }
-//    }
-//    fun removeInterest(interest: Interest) {
-//        userInterests.remove(interest)
-//    }
-//    fun addPastEvent(event: Event) {
-//        pastEvents.value?.add(event)
-//    }
-//    fun removePastEvent(event: Event) {
-//        pastEvents.value?.remove(event)
-//    }
-
 }
 const val invalidUserUid = "-1"
 val invalidUser = User(null, null, invalidUserUid)

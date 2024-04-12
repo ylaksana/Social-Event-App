@@ -24,20 +24,20 @@ import kotlinx.coroutines.launch
 import retrofit2.HttpException
 
 class MainViewModel(): ViewModel() {
-    private val TAG = "MainViewModel"
+    companion object {
+        private const val TAG = "MainViewModel"
+    }
     private var actionBarBinding : ActionBarBinding? = null
 //    private var events: MutableLiveData<List<Event>> = MutableLiveData(EventList.getAll())
-    private var activeUser: User = invalidUser
+    private val authID: MutableLiveData<String> = MutableLiveData()
     private val storage = Storage()
     private val db = ViewModelDBHelper()
-//    var authUser = AuthUser()
 
     private var events = MutableLiveData<List<Event>>().apply {
         db.fetchEvents { eventList ->
             this.postValue(eventList)
         }
     }
-
 
     // OSM
     private val osmAPI = OSMApi.create()
@@ -81,28 +81,67 @@ class MainViewModel(): ViewModel() {
     private var pastEventsLiveData = MutableLiveData<List<Event>>().apply {
         this.postValue(listOf())
     }
-    private var interestsLiveData = MutableLiveData<List<String>>().apply {
+    var interestsLiveData = MutableLiveData<List<String>>().apply {
         this.postValue(listOf())
     }
-    
 
+    fun isUserInDB(uid: String) : LiveData<Boolean> {
+        Log.d(TAG, "isUserInDB: $uid")
+        val isUserExists = MutableLiveData<Boolean>()
+        db.fetchUserByUid(uid) { result ->
+            isUserExists.postValue(result != invalidUser)
+        }
+        return isUserExists
+    }
+
+    fun setAuthID(uid: String) {
+        Log.d(TAG, "setActiveAuthUser: $uid")
+        authID.value = uid
+    }
+
+    fun observeAuthID(): LiveData<String> {
+        return authID
+    }
+
+    private var activeUser = MediatorLiveData<User>().apply {
+        addSource(authID) { uid ->
+            if (uid != invalidUserUid) {
+                db.fetchUserByUid(uid) { user ->
+                    if (user != null) {
+                        this.postValue(user)
+                    } else {
+                        // User is not in database (new user)
+                        this.postValue(null)
+                    }
+                }
+            } else {
+                // User is logged out of Firebase
+                this.postValue(invalidUser)
+            }
+        }
+    }
+
+    fun observeActiveUser(): LiveData<User> {
+        return activeUser
+    }
 
     // MainActivity gets updates on this via live data and informs view model
     fun setActiveAuthUserID(uid: String) {
+        Log.d(TAG, "setActiveAuthUser: $uid")
         if (uid != invalidUserUid) {
             db.fetchUserByUid(uid) {
-                activeUser = it!!
-                Log.d(TAG, "setActiveAuthUser: ${activeUser.displayName} ${activeUser.email} ${activeUser.uid} ${activeUser.bio}")
+                activeUser.postValue(it)
+                Log.d(TAG, "setActiveAuthUser: ${activeUser.value?.displayName} ${activeUser.value?.email} ${activeUser.value?.uid} ${activeUser.value?.bio}")
 
-                interestsLiveData.postValue(activeUser.userInterests)
-                convertToEventAndPost(activeUser.pastEvents)
+                interestsLiveData.postValue(activeUser.value?.userInterests)
+                convertToEventAndPost(activeUser.value?.pastEvents)
                 db.fetchEvents { eventList ->
                     events.postValue(eventList)
                 }
             }
             Log.d(TAG, "setActiveAuthUser: $uid")
         } else {
-            activeUser = invalidUser
+            activeUser.value = invalidUser
             pastEventsLiveData.postValue(listOf())
             interestsLiveData.postValue(listOf())
             Log.d(TAG, "setActiveAuthUser: invalid user")
@@ -110,10 +149,10 @@ class MainViewModel(): ViewModel() {
     }
 
     // Converts list of event IDs to list of events, then posts to live data
-    private fun convertToEventAndPost(eventIdList: List<String>) {
+    private fun convertToEventAndPost(eventIdList: List<String>?) {
         val eventList = mutableListOf<Event>()
         CoroutineScope(Dispatchers.IO).launch {
-            eventIdList.map {eventID ->
+            eventIdList?.map {eventID ->
                 // Fetches event on background thread
                 val event = async {
                     db.fetchEventByUid(eventID) {fetchedEvent ->
@@ -128,8 +167,8 @@ class MainViewModel(): ViewModel() {
         pastEventsLiveData.postValue(eventList)
     }
 
-    fun getActiveUser(): User {
-        return activeUser
+    fun getActiveUser(): User? {
+        return activeUser.value
     }
 
     fun observePastEvents(): LiveData<List<Event>> {
@@ -157,8 +196,8 @@ class MainViewModel(): ViewModel() {
     }
 
     fun updateUser(newUser: User) {
-        db.updateUser(activeUser.uid, newUser)
-        activeUser = newUser
+        activeUser.value = newUser
+        activeUser.value?.uid?.let { db.updateUser(it, newUser) }
     }
 
     fun fetchUserImage(uuid: String, imageView: ImageView) {
@@ -173,5 +212,12 @@ class MainViewModel(): ViewModel() {
         val path = storage.getEventPhoto(uuid)
         Log.d(TAG, "fetchEventImage: $path")
         Glide.fetch(path, imageView)
+    }
+
+    fun addNewUser(newUser: User) {
+        Log.d(TAG, "addNewUser: ${newUser.uid}")
+        db.createUser(newUser) { _ ->
+            activeUser.postValue(newUser)
+        }
     }
 }

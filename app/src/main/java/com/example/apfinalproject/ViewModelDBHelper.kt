@@ -40,7 +40,7 @@ class ViewModelDBHelper {
         uid: String,
         resultListener: (User?)->Unit
     ) {
-        Log.d(TAG, "fetchUser started")
+        Log.d(TAG, "fetchUser started for $uid")
         db.collection("users")
             .document(uid)
             .get()
@@ -51,11 +51,9 @@ class ViewModelDBHelper {
             }
             .addOnFailureListener {
                 Log.d(TAG, "user fetch failed", it)
-                resultListener(invalidUser)
+                resultListener(null)
             }
     }
-
-
 
     fun createUser(
         user: User,

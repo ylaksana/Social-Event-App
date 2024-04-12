@@ -23,10 +23,14 @@ import com.example.apfinalproject.user.AuthUser
 import com.example.apfinalproject.user.invalidUserUid
 
 class MainActivity : AppCompatActivity() {
+    companion object {
+        const val TAG = "MainActivity"
+    }
     private var actionBarBinding: ActionBarBinding? = null
     private val viewModel: MainViewModel by viewModels()
     private lateinit var navController : NavController
     private lateinit var authUser : AuthUser
+    private var firstLogin: Boolean? = null
 
     private fun initActionBar(actionBar: ActionBar) {
         // Disable the default and enable the custom
@@ -102,8 +106,8 @@ class MainActivity : AppCompatActivity() {
         return authUser
     }
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
+        Log.d(TAG, "onCreate")
         super.onCreate(savedInstanceState)
         val activityMainBinding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(activityMainBinding.root)
@@ -111,7 +115,6 @@ class MainActivity : AppCompatActivity() {
         supportActionBar?.let{
             initActionBar(it)
         }
-        Log.d("navController", "before4")
 
         initTitleObservers()
         actionBarTitleLaunchProfile()
@@ -127,23 +130,39 @@ class MainActivity : AppCompatActivity() {
         // onSupportNavigateUp().
         activityMainBinding.toolbar.setupWithNavController(navController, appBarConfiguration)
         //setupActionBarWithNavController(navController, appBarConfiguration)
+        Log.d(TAG, "onCreate end")
     }
 
     override fun onStart() {
         super.onStart()
-        Log.d("MainActivity", "onStart")
+        Log.d(TAG, "onStart")
         authUser = AuthUser(activityResultRegistry)
         lifecycle.addObserver(authUser)
 
-        authUser.observeActiveUserUid().observe(this) {
+        authUser.observeAuthId().observe(this) {
+            Log.d(TAG, "observeAuthId")
             // XXX Write me, user status has changed
             if (it == null) {
                 Log.d("MainActivity", "User is logged out")
-                viewModel.setActiveAuthUserID(invalidUserUid)
+                viewModel.setAuthID(invalidUserUid)
             } else {
                 Log.d("MainActivity", "User is logged in with uid $it")
-                viewModel.setActiveAuthUserID(it)
+                viewModel.setAuthID(it)
             }
         }
+
+        viewModel.observeActiveUser().observe(this) {
+            Log.d(TAG, "observeActiveUser")
+            if (it == null) {
+                Log.d("MainActivity", "User is logged out")
+                val authID = viewModel.observeAuthID().value
+                if (authID != null) {
+                    navController.safeNavigate(HomeFragmentDirections.actionHomeFragmentToNewUserFragment(authID))
+                }
+            } else {
+                Log.d("MainActivity", "User is logged in with uid ${it.uid}")
+            }
+        }
+        Log.d(TAG, "onStart end")
     }
 }

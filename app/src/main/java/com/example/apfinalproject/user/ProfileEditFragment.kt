@@ -11,20 +11,29 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.MutableLiveData
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import com.example.apfinalproject.MainViewModel
 import com.example.apfinalproject.databinding.ProfileEditFragmentBinding
 import java.util.UUID
+import com.example.apfinalproject.ui.InterestAdapter
+import com.example.apfinalproject.model.InterestCategories
+import com.google.android.flexbox.FlexDirection
+import com.google.android.flexbox.FlexWrap
+import com.google.android.flexbox.FlexboxLayoutManager
+import com.google.android.flexbox.JustifyContent
 
 class ProfileEditFragment: Fragment() {
+    companion object {
+        private const val TAG = "ProfileEditFragment"
+    }
     private val viewModel: MainViewModel by activityViewModels()
     private var _binding: ProfileEditFragmentBinding? = null
     private lateinit var navController : NavController
-    private var newImageUri: Uri? = null
+    private var newImageUri: MutableLiveData<Uri> = MutableLiveData()
     private var newImageUUID: String? = null
     private val binding get() = _binding!!
-    private val TAG = "ProfileFragment"
 
     private fun initAdapters(binding: ProfileEditFragmentBinding) {
         Log.d(TAG, "initAdapters")
@@ -65,35 +74,16 @@ class ProfileEditFragment: Fragment() {
         navController = findNavController()
 //        initAdapters(binding)
         val user = viewModel.getActiveUser()
-        binding.userName.text = user.firstName
-
-        if (user.bio != "") {
-            binding.profileBio.setText(user.bio)
-        } else {
-            binding.profileBio.hint = "Enter Bio Here..."
-        }
-
-        viewModel.fetchUserImage(user.profileImage, binding.profileImage)
-
-        binding.saveButton.setOnClickListener {
-            // Save the new bio to the user and exit
-            val newBio = binding.profileBio.text.toString()
-
-            val newUser = user.copy()
-            newUser.bio = newBio
-
-            if (newImageUri != null) {
-                Log.d(TAG, "Image URI: $newImageUri")
-                uploadUserPhoto(newImageUri!!) {
-                    newUser.profileImage = newImageUUID!!
-                    viewModel.updateUser(newUser)
-                    navController.popBackStack()
-                }
+        if (user != null) {
+            binding.userName.text = user.firstName
+            if (user.bio != "") {
+                binding.profileBio.setText(user.bio)
             } else {
-                viewModel.updateUser(newUser)
-                navController.popBackStack()
+                binding.profileBio.hint = "Enter Bio Here..."
             }
+            viewModel.fetchUserImage(user.profileImage, binding.profileImage)
         }
+
 
         binding.backButton.setOnClickListener {
             // Exit without saving changes
@@ -102,6 +92,45 @@ class ProfileEditFragment: Fragment() {
 
         binding.profileImage.setOnClickListener {
             pickAndSetImage()
+        }
+
+        val interestAdapter = InterestAdapter(viewModel, true)
+
+        binding.interestsRV.adapter = interestAdapter
+        binding.interestsRV.layoutManager = FlexboxLayoutManager(context).apply {
+            flexDirection = FlexDirection.ROW
+            flexWrap = FlexWrap.WRAP
+            justifyContent = JustifyContent.FLEX_START
+        }
+        val completeInterests = InterestCategories.getCategories()
+        interestAdapter.submitList(completeInterests)
+
+        binding.saveButton.setOnClickListener {
+            // Save the new bio to the user and exit
+            val newBio = binding.profileBio.text.toString()
+
+            val newUser = user?.copy()
+            if (newUser != null) {
+                newUser.bio = newBio
+                newUser.userInterests = interestAdapter.tempInterests
+            }
+            viewModel.interestsLiveData.postValue(interestAdapter.tempInterests)
+
+            if (newImageUri.value != null) {
+                Log.d(TAG, "Image URI: $newImageUri")
+                uploadUserPhoto(newImageUri.value!!) {
+                    if (newUser != null) {
+                        newUser.profileImage = newImageUUID!!
+                        viewModel.updateUser(newUser)
+                    }
+                    navController.popBackStack()
+                }
+            } else {
+                if (newUser != null) {
+                    viewModel.updateUser(newUser)
+                }
+                navController.popBackStack()
+            }
         }
     }
 
@@ -114,18 +143,20 @@ class ProfileEditFragment: Fragment() {
     private var imagePickLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
             val data: Intent? = result.data
-            newImageUri = data?.data!!
-            binding.profileImage.setImageURI(newImageUri)
+            newImageUri.value = data?.data
+            binding.profileImage.setImageURI(newImageUri.value)
         }
     }
 
     private fun uploadUserPhoto(imageUri: Uri, onComplete: () -> Unit) {
         // Upload the image to the server and set it as the user's profile image
         val storage = viewModel.getStorage()
-        val oldImageUUID = viewModel.getActiveUser().profileImage
+        val oldImageUUID = viewModel.getActiveUser()?.profileImage
         newImageUUID = UUID.randomUUID().toString()
-        storage.uploadUserPhoto(imageUri, newImageUUID!!, oldImageUUID) {
-            onComplete()
+        if (oldImageUUID != null) {
+            storage.uploadUserPhoto(imageUri, newImageUUID!!, oldImageUUID) {
+                onComplete()
+            }
         }
     }
 

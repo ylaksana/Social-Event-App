@@ -20,7 +20,7 @@ import com.example.apfinalproject.databinding.ActionBarBinding
 import com.example.apfinalproject.databinding.ActivityMainBinding
 import com.example.apfinalproject.ui.HomeFragmentDirections
 import com.example.apfinalproject.user.AuthUser
-import com.example.apfinalproject.user.invalidUserUid
+import com.example.apfinalproject.user.invalidUser
 
 class MainActivity : AppCompatActivity() {
     companion object {
@@ -139,22 +139,27 @@ class MainActivity : AppCompatActivity() {
         authUser = AuthUser(activityResultRegistry)
         lifecycle.addObserver(authUser)
 
-        authUser.observeAuthId().observe(this) {
+        authUser.observeAuthId().observe(this) {authId ->
             Log.d(TAG, "observeAuthId")
             // XXX Write me, user status has changed
-            if (it == null) {
+            if (authId == null) {
                 Log.d("MainActivity", "User is logged out")
-                viewModel.setAuthID(invalidUserUid)
+                viewModel.activeUser.postValue(invalidUser)
             } else {
-                Log.d("MainActivity", "User is logged in with uid $it")
-                viewModel.setAuthID(it)
-                viewModel.isUserInDB(it).observe(this) { exists ->
-                    if (exists) {
+                Log.d("MainActivity", "User is logged in with uid $authId")
+                viewModel.getUserFromDb(authId).observe(this) { user ->
+                    if (user != invalidUser) {
                         Log.d("MainActivity", "User is in database")
-                        viewModel.setActiveAuthUserID(it)
+                        viewModel.activeUser.postValue(user)
                     } else {
                         Log.d("MainActivity", "User is not in database")
-                        navController.safeNavigate(HomeFragmentDirections.actionHomeFragmentToNewUserFragment(authUser.user()!!))
+                        navController.safeNavigate(
+                            HomeFragmentDirections.actionHomeFragmentToNewUserFragment(
+                                authId,
+                                authUser.getEmail(),
+                                authUser.getName()
+                            )
+                        )
                     }
                 }
             }

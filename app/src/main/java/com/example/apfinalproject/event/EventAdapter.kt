@@ -6,11 +6,11 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.ListAdapter
 import com.example.apfinalproject.databinding.EventRowBinding
-import com.example.apfinalproject.api.ImageRepository
+//import com.example.apfinalproject.api.ImageRepository
 import com.example.apfinalproject.MainViewModel
 
 class EventAdapter(private val viewModel: MainViewModel,
-                   private val imageRepo: ImageRepository,
+//                   private val imageRepo: ImageRepository,
                    private val navigateToOneEvent: (Event) -> Unit)
     : ListAdapter<Event, EventAdapter.EventViewHolder>(EventDiff()) {
 

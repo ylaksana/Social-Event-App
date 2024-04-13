@@ -29,7 +29,7 @@ class MainViewModel(): ViewModel() {
     }
     private var actionBarBinding : ActionBarBinding? = null
 //    private var events: MutableLiveData<List<Event>> = MutableLiveData(EventList.getAll())
-    private val authID: MutableLiveData<String> = MutableLiveData("-1")
+//    private val authID: MutableLiveData<String> = MutableLiveData("-1")
     private val storage = Storage()
     private val db = ViewModelDBHelper()
 
@@ -39,24 +39,25 @@ class MainViewModel(): ViewModel() {
         }
     }
 
-    private var activeUser = MediatorLiveData<User>().apply {
-        value = invalidUser
-        addSource(authID) { uid ->
-            if (uid != invalidUserUid) {
-                db.fetchUserByUid(uid) { user ->
-                    if (user != null) {
-                        this.postValue(user)
-                    } else {
-                        // User is not in database (new user)
-                        this.postValue(null)
-                    }
-                }
-            } else {
-                // User is logged out of Firebase
-                this.postValue(invalidUser)
-            }
-        }
+    var activeUser = MutableLiveData<User>().apply {
+        invalidUser
     }
+//        addSource(authID) { uid ->
+//            if (uid != invalidUserUid) {
+//                db.fetchUserByUid(uid) { user ->
+//                    if (user != null) {
+//                        this.postValue(user)
+//                    } else {
+//                        // User is not in database (new user)
+//                        this.postValue(null)
+//                    }
+//                }
+//            } else {
+//                // User is logged out of Firebase
+//                this.postValue(invalidUser)
+//            }
+//        }
+//    }
 
     // OSM
     private val osmAPI = OSMApi.create()
@@ -111,52 +112,55 @@ class MainViewModel(): ViewModel() {
         }
     }
 
-    fun isUserInDB(uid: String) : LiveData<Boolean> {
-        Log.d(TAG, "checking isUserInDB: $uid")
-        val isUserExists = MutableLiveData<Boolean>()
-        db.fetchUserByUid(uid) { result ->
+    // Returns LiveData of User object from database
+    // invalidUser if user is not in database
+    // null if there is an error
+    fun getUserFromDb(userId: String) : LiveData<User?> {
+        Log.d(TAG, "checking isUserInDB: $userId")
+        val user = MutableLiveData<User?>()
+        db.fetchUserByUid(userId) { result ->
             Log.d(TAG, "isUserInDB: $result")
-            isUserExists.postValue(result != invalidUser)
+            user.postValue(result)
         }
-        Log.d(TAG, "isUserInDB: ${isUserExists.value}")
-        return isUserExists
+        Log.d(TAG, "isUserInDB: ${user.value?.uid}")
+        return user
     }
 
-    fun setAuthID(uid: String) {
-        Log.d(TAG, "setActiveAuthUser: $uid")
-        authID.value = uid
-    }
+//    fun setAuthID(uid: String) {
+//        Log.d(TAG, "setActiveAuthUser: $uid")
+//        authID.value = uid
+//    }
 
-    fun observeAuthID(): LiveData<String> {
-        return authID
-    }
+//    fun observeAuthID(): LiveData<String> {
+//        return authID
+//    }
 
     fun observeActiveUser(): LiveData<User> {
         return activeUser
     }
 
     // MainActivity gets updates on this via live data and informs view model
-    fun setActiveAuthUserID(uid: String) {
-        Log.d(TAG, "setActiveAuthUser: $uid")
-        if (uid != invalidUserUid) {
-            db.fetchUserByUid(uid) {
-                activeUser.postValue(it)
-                Log.d(TAG, "setActiveAuthUser: ${activeUser.value?.displayName} ${activeUser.value?.email} ${activeUser.value?.uid} ${activeUser.value?.bio}")
-
-                interestsLiveData.postValue(activeUser.value?.userInterests)
-                convertToEventAndPost(activeUser.value?.pastEvents)
-                db.fetchEvents { eventList ->
-                    events.postValue(eventList)
-                }
-            }
-            Log.d(TAG, "setActiveAuthUser: $uid")
-        } else {
-            activeUser.value = invalidUser
-            pastEventsLiveData.postValue(listOf())
-            interestsLiveData.postValue(listOf())
-            Log.d(TAG, "setActiveAuthUser: invalid user")
-        }
-    }
+//    fun setActiveAuthUserID(uid: String) {
+//        Log.d(TAG, "setActiveAuthUser: $uid")
+//        if (uid != invalidUserUid) {
+//            db.fetchUserByUid(uid) {
+//                activeUser.postValue(it)
+//                Log.d(TAG, "setActiveAuthUser: ${activeUser.value?.displayName} ${activeUser.value?.email} ${activeUser.value?.uid} ${activeUser.value?.bio}")
+//
+//                interestsLiveData.postValue(activeUser.value?.userInterests)
+//                convertToEventAndPost(activeUser.value?.pastEvents)
+//                db.fetchEvents { eventList ->
+//                    events.postValue(eventList)
+//                }
+//            }
+//            Log.d(TAG, "setActiveAuthUser: $uid")
+//        } else {
+//            activeUser.value = invalidUser
+//            pastEventsLiveData.postValue(listOf())
+//            interestsLiveData.postValue(listOf())
+//            Log.d(TAG, "setActiveAuthUser: invalid user")
+//        }
+//    }
 
     // Converts list of event IDs to list of events, then posts to live data
     private fun convertToEventAndPost(eventIdList: List<String>?) {

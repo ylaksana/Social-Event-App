@@ -34,6 +34,14 @@ class AuthUser(private val registry: ActivityResultRegistry) :
         return activeUserUid
     }
 
+    fun getEmail(): String {
+        return Firebase.auth.currentUser?.email ?: ""
+    }
+
+    fun getName(): String {
+        return Firebase.auth.currentUser?.displayName ?: ""
+    }
+
     // Update active user LiveData upon a change of state for our FirebaseUser
     private fun activeUserUpdate(firebaseUser: FirebaseUser?) {
         if(firebaseUser == null) {
@@ -59,7 +67,7 @@ class AuthUser(private val registry: ActivityResultRegistry) :
         activeUserUpdate(p0.currentUser)
     }
 
-    fun user(): FirebaseUser? {
+    private fun user(): FirebaseUser? {
         return Firebase.auth.currentUser
     }
 

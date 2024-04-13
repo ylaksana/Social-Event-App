@@ -26,6 +26,7 @@ class ProfileFragment: Fragment() {
 
     private fun initAdapters(binding: ProfileFragmentBinding) {
         Log.d(TAG, "initAdapters")
+        // Event RV
         binding.pastEventsRV.layoutManager = LinearLayoutManager(context)
         val adapter = PastEventAdapter(viewModel) {
             // Navigate to OneEvent
@@ -34,18 +35,18 @@ class ProfileFragment: Fragment() {
         viewModel.observePastEvents().observe(viewLifecycleOwner) {
             adapter.submitList(it)
         }
-        binding.interestsRV.layoutManager = FlexboxLayoutManager(context).apply {
-            flexDirection = FlexDirection.ROW
-            flexWrap = FlexWrap.WRAP
-            justifyContent = JustifyContent.FLEX_START
-        }
+
+        // Interest RV
         val interestAdapter = InterestAdapter(viewModel)
         binding.interestsRV.adapter = interestAdapter
         viewModel.observeInterests().observe(viewLifecycleOwner) {
             interestAdapter.submitList(it)
         }
-
-
+        binding.interestsRV.layoutManager = FlexboxLayoutManager(context).apply {
+            flexDirection = FlexDirection.ROW
+            flexWrap = FlexWrap.WRAP
+            justifyContent = JustifyContent.FLEX_START
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -70,13 +71,10 @@ class ProfileFragment: Fragment() {
         initAdapters(binding)
         val user = viewModel.getActiveUser()
         navController = findNavController()
+
         if (user != null) {
             binding.userName.text = user.firstName
-        }
-        if (user != null) {
             binding.profileBio.text = user.bio
-        }
-        if (user != null) {
             viewModel.fetchUserImage(user.profileImage, binding.profileImage)
         }
 

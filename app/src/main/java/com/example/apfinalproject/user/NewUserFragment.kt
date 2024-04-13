@@ -71,9 +71,9 @@ class NewUserFragment : Fragment() {
                         Log.d(TAG, "uploadUserPhoto onComplete")
                         // onComplete())
                         val newUser = User(
-                            uid = args.authUser.uid,
-                            nullableEmail = args.authUser.email,
-                            nullableName = args.authUser.displayName)
+                            uid = args.authUserId,
+                            nullableEmail = args.authUserEmail,
+                            nullableName = args.authUserName)
                         newUser.firstName = binding.firstNameET.text.toString()
                         newUser.lastName = binding.lastNameET.text.toString()
                         newUser.bio = binding.bioET.text.toString()

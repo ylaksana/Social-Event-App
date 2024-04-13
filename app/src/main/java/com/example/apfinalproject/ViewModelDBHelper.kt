@@ -59,7 +59,7 @@ class ViewModelDBHelper {
                 }
             }
             .addOnFailureListener {
-                Log.d(TAG, "fetchUserByUid failed", it)
+                Log.d(TAG, "fetchUserByUid: query failed", it)
                 resultListener(null)
             }
     }

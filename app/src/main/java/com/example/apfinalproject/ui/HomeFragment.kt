@@ -16,13 +16,16 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.example.apfinalproject.MainViewModel
-import com.example.apfinalproject.api.ImageRepository
+//import com.example.apfinalproject.api.ImageRepository
 import com.example.apfinalproject.databinding.ActivityMainBinding
 import com.example.apfinalproject.databinding.HomeFragmentBinding
 import com.example.apfinalproject.event.EventAdapter
 
 class HomeFragment: Fragment() {
 //     XXX initialize viewModel
+    companion object {
+        private const val TAG = "HomeFragment"
+    }
     private val TAG = "HomeFragment"
     private val viewModel: MainViewModel by activityViewModels()
     private var _binding: HomeFragmentBinding? = null
@@ -51,10 +54,26 @@ class HomeFragment: Fragment() {
                 override fun onSwiped(viewHolder: RecyclerView.ViewHolder,
                                       direction: Int) {
                     val position = viewHolder.bindingAdapterPosition
-                    Log.d(javaClass.simpleName, "Swipe delete $position")
+                    Log.d(TAG, "Swipe delete $position")
                 }
             }
         return ItemTouchHelper(simpleItemTouchCallback)
+    }
+
+    private fun initAdapters(binding: HomeFragmentBinding) {
+        Log.d(TAG, "initAdapters")
+        // Event RV
+        binding.eventRV.layoutManager = LinearLayoutManager(context)
+        val adapter = EventAdapter(viewModel) {event ->
+            navController.navigate(
+                HomeFragmentDirections.actionHomeFragmentToOneEventFragment(event)
+            )
+        }
+        binding.eventRV.adapter = adapter
+        viewModel.observeEvents().observe(viewLifecycleOwner) {events ->
+            Log.d(TAG, "submitting list: ${events.size} items")
+            adapter.submitList(events)
+        }
     }
 
     override fun onCreateView(
@@ -68,32 +87,12 @@ class HomeFragment: Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        Log.d(javaClass.simpleName, "onViewCreated")
-
-        val rv = binding.eventRV
-
-        rv.layoutManager = LinearLayoutManager(context)
-
-        // TODO: use glide?
-        val imageRepo = context?.let {
-            ImageRepository(it)
-        }
-
-        Log.d(TAG, "imageRepo: $imageRepo")
-        val adapter = imageRepo?.let { EventAdapter(viewModel, it) {event ->
-                findNavController().navigate(HomeFragmentDirections.actionHomeFragmentToOneEventFragment(event))
-            }
-        }
-        Log.d(TAG, "adapter: $adapter")
-        rv.adapter = adapter
-        viewModel.observeEvents().observe(viewLifecycleOwner) {
-            Log.d(TAG, "eventList length: ${it.size}")
-            adapter?.submitList(it)
-        }
-
-
-        initTouchHelper().attachToRecyclerView(rv)
+        Log.d(TAG, "onViewCreated")
         navController = findNavController()
+
+        initTouchHelper().attachToRecyclerView(binding.eventRV)
+        initAdapters(binding)
+
         binding.chatButton.setOnClickListener{
             navController.safeNavigate(HomeFragmentDirections.actionHomeFragmentToChatListFragment())
         }

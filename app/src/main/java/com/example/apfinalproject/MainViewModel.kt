@@ -29,13 +29,32 @@ class MainViewModel(): ViewModel() {
     }
     private var actionBarBinding : ActionBarBinding? = null
 //    private var events: MutableLiveData<List<Event>> = MutableLiveData(EventList.getAll())
-    private val authID: MutableLiveData<String> = MutableLiveData()
+    private val authID: MutableLiveData<String> = MutableLiveData("-1")
     private val storage = Storage()
     private val db = ViewModelDBHelper()
 
     private var events = MutableLiveData<List<Event>>().apply {
         db.fetchEvents { eventList ->
             this.postValue(eventList)
+        }
+    }
+
+    private var activeUser = MediatorLiveData<User>().apply {
+        value = invalidUser
+        addSource(authID) { uid ->
+            if (uid != invalidUserUid) {
+                db.fetchUserByUid(uid) { user ->
+                    if (user != null) {
+                        this.postValue(user)
+                    } else {
+                        // User is not in database (new user)
+                        this.postValue(null)
+                    }
+                }
+            } else {
+                // User is logged out of Firebase
+                this.postValue(invalidUser)
+            }
         }
     }
 
@@ -81,16 +100,25 @@ class MainViewModel(): ViewModel() {
     private var pastEventsLiveData = MutableLiveData<List<Event>>().apply {
         this.postValue(listOf())
     }
-    var interestsLiveData = MutableLiveData<List<String>>().apply {
-        this.postValue(listOf())
+//    var interestsLiveData = MutableLiveData<List<String>>().apply {
+//        this.postValue(listOf())
+//    }
+
+    var interestsLiveData = MediatorLiveData<List<String>>().apply {
+        value = listOf()
+        addSource(activeUser) { user ->
+            this.postValue(user.userInterests)
+        }
     }
 
     fun isUserInDB(uid: String) : LiveData<Boolean> {
-        Log.d(TAG, "isUserInDB: $uid")
+        Log.d(TAG, "checking isUserInDB: $uid")
         val isUserExists = MutableLiveData<Boolean>()
         db.fetchUserByUid(uid) { result ->
+            Log.d(TAG, "isUserInDB: $result")
             isUserExists.postValue(result != invalidUser)
         }
+        Log.d(TAG, "isUserInDB: ${isUserExists.value}")
         return isUserExists
     }
 
@@ -101,24 +129,6 @@ class MainViewModel(): ViewModel() {
 
     fun observeAuthID(): LiveData<String> {
         return authID
-    }
-
-    private var activeUser = MediatorLiveData<User>().apply {
-        addSource(authID) { uid ->
-            if (uid != invalidUserUid) {
-                db.fetchUserByUid(uid) { user ->
-                    if (user != null) {
-                        this.postValue(user)
-                    } else {
-                        // User is not in database (new user)
-                        this.postValue(null)
-                    }
-                }
-            } else {
-                // User is logged out of Firebase
-                this.postValue(invalidUser)
-            }
-        }
     }
 
     fun observeActiveUser(): LiveData<User> {

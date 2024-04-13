@@ -148,19 +148,15 @@ class MainActivity : AppCompatActivity() {
             } else {
                 Log.d("MainActivity", "User is logged in with uid $it")
                 viewModel.setAuthID(it)
-            }
-        }
-
-        viewModel.observeActiveUser().observe(this) {
-            Log.d(TAG, "observeActiveUser")
-            if (it == null) {
-                Log.d("MainActivity", "User is logged out")
-                val authID = viewModel.observeAuthID().value
-                if (authID != null) {
-                    navController.safeNavigate(HomeFragmentDirections.actionHomeFragmentToNewUserFragment(authID))
+                viewModel.isUserInDB(it).observe(this) { exists ->
+                    if (exists) {
+                        Log.d("MainActivity", "User is in database")
+                        viewModel.setActiveAuthUserID(it)
+                    } else {
+                        Log.d("MainActivity", "User is not in database")
+                        navController.safeNavigate(HomeFragmentDirections.actionHomeFragmentToNewUserFragment(authUser.user()!!))
+                    }
                 }
-            } else {
-                Log.d("MainActivity", "User is logged in with uid ${it.uid}")
             }
         }
         Log.d(TAG, "onStart end")

@@ -59,7 +59,7 @@ class AuthUser(private val registry: ActivityResultRegistry) :
         activeUserUpdate(p0.currentUser)
     }
 
-    private fun user(): FirebaseUser? {
+    fun user(): FirebaseUser? {
         return Firebase.auth.currentUser
     }
 

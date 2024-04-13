@@ -36,21 +36,30 @@ class ViewModelDBHelper {
             }
     }
 
+    // Fetches user by uid from "users" collection and converts it to a User object
+    // Returns null if user is not found or if there is an error
     fun fetchUserByUid(
         uid: String,
         resultListener: (User?)->Unit
     ) {
-        Log.d(TAG, "fetchUser started for $uid")
+        Log.d(TAG, "fetchUserByUid started for $uid")
         db.collection("users")
             .document(uid)
             .get()
             .addOnSuccessListener { result ->
-                Log.d(TAG, "user fetch succeeded for $uid")
+                Log.d(TAG, "fetchUserByUid succeeded for $uid")
+                Log.d(TAG, "fetchUserByUid: ${result.toObject(User::class.java)}")
                 // NB: This is done on a background thread
-                resultListener(result.toObject(User::class.java))
+                if (result.toObject(User::class.java) == null) {
+                    Log.d(TAG, "fetchUserByUid: user is null, doesn't not exist in db")
+                    resultListener(invalidUser)
+                } else {
+                    Log.d(TAG, "fetchUserByUid: user is not null, exists in db")
+                    resultListener(result.toObject(User::class.java))
+                }
             }
             .addOnFailureListener {
-                Log.d(TAG, "user fetch failed", it)
+                Log.d(TAG, "fetchUserByUid failed", it)
                 resultListener(null)
             }
     }

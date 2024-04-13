@@ -21,7 +21,6 @@ class Storage {
         return photoStorage.child("events/${uuid}.jpg")
     }
 
-
     fun uploadUserPhoto(
         imageUri: Uri,
         newImageUUID: String,

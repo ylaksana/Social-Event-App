@@ -63,13 +63,17 @@ class NewUserFragment : Fragment() {
             pickAndSetImage()
         }
         binding.saveButton.setOnClickListener {
+            // TODO: won't
             newImageUri.observe(viewLifecycleOwner, Observer {uri ->
                 Log.d(TAG, "newImageUri.observe $uri")
                 if (uri != null) {
                     uploadUserPhoto(uri) {
                         Log.d(TAG, "uploadUserPhoto onComplete")
                         // onComplete())
-                        val newUser = User(uid = args.AuthUserId)
+                        val newUser = User(
+                            uid = args.authUser.uid,
+                            nullableEmail = args.authUser.email,
+                            nullableName = args.authUser.displayName)
                         newUser.firstName = binding.firstNameET.text.toString()
                         newUser.lastName = binding.lastNameET.text.toString()
                         newUser.bio = binding.bioET.text.toString()

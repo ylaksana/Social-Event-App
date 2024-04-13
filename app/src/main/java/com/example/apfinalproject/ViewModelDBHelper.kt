@@ -148,6 +148,63 @@ class ViewModelDBHelper {
             }
     }
 
+    fun fetchEventsByType(type: String?, resultListener: (List<Event>)->Unit) {
+        Log.d(TAG, "fetchEventsByType started")
+        db.collection("events")
+            .whereEqualTo("type", type)
+            .get()
+            .addOnSuccessListener { result ->
+                Log.d(TAG, "events fetch succeeded for type $type")
+                // NB: This is done on a background thread
+                resultListener(result.documents.mapNotNull {
+                    it.toObject(Event::class.java)
+                })
+            }
+            .addOnFailureListener {
+                Log.d(TAG, "events fetch failed", it)
+                resultListener(listOf())
+            }
+    }
+
+    fun fetchEventsByUser(userUID: String?, isMyEvents: Boolean, resultListener: (List<Event>)->Unit) {
+        if(isMyEvents){
+            Log.d(TAG, "fetchEventsByUser started")
+            db.collection("events")
+                .whereEqualTo("creator", userUID)
+                .get()
+                .addOnSuccessListener { result ->
+                    Log.d(TAG, "events fetch succeeded for ID $userUID")
+                    // NB: This is done on a background thread
+                    resultListener(result.documents.mapNotNull {
+                        it.toObject(Event::class.java)
+                    })
+                }
+                .addOnFailureListener {
+                    Log.d(TAG, "events fetch failed", it)
+                    resultListener(listOf())
+                }
+        }
+        else{
+            Log.d(TAG, "fetchEventsNotByUser started")
+            db.collection("events")
+                .whereNotEqualTo("creator", userUID)
+                .get()
+                .addOnSuccessListener { result ->
+                    Log.d(TAG, "events fetch succeeded for not ID $userUID")
+                    // NB: This is done on a background thread
+                    resultListener(result.documents.mapNotNull {
+                        it.toObject(Event::class.java)
+                    })
+                }
+                .addOnFailureListener {
+                    Log.d(TAG, "events fetch failed", it)
+                    resultListener(listOf())
+                }
+        }
+
+    }
+
+
     fun removeEvent(
         event: Event,
         resultListener: (List<Event>)->Unit

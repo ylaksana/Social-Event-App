@@ -25,6 +25,7 @@ import com.example.apfinalproject.interest.InterestCategories
 
 class HomeFragment: Fragment() {
 //     XXX initialize viewModel
+    private val TAG = "HomeFragment"
     private val viewModel: MainViewModel by activityViewModels()
     private var _binding: HomeFragmentBinding? = null
     private lateinit var navController : NavController
@@ -87,9 +88,19 @@ class HomeFragment: Fragment() {
             }
         }
 
-        viewModel.observeEvents().observe(viewLifecycleOwner) {
-            Log.d("MainActivity", "eventList length: ${it.size}")
-            adapter?.submitList(it)
+        viewModel.observeEvents().observe(viewLifecycleOwner) { eventList ->
+            Log.d("MainActivity", "eventList length: ${eventList.size}")
+            adapter?.submitList(eventList)
+        }
+
+        viewModel.observeFilterTerm().observe(viewLifecycleOwner) {
+            Log.d(TAG, "observeFilterTerm: $it")
+            if(it != null) {
+                viewModel.observeFilters().observe(viewLifecycleOwner) { filters ->
+                    Log.d("Filter", "filterList length: ${filters.size}")
+                    adapter?.submitList(filters)
+                }
+            }
         }
 
         rv.adapter = adapter

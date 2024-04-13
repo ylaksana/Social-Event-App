@@ -5,6 +5,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
@@ -23,7 +24,6 @@ class EventListFragment : Fragment() {
     private val viewModel: MainViewModel by activityViewModels()
     private var _binding: FragmentRvBinding? = null
     private lateinit var navController : NavController
-    private val activityMainBinding: ActivityMainBinding? = null
     //     This property is only valid between onCreateView and onDestroyView.
     private val binding get() = _binding!!
 
@@ -66,10 +66,40 @@ class EventListFragment : Fragment() {
             spinner?.adapter = adapter
         }
 
+        // Set the spinner item selection listener
+        spinner?.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(
+                parent: AdapterView<*>,
+                view: View,
+                position: Int,
+                id: Long
+            ) {
+                val selectedItem = parent.getItemAtPosition(position).toString()
+                when (selectedItem) {
+                    "My Events" -> {
+                        // Change the filter to "My Events"
+                        viewModel.setUserFilter("My Events")
+                    }
 
-        viewModel.observeEvents().observe(viewLifecycleOwner) {
-            Log.d("MainActivity", "eventList length: ${it.size}")
-            adapter?.submitList(it)
+                    "My Requests" -> {
+                        // Change the filter to "My Requests"
+                        viewModel.setUserFilter("My Requests")
+                    }
+                }
+                viewModel.observeFilters().observe(viewLifecycleOwner) {
+                    Log.d("filterSpinner", "filterList length: $it")
+                    adapter?.submitList(it)
+                }
+            }
+
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                viewModel.setUserFilter("My Events")
+                viewModel.observeFilters().observe(viewLifecycleOwner) {
+                    Log.d("filterSpinner", "filterList length: $it")
+                    adapter?.submitList(it)
+                }
+            }
         }
 
         rv.adapter = adapter

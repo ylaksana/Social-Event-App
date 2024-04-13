@@ -1,14 +1,11 @@
 package com.example.apfinalproject.interest
 
-import android.graphics.Color
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.example.apfinalproject.databinding.FilterRowBinding
-import com.example.apfinalproject.ui.InterestAdapter
 import com.example.apfinalproject.MainViewModel
 import com.example.apfinalproject.R
 import com.example.apfinalproject.databinding.InterestItemBinding
@@ -16,14 +13,36 @@ import com.example.apfinalproject.databinding.InterestItemBinding
 class FilterAdapter(private val viewModel: MainViewModel)
     : ListAdapter<InterestCategories.Interest, FilterAdapter.VH>(InterestDiff()){
 
+        private var currentPosition = 0
+
     inner class VH(val rowPostBinding : InterestItemBinding)
         : RecyclerView.ViewHolder(rowPostBinding.root) {
         init {
             itemView.setOnClickListener {
-                val position = bindingAdapterPosition
-                val item = getItem(position)
-                item.selected = !item.selected
-                notifyItemChanged(position)
+                val previousPosition: Int = currentPosition
+                currentPosition = bindingAdapterPosition
+                val previousItem = getItem(previousPosition)
+                val item = getItem(currentPosition)
+
+                notifyItemChanged(previousPosition)
+                notifyItemChanged(currentPosition)
+                Log.d("FilterBinding", "${item.category}, ${item.selected}")
+                if(item == previousItem) {
+                    if(item.selected){
+                        item.selected = false
+                        viewModel.setFilter("")
+                    }
+                    else{
+                        item.selected = true
+                        viewModel.setFilter(item.category)
+                    }
+                }
+                else{
+                    previousItem.selected = false
+                    item.selected = true
+                    viewModel.setFilter(item.category)
+                }
+
             }
         }
     }

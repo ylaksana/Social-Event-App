@@ -11,9 +11,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import com.example.apfinalproject.ViewModelDBHelper
 import com.example.apfinalproject.glide.Glide
-import com.example.apfinalproject.Storage
 import com.example.apfinalproject.osm.OSMApi
 import com.example.apfinalproject.osm.OSMLocation
 import com.example.apfinalproject.osm.OSMRepository
@@ -24,14 +22,16 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
-
 class MainViewModel(): ViewModel() {
     private val TAG = "MainViewModel"
     private var actionBarBinding : ActionBarBinding? = null
 //    private var events: MutableLiveData<List<Event>> = MutableLiveData(EventList.getAll())
     private var activeUser: User = invalidUser
+    private val userUID: MutableLiveData<String> = MutableLiveData()
     private val storage = Storage()
     private val db = ViewModelDBHelper()
+    private val filterTerm: MutableLiveData<String> = MutableLiveData()
+    private var isMyEvents: MutableLiveData<Boolean> = MutableLiveData()
 
     private var events = MutableLiveData<List<Event>>().apply {
         db.fetchEvents { eventList ->
@@ -72,6 +72,102 @@ class MainViewModel(): ViewModel() {
     fun setLocationTerm(term: String) {
         searchLocation.postValue(term)
     }
+
+    // Filter events by search term
+    private var netFilters = MediatorLiveData<List<Event>>().apply{
+        addSource(filterTerm) { term ->
+            Log.d("netFilters", "Filter term: $term")
+            if(term != null && term != "") {
+                Log.d("netFilters", "Fetching filtered events")
+                try {
+                    viewModelScope.launch(Dispatchers.IO) {
+                        val events = db.fetchEventsByType(term){
+                            postValue(it)
+                        }
+                        Log.d("netFilters", "Fetched locations: $events")
+
+                    }
+                } catch(e: HttpException) {
+                    Log.e("HTTP Error", "Error fetching posts: ${e.code()}")
+                } catch(e: Exception) {
+                    Log.e("General Error", "Error in fetching from API: ${e.message}")
+                }
+            }
+            else{
+                try {
+                    Log.d("netFilters", "Fetching all events")
+                    Log.d("netFilters", "Fetched locations before: ${events.value}")
+                    viewModelScope.launch(Dispatchers.IO) {
+                        db.fetchEvents {
+                            postValue(it)
+                        }
+                    }
+                    Log.d("netFilters", "Fetched locations after: ${events.value}")
+                } catch(e: HttpException) {
+                    Log.e("HTTP Error", "Error fetching posts: ${e.code()}")
+                } catch(e: Exception) {
+                    Log.e("General Error", "Error in fetching from API: ${e.message}")
+                }
+            }
+
+        }
+        // To differentiate between user's events and requests
+        addSource(isMyEvents){ myEvents ->
+            if(myEvents){
+                try {
+                    viewModelScope.launch(Dispatchers.IO) {
+                        db.fetchEventsByUser(userUID.value, myEvents){
+                            postValue(it)
+                        }
+                        Log.d("netFiltersByUser", "Fetched locations: ${events.value}")
+
+                    }
+                } catch(e: HttpException) {
+                    Log.e("HTTP Error", "Error fetching posts: ${e.code()}")
+                } catch(e: Exception) {
+                    Log.e("General Error", "Error in fetching from API: ${e.message}")
+                }
+            }
+            else{
+                try {
+                    viewModelScope.launch(Dispatchers.IO) {
+                        db.fetchEventsByUser(userUID.value, myEvents){
+                            postValue(it)
+                        }
+                        Log.d("netFiltersNotByUser", "Fetched locations: ${events.value}")
+
+                    }
+                } catch(e: HttpException) {
+                    Log.e("HTTP Error", "Error fetching posts: ${e.code()}")
+                } catch(e: Exception) {
+                    Log.e("General Error", "Error in fetching from API: ${e.message}")
+                }
+            }
+        }
+    }
+
+    fun observeFilterTerm(): LiveData<String> {
+        return filterTerm
+    }
+
+    fun observeFilters(): LiveData<List<Event>> {
+        Log.d("ObserveFilters", "Fetched locations: ${netFilters.value}")
+        return netFilters
+    }
+
+    fun setFilter(filter: String){
+        filterTerm.value = filter
+        Log.d(TAG, "Filter: $filter")
+    }
+
+    fun setUserFilter(filter: String){
+        if(filter == "My Events"){
+            isMyEvents.value = true
+        }
+        else{
+            isMyEvents.value = false
+        }
+    }
     
 
     // Convert these to Event/Interest objects later
@@ -89,7 +185,8 @@ class MainViewModel(): ViewModel() {
         if (uid != invalidUserUid) {
             db.fetchUserByUid(uid) {
                 activeUser = it!!
-                Log.d(TAG, "setActiveAuthUser: ${activeUser.displayName} ${activeUser.email} ${activeUser.uid} ${activeUser.bio}")
+                userUID.postValue(it.uid)
+                Log.d("ActiveUser", "setActiveAuthUser: ${activeUser.displayName} ${activeUser.email} ${activeUser.uid} ${activeUser.bio}")
 
                 interestsLiveData.postValue(activeUser.userInterests)
                 convertToEventAndPost(activeUser.pastEvents)

@@ -116,6 +116,7 @@ class MainActivity : AppCompatActivity() {
         actionBarCreateEvent()
         actionBarEventList()
 
+
         // Set up our nav graph
         navController = findNavController(R.id.main_frame)
         val appBarConfiguration = AppBarConfiguration(navController.graph)

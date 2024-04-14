@@ -74,6 +74,7 @@ class HomeFragment: Fragment() {
             Log.d(TAG, "submitting list: ${events.size} items")
             adapter.submitList(events)
         }
+        Log.d(TAG, "end initadapters")
     }
 
     override fun onCreateView(

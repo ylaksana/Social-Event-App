@@ -109,12 +109,22 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.d(TAG, "onCreate")
         super.onCreate(savedInstanceState)
+
+        Log.d(TAG, ">>before authuser")
+        authUser = AuthUser(activityResultRegistry)
+        Log.d(TAG, ">>after authuser")
+        lifecycle.addObserver(authUser)
+
+        Log.d(TAG, ">>inflating binding")
         val activityMainBinding = ActivityMainBinding.inflate(layoutInflater)
+        Log.d(TAG, ">>setting content view")
         setContentView(activityMainBinding.root)
+        Log.d(TAG, ">>setting support action bar")
         setSupportActionBar(activityMainBinding.toolbar)
         supportActionBar?.let{
             initActionBar(it)
         }
+
 
         initTitleObservers()
         actionBarTitleLaunchProfile()
@@ -136,34 +146,55 @@ class MainActivity : AppCompatActivity() {
     override fun onStart() {
         super.onStart()
         Log.d(TAG, "onStart")
-        authUser = AuthUser(activityResultRegistry)
-        lifecycle.addObserver(authUser)
+        var pendingLogin = false
+
+
+        Log.d(TAG, ">>auth user: ${authUser.observeAuthId().value}")
 
         authUser.observeAuthId().observe(this) {authId ->
-            Log.d(TAG, "observeAuthId")
-            // XXX Write me, user status has changed
-            if (authId == null) {
-                Log.d("MainActivity", "User is logged out")
-                viewModel.activeUser.postValue(invalidUser)
-            } else {
-                Log.d("MainActivity", "User is logged in with uid $authId")
-                viewModel.getUserFromDb(authId).observe(this) { user ->
-                    if (user != invalidUser) {
-                        Log.d("MainActivity", "User is in database")
-                        viewModel.activeUser.postValue(user)
-                    } else {
-                        Log.d("MainActivity", "User is not in database")
-                        navController.safeNavigate(
-                            HomeFragmentDirections.actionHomeFragmentToNewUserFragment(
-                                authId,
-                                authUser.getEmail(),
-                                authUser.getName()
+            if (!pendingLogin) {
+                pendingLogin = true
+                Log.d(TAG, ">>observeAuthId started with $authId")
+                // XXX Write me, user status has changed
+                if ((authId == null) or (authId == invalidUser.uid)) {
+                    Log.d(TAG, ">>User is logged out with authid = $authId")
+                    viewModel.activeUser.postValue(invalidUser)
+                } else {
+                    Log.d(TAG, ">>User is logged in with uid $authId : ${authUser.getName()}")
+                    viewModel.getUserFromDb(authId).observe(this) { user ->
+                        Log.d(TAG, ">>User in DB with ${user?.uid}")
+                        if (user != invalidUser) {
+                            Log.d(TAG, ">>User in DB. Logging in with ${user?.uid}")
+                            viewModel.activeUser.postValue(user)
+                            Log.d(TAG, ">>User posted with ${viewModel.activeUser.value?.uid}")
+                        } else {
+                            Log.d(TAG, ">>User is not in database")
+                            // log current fragment
+                            val currentFragment = supportFragmentManager.findFragmentById(R.id.main_frame)
+                            Log.d(TAG, ">>current fragment: ${currentFragment?.javaClass?.simpleName}")
+                            navController.safeNavigate(
+                                HomeFragmentDirections.actionHomeFragmentToCreateUserFragment(
+                                    authId,
+                                    authUser.getName(),
+                                    authUser.getEmail()
+                                )
                             )
-                        )
+                        }
                     }
                 }
+                pendingLogin = false
             }
         }
         Log.d(TAG, "onStart end")
+    }
+
+    override fun onStop() {
+        super.onStop()
+        Log.d(TAG, "onStop")
+    }
+
+    override fun onPause() {
+        super.onPause()
+        Log.d(TAG, "onPause")
     }
 }

@@ -25,6 +25,7 @@ class AuthUser(private val registry: ActivityResultRegistry) :
     private var activeUserUid = MutableLiveData<String>()
     private var pendingLogin = false
     init {
+        Log.d(TAG, ">>init")
         // Listen to FirebaseAuth state
         // That way, if the server logs us out, we know it and change the view
         FirebaseAuth.getInstance().addAuthStateListener(this)
@@ -44,17 +45,19 @@ class AuthUser(private val registry: ActivityResultRegistry) :
 
     // Update active user LiveData upon a change of state for our FirebaseUser
     private fun activeUserUpdate(firebaseUser: FirebaseUser?) {
+        Log.d(TAG, ">>activeUserUpdate")
         if(firebaseUser == null) {
-            Log.d(TAG, "FirebaseUser is null")
+            Log.d(TAG, ">>FirebaseUser is null")
             activeUserUid.postValue(invalidUserUid)
             login()
         } else {
-            Log.d(TAG, "authUserUpdate ${firebaseUser.uid}")
+            Log.d(TAG, ">>authUserUpdate ${firebaseUser.uid}")
             activeUserUid.postValue(firebaseUser.uid)
         }
     }
 
     override fun onCreate(owner: LifecycleOwner) {
+        Log.d(TAG, ">>onCreate")
         signInLauncher = registry.register("key", owner,
             FirebaseAuthUIActivityResultContract()) { result ->
                 Log.d(TAG, "sign in result ${result.resultCode}")
@@ -63,7 +66,7 @@ class AuthUser(private val registry: ActivityResultRegistry) :
     }
 
     override fun onAuthStateChanged(p0: FirebaseAuth) {
-        Log.d(TAG, "onAuthStateChanged null? ${p0.currentUser == null}")
+        Log.d(TAG, ">>onAuthStateChanged null? ${p0.currentUser == null}")
         activeUserUpdate(p0.currentUser)
     }
 
@@ -72,7 +75,9 @@ class AuthUser(private val registry: ActivityResultRegistry) :
     }
 
     private fun login() {
+        Log.d(TAG, ">>login started")
         if (user() == null && !pendingLogin) {
+            Log.d(TAG, ">>Logging in")
             pendingLogin = true
             val providers = arrayListOf(
                 AuthUI.IdpConfig.EmailBuilder().build(),

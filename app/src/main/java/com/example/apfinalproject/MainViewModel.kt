@@ -27,37 +27,30 @@ class MainViewModel(): ViewModel() {
     companion object {
         private const val TAG = "MainViewModel"
     }
+    init {
+        Log.d(TAG, ">>init")
+    }
     private var actionBarBinding : ActionBarBinding? = null
-//    private var events: MutableLiveData<List<Event>> = MutableLiveData(EventList.getAll())
-//    private val authID: MutableLiveData<String> = MutableLiveData("-1")
     private val storage = Storage()
     private val db = ViewModelDBHelper()
 
-    private var events = MutableLiveData<List<Event>>().apply {
-        db.fetchEvents { eventList ->
-            this.postValue(eventList)
-        }
-    }
 
     var activeUser = MutableLiveData<User>().apply {
+        Log.d(TAG, ">>activeUser init")
         invalidUser
     }
-//        addSource(authID) { uid ->
-//            if (uid != invalidUserUid) {
-//                db.fetchUserByUid(uid) { user ->
-//                    if (user != null) {
-//                        this.postValue(user)
-//                    } else {
-//                        // User is not in database (new user)
-//                        this.postValue(null)
-//                    }
-//                }
-//            } else {
-//                // User is logged out of Firebase
-//                this.postValue(invalidUser)
-//            }
-//        }
-//    }
+
+    private var events = MediatorLiveData<List<Event>>().apply {
+        Log.d(TAG, ">>events init")
+        value = listOf()
+        addSource(activeUser) { _ ->
+            Log.d(TAG, ">>events activeUser changed")
+            db.fetchEvents { eventList ->
+                Log.d(TAG, ">>events activeUser changed, fetched ${eventList.size} events")
+                postValue(eventList)
+            }
+        }
+    }
 
     // OSM
     private val osmAPI = OSMApi.create()
@@ -76,9 +69,9 @@ class MainViewModel(): ViewModel() {
                     }
                 }
             } catch(e: HttpException) {
-            Log.e("HTTP Error", "Error fetching posts: ${e.code()}")
+                Log.e("HTTP Error", "Error fetching posts: ${e.code()}")
             } catch(e: Exception) {
-            Log.e("General Error", "Error in fetching from API: ${e.message}")
+                Log.e("General Error", "Error in fetching from API: ${e.message}")
             }
         }
     }
@@ -95,15 +88,11 @@ class MainViewModel(): ViewModel() {
     fun setLocationTerm(term: String) {
         searchLocation.postValue(term)
     }
-    
 
     // Convert these to Event/Interest objects later
     private var pastEventsLiveData = MutableLiveData<List<Event>>().apply {
         this.postValue(listOf())
     }
-//    var interestsLiveData = MutableLiveData<List<String>>().apply {
-//        this.postValue(listOf())
-//    }
 
     var interestsLiveData = MediatorLiveData<List<String>>().apply {
         value = listOf()
@@ -115,57 +104,26 @@ class MainViewModel(): ViewModel() {
     // Returns LiveData of User object from database
     // invalidUser if user is not in database
     // null if there is an error
-    fun getUserFromDb(userId: String) : LiveData<User?> {
+    fun getUserFromDb(userId: String) : LiveData<User> {
         Log.d(TAG, "checking isUserInDB: $userId")
-        val user = MutableLiveData<User?>()
+        val user = MutableLiveData<User>()
         db.fetchUserByUid(userId) { result ->
-            Log.d(TAG, "isUserInDB: $result")
-            user.postValue(result)
+            Log.d(TAG, "isUserInDB: ${result?.uid} : ${result?.displayName}")
+            user.postValue(result!!)
         }
-        Log.d(TAG, "isUserInDB: ${user.value?.uid}")
+//        Log.d(TAG, "isUserInDB end: ${user.value?.uid}")
         return user
     }
-
-//    fun setAuthID(uid: String) {
-//        Log.d(TAG, "setActiveAuthUser: $uid")
-//        authID.value = uid
-//    }
-
-//    fun observeAuthID(): LiveData<String> {
-//        return authID
-//    }
 
     fun observeActiveUser(): LiveData<User> {
         return activeUser
     }
 
-    // MainActivity gets updates on this via live data and informs view model
-//    fun setActiveAuthUserID(uid: String) {
-//        Log.d(TAG, "setActiveAuthUser: $uid")
-//        if (uid != invalidUserUid) {
-//            db.fetchUserByUid(uid) {
-//                activeUser.postValue(it)
-//                Log.d(TAG, "setActiveAuthUser: ${activeUser.value?.displayName} ${activeUser.value?.email} ${activeUser.value?.uid} ${activeUser.value?.bio}")
-//
-//                interestsLiveData.postValue(activeUser.value?.userInterests)
-//                convertToEventAndPost(activeUser.value?.pastEvents)
-//                db.fetchEvents { eventList ->
-//                    events.postValue(eventList)
-//                }
-//            }
-//            Log.d(TAG, "setActiveAuthUser: $uid")
-//        } else {
-//            activeUser.value = invalidUser
-//            pastEventsLiveData.postValue(listOf())
-//            interestsLiveData.postValue(listOf())
-//            Log.d(TAG, "setActiveAuthUser: invalid user")
-//        }
-//    }
-
     // Converts list of event IDs to list of events, then posts to live data
+    // TODO: add exception catches here
     private fun convertToEventAndPost(eventIdList: List<String>?) {
         val eventList = mutableListOf<Event>()
-        CoroutineScope(Dispatchers.IO).launch {
+        viewModelScope.launch(Dispatchers.IO) {
             eventIdList?.map {eventID ->
                 // Fetches event on background thread
                 val event = async {
@@ -230,8 +188,9 @@ class MainViewModel(): ViewModel() {
 
     fun addNewUser(newUser: User) {
         Log.d(TAG, "addNewUser: ${newUser.uid}")
-        db.createUser(newUser) { _ ->
-            activeUser.postValue(newUser)
+        db.createUser(newUser) { user ->
+            Log.d(TAG, "addNewUser: ${user.uid}")
+            activeUser.postValue(user)
         }
     }
 }

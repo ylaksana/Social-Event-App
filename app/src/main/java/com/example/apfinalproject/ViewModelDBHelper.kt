@@ -8,6 +8,8 @@ import com.example.apfinalproject.user.User
 import com.example.apfinalproject.user.invalidUser
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
+import kotlinx.coroutines.Dispatchers
+
 
 class ViewModelDBHelper {
     private val TAG = "ViewModelDBHelper"
@@ -60,23 +62,23 @@ class ViewModelDBHelper {
             }
             .addOnFailureListener {
                 Log.d(TAG, "fetchUserByUid: query failed", it)
-                resultListener(null)
+                resultListener(invalidUser)
             }
     }
 
     fun createUser(
         user: User,
-        resultListener: (List<User>)->Unit
+        resultListener: (User)->Unit
     ) {
         Log.d(TAG, "createUser started")
         db.collection("users").document(user.uid).set(user)
             .addOnSuccessListener {
                 Log.d(TAG, "createUser succeeded")
-                fetchUsers(resultListener)
+                resultListener(user)
             }
             .addOnFailureListener {
                 Log.d(TAG, "createUser failed", it)
-                resultListener(listOf())
+                resultListener(invalidUser)
             }
     }
 

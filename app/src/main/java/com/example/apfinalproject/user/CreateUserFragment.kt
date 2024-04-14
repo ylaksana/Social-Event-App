@@ -12,8 +12,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Observer
 
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
@@ -26,17 +24,18 @@ import com.example.apfinalproject.model.InterestCategories
 import java.util.UUID
 
 
-class NewUserFragment : Fragment() {
+class CreateUserFragment : Fragment() {
     companion object {
-        private const val TAG = "NewUserFragment"
+        private const val TAG = "CreateUserFragment"
     }
     private val viewModel: MainViewModel by activityViewModels()
     private var _binding: NewUserFragmentBinding? = null
     private val binding get() = _binding!!
     private lateinit var navController: NavController
-    private val args: NewUserFragmentArgs by navArgs()
+    private val args: CreateUserFragmentArgs by navArgs()
     private var interestAdapter: InterestAdapter? = null
-    private var newImageUri: MutableLiveData<Uri> = MutableLiveData()
+//    private var newImageUri: MutableLiveData<Uri> = MutableLiveData()
+    private var newImageUri: Uri = Uri.EMPTY
     private var newImageUUID: String? = null
 
     private fun initAdapters(binding: NewUserFragmentBinding) {
@@ -63,28 +62,25 @@ class NewUserFragment : Fragment() {
             pickAndSetImage()
         }
         binding.saveButton.setOnClickListener {
-            // TODO: won't
-            newImageUri.observe(viewLifecycleOwner, Observer {uri ->
-                Log.d(TAG, "newImageUri.observe $uri")
-                if (uri != null) {
-                    uploadUserPhoto(uri) {
-                        Log.d(TAG, "uploadUserPhoto onComplete")
-                        // onComplete())
-                        val newUser = User(
-                            uid = args.authUserId,
-                            nullableEmail = args.authUserEmail,
-                            nullableName = args.authUserName)
-                        newUser.firstName = binding.firstNameET.text.toString()
-                        newUser.lastName = binding.lastNameET.text.toString()
-                        newUser.bio = binding.bioET.text.toString()
-                        newUser.userInterests = interestAdapter!!.tempInterests
-                        newUser.profileImage = newImageUUID ?: ""
+            val newUser = User(
+                uid = args.authUserId,
+                nullableEmail = args.authUserEmail,
+                nullableName = args.authUserName)
+            newUser.firstName = binding.firstNameET.text.toString()
+            newUser.lastName = binding.lastNameET.text.toString()
+            newUser.bio = binding.bioET.text.toString()
+            newUser.userInterests = interestAdapter!!.tempInterests
+            newUser.profileImage = ""
 
-                        viewModel.addNewUser(newUser)
-                        navController.popBackStack()
-                    }
+            if (newImageUri != Uri.EMPTY){
+                uploadUserPhoto(newImageUri) {
+                    newUser.profileImage = newImageUUID ?: ""
+                    viewModel.addNewUser(newUser)
                 }
-            })
+            } else {
+                viewModel.addNewUser(newUser)
+            }
+            navController.navigate(CreateUserFragmentDirections.actionCreateUserFragmentToHomeFragment())
         }
     }
 
@@ -129,9 +125,9 @@ class NewUserFragment : Fragment() {
         Log.d(TAG, "imagePickLauncher started")
         if (result.resultCode == Activity.RESULT_OK) {
             val data: Intent? = result.data
-            newImageUri.value = data?.data
-            Log.d(TAG, "imagePickLauncher uri: $newImageUri.value")
-            binding.profileImage.setImageURI(newImageUri.value)
+            newImageUri = data?.data ?: Uri.EMPTY
+            Log.d(TAG, "imagePickLauncher uri: $newImageUri")
+            binding.profileImage.setImageURI(newImageUri)
         }
         Log.d(TAG, "imagePickLauncher complete")
     }
@@ -145,5 +141,9 @@ class NewUserFragment : Fragment() {
         storage.uploadUserPhoto(imageUri, newImageUUID!!, "") {
             onComplete()
         }
+    }
+
+    private fun uploadNewUser(newUser: User) {
+
     }
 }

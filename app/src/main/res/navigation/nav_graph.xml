@@ -38,8 +38,8 @@
 
 <!--        Home to New User-->
         <action
-            android:id="@+id/action_homeFragment_to_newUserFragment"
-            app:destination="@id/newUserFragment" />
+            android:id="@+id/action_homeFragment_to_createUserFragment"
+            app:destination="@id/createUserFragment" />
 
         <!--Home to Settings-->
         <action
@@ -81,12 +81,12 @@
 
     <!--New User Fragment-->
     <fragment
-        android:id="@+id/newUserFragment"
-        android:name="com.example.apfinalproject.user.NewUserFragment">
+        android:id="@+id/createUserFragment"
+        android:name="com.example.apfinalproject.user.CreateUserFragment">
 
-        <!--NewUser to Home-->
+        <!--Create User to Home-->
         <action
-            android:id="@+id/action_newUserFragment_to_homeFragment"
+            android:id="@+id/action_createUserFragment_to_homeFragment"
             app:destination="@id/homeFragment" />
             <argument
                 android:name="authUserId"
@@ -202,5 +202,21 @@
 
     </fragment>
 
+    <!--Welcome Fragment-->
+    <fragment
+        android:id="@+id/welcomeFragment"
+        android:name="com.example.apfinalproject.ui.WelcomeFragment">
+
+        <!--Welcome to Home-->
+        <action
+            android:id="@+id/action_welcomeFragment_to_homeFragment"
+            app:destination="@id/homeFragment" />
+
+        <!--Welcome to New User-->
+        <action
+            android:id="@+id/action_welcomeFragment_to_createUserFragment"
+            app:destination="@id/createUserFragment" />
+
+    </fragment>
 
 </navigation>

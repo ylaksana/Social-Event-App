@@ -138,6 +138,21 @@ class ViewModelDBHelper {
             }
     }
 
+    fun fetchUpdatingEventList(resultListener: (List<Event>) -> Unit) {
+        Log.d(TAG, "fetchUpdatingEventList started")
+        val query = db.collection("events")
+        Log.d(TAG, "query: events")
+        query
+            .limit(queryLimit)
+            .addSnapshotListener { querySnapshot, firebaseFirestoreException ->
+                Log.d(TAG, "events fetch ${querySnapshot!!.documents.size}")
+                // NB: This is done on a background thread
+                resultListener(querySnapshot.documents.mapNotNull {
+                    it.toObject(Event::class.java)
+                })
+            }
+    }
+
     // Fetches event by uid from "events" collection and converts it to an Event object
     // This is used for grabbing event IDs on a user object (and later converting them to events)
     fun fetchEventByUid(

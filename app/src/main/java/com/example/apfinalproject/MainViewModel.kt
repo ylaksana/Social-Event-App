@@ -36,8 +36,9 @@ class MainViewModel(): ViewModel() {
     private val db = ViewModelDBHelper()
     private var photoUUID = ""
 
+
     private var events = MutableLiveData<List<Event>>().apply {
-        db.fetchEvents { eventList ->
+        db.fetchUpdatingEventList { eventList ->
             this.postValue(eventList)
         }
     }

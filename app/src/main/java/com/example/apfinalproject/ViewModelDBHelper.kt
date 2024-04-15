@@ -50,14 +50,16 @@ class ViewModelDBHelper {
             .get()
             .addOnSuccessListener { result ->
                 Log.d(TAG, "fetchUserByUid succeeded for $uid")
-                Log.d(TAG, "fetchUserByUid: ${result.toObject(User::class.java)}")
+                val user = result.toObject(User::class.java)
+                Log.d(TAG, "fetchUserByUid: ${user?.uid}")
                 // NB: This is done on a background thread
-                if (result.toObject(User::class.java) == null) {
+
+                if (user == null) {
                     Log.d(TAG, "fetchUserByUid: user is null, doesn't not exist in db")
                     resultListener(invalidUser)
                 } else {
                     Log.d(TAG, "fetchUserByUid: user is not null, exists in db")
-                    resultListener(result.toObject(User::class.java))
+                    resultListener(user)
                 }
             }
             .addOnFailureListener {

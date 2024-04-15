@@ -157,21 +157,12 @@ class MainActivity : AppCompatActivity() {
                 Log.d(TAG, ">>observeAuthId started with $authId")
                 // XXX Write me, user status has changed
                 if ((authId == null) or (authId == invalidUser.uid)) {
-                    Log.d(TAG, ">>User is logged out with authid = $authId")
+                    Log.d(TAG, ">> No user logged into Firebase : $authId")
                     viewModel.activeUser.postValue(invalidUser)
                 } else {
                     Log.d(TAG, ">>User is logged in with uid $authId : ${authUser.getName()}")
-                    viewModel.getUserFromDb(authId).observe(this) { user ->
-                        Log.d(TAG, ">>User in DB with ${user?.uid}")
-                        if (user != invalidUser) {
-                            Log.d(TAG, ">>User in DB. Logging in with ${user?.uid}")
-                            viewModel.activeUser.postValue(user)
-                            Log.d(TAG, ">>User posted with ${viewModel.activeUser.value?.uid}")
-                        } else {
-                            Log.d(TAG, ">>User is not in database")
-                            // log current fragment
-                            val currentFragment = supportFragmentManager.findFragmentById(R.id.main_frame)
-                            Log.d(TAG, ">>current fragment: ${currentFragment?.javaClass?.simpleName}")
+                    viewModel.verifyUserAndLogin(authId) { user ->
+                        if (user == invalidUser) {
                             navController.safeNavigate(
                                 HomeFragmentDirections.actionHomeFragmentToCreateUserFragment(
                                     authId,

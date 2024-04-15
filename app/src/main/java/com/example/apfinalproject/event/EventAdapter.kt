@@ -43,7 +43,6 @@ class EventAdapter(private val viewModel: MainViewModel,
         eventRowBinding.eventTime.text = event.getEventTime()
         eventRowBinding.eventLocation.text = event.getEventLocation()
         eventRowBinding.eventDescription.text = event.getEventDescription()
-//        eventRowBinding.image.setImageBitmap(imageRepo.get(event.getEventImageName()))
         viewModel.fetchEventImage(event.getEventImageName(), eventRowBinding.image)
     }
 

@@ -16,8 +16,6 @@ import com.example.apfinalproject.osm.OSMApi
 import com.example.apfinalproject.osm.OSMLocation
 import com.example.apfinalproject.osm.OSMRepository
 import com.example.apfinalproject.user.invalidUser
-import com.example.apfinalproject.user.invalidUserUid
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
@@ -101,18 +99,22 @@ class MainViewModel(): ViewModel() {
         }
     }
 
-    // Returns LiveData of User object from database
-    // invalidUser if user is not in database
-    // null if there is an error
-    fun getUserFromDb(userId: String) : LiveData<User> {
+    fun verifyUserAndLogin(userId: String, resultListener: (User) -> Unit) {
         Log.d(TAG, "checking isUserInDB: $userId")
-        val user = MutableLiveData<User>()
         db.fetchUserByUid(userId) { result ->
             Log.d(TAG, "isUserInDB: ${result?.uid} : ${result?.displayName}")
-            user.postValue(result!!)
+            if (result != invalidUser) {
+                Log.d(TAG, "user exists in db")
+                activeUser.postValue(result)
+            } else {
+                Log.d(TAG, "isUserInDB: user is valid")
+                activeUser.postValue(invalidUser)
+            }
+            if (result != null) {
+                resultListener(result)
+            }
         }
 //        Log.d(TAG, "isUserInDB end: ${user.value?.uid}")
-        return user
     }
 
     fun observeActiveUser(): LiveData<User> {

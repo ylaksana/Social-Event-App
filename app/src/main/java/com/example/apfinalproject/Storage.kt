@@ -18,7 +18,7 @@ class Storage {
 
     fun getEventPhoto(uuid: String): StorageReference {
         Log.d(javaClass.simpleName, "getEventPhoto: $uuid")
-        return photoStorage.child("events/${uuid}.jpg")
+        return photoStorage.child("events/${uuid}")
     }
 
     fun uploadUserPhoto(

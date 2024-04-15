@@ -19,6 +19,7 @@ import androidx.navigation.fragment.navArgs
 import com.google.android.flexbox.*
 import com.example.apfinalproject.MainViewModel
 import com.example.apfinalproject.databinding.NewUserFragmentBinding
+import com.example.apfinalproject.glide.Glide
 import com.example.apfinalproject.ui.InterestAdapter
 import com.example.apfinalproject.model.InterestCategories
 import java.util.UUID
@@ -127,7 +128,7 @@ class CreateUserFragment : Fragment() {
             val data: Intent? = result.data
             newImageUri = data?.data ?: Uri.EMPTY
             Log.d(TAG, "imagePickLauncher uri: $newImageUri")
-            binding.profileImage.setImageURI(newImageUri)
+            Glide.fetch(newImageUri, binding.profileImage)
         }
         Log.d(TAG, "imagePickLauncher complete")
     }

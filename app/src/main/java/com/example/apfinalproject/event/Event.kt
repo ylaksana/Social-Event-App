@@ -14,31 +14,6 @@ class Event(
     var type: String = "No Type",
     var imageName: String = "default.jpg") : Parcelable{
 
-//    fun getEventID(): String {
-//        return this.uid
-//    }
-//    fun getEventTitle(): String {
-//        return this.title
-//    }
-//    fun getEventDescription(): String {
-//        return this.description
-//    }
-//    fun getEventDate(): String {
-//        return this.date
-//    }
-//    fun getEventTime(): String {
-//        return this.time
-//    }
-//    fun getEventLocation(): String {
-//        return this.location
-//    }
-//    fun getEventCreator(): String {
-//        return this.creator
-//    }
-//    fun getEventImageName(): String {
-//        return this.imageName
-//    }
-
     // Events with the same ID are considered equal.
     // Not sure if this is the best way to do it, but it works for now.
     override fun equals(other: Any?): Boolean =

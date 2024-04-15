@@ -1,7 +1,6 @@
 package com.example.apfinalproject.glide
 
 import android.content.Context
-import android.util.Log
 import android.widget.ImageView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.Registry
@@ -12,6 +11,7 @@ import com.bumptech.glide.request.RequestOptions
 import com.firebase.ui.storage.images.FirebaseImageLoader
 import com.google.firebase.storage.StorageReference
 import java.io.InputStream
+import android.net.Uri
 
 @GlideModule
 class AppGlideModule: AppGlideModule() {
@@ -31,8 +31,12 @@ object Glide {
         .fitCenter()
         // Rounded corners are so lovely.
         .transform(RoundedCorners (20))
-
-    fun fetch(storageReference: StorageReference, imageView: ImageView) {
+    /**
+    * Fetch an image and display it in an ImageView
+    * @param imageSource: Any - Accepts either Uri or StorageReference
+    * @param imageView: ImageView - The ImageView to display the image in
+     */
+    fun fetch(imageSource: Any, imageView: ImageView) {
         // Layout engine does not know size of imageView
         // Hardcoding this here is a bad idea.  What would be better?
 
@@ -40,7 +44,11 @@ object Glide {
         val height = imageView.layoutParams.height
         GlideApp.with(imageView.context)
             .asBitmap() // Try to display animated Gifs and video still
-            .load(storageReference)
+            .load(when(imageSource) {
+                is StorageReference -> imageSource
+                is Uri -> imageSource
+                else -> throw IllegalArgumentException("Image source must be either StorageReference or Uri")
+            })
             .apply(glideOptions)
             .error(android.R.color.holo_red_dark)
             .override(width, height)

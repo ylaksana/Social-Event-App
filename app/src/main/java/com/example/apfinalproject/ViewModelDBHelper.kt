@@ -1,6 +1,7 @@
 package com.example.apfinalproject
 
 import android.util.Log
+import android.widget.Toast
 import com.example.apfinalproject.chat.Conversation
 import com.example.apfinalproject.event.Event
 import com.example.apfinalproject.user.User
@@ -44,40 +45,49 @@ class ViewModelDBHelper {
             }
     }
 
+    // Fetches user by uid from "users" collection and converts it to a User object
+    // Returns null if user is not found or if there is an error
     fun fetchUserByUid(
         uid: String,
         resultListener: (User?)->Unit
     ) {
-        Log.d(TAG, "fetchUser started")
+        Log.d(TAG, "fetchUserByUid started for $uid")
         db.collection("users")
             .document(uid)
             .get()
             .addOnSuccessListener { result ->
-                Log.d(TAG, "user fetch succeeded for $uid")
+                Log.d(TAG, "fetchUserByUid succeeded for $uid")
+                val user = result.toObject(User::class.java)
+                Log.d(TAG, "fetchUserByUid: ${user?.uid}")
                 // NB: This is done on a background thread
-                resultListener(result.toObject(User::class.java))
+
+                if (user == null) {
+                    Log.d(TAG, "fetchUserByUid: user is null, doesn't not exist in db")
+                    resultListener(invalidUser)
+                } else {
+                    Log.d(TAG, "fetchUserByUid: user is not null, exists in db")
+                    resultListener(user)
+                }
             }
             .addOnFailureListener {
-                Log.d(TAG, "user fetch failed", it)
+                Log.d(TAG, "fetchUserByUid: query failed", it)
                 resultListener(invalidUser)
             }
     }
 
-
-
     fun createUser(
         user: User,
-        resultListener: (List<User>)->Unit
+        resultListener: (User)->Unit
     ) {
         Log.d(TAG, "createUser started")
         db.collection("users").document(user.uid).set(user)
             .addOnSuccessListener {
                 Log.d(TAG, "createUser succeeded")
-                fetchUsers(resultListener)
+                resultListener(user)
             }
             .addOnFailureListener {
                 Log.d(TAG, "createUser failed", it)
-                resultListener(listOf())
+                resultListener(invalidUser)
             }
     }
 
@@ -203,6 +213,23 @@ class ViewModelDBHelper {
             .addOnFailureListener {
                 Log.d(TAG, "removeEvent failed", it)
                 resultListener(listOf())
+            }
+    }
+
+    fun updateUser(
+        userID: String,
+        newUser: User
+    ) {
+        Log.d(TAG, "updateUser started")
+        db.collection("users")
+            .document(userID)
+            .set(newUser)
+            .addOnSuccessListener {
+                Log.d(TAG, "updateUser succeeded")
+
+            }
+            .addOnFailureListener {
+                Log.d(TAG, "updateUser failed", it)
             }
     }
 }

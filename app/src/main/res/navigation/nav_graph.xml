@@ -14,7 +14,7 @@
         <!--Home to OneEvent-->
         <action
             android:id="@+id/action_homeFragment_to_oneEventFragment"
-            app:destination="@id/oneEventFragment" />
+            app:destination="@id/oneEventFragment"/>
 
         <!--Home to CreateEvent-->
         <action
@@ -31,6 +31,16 @@
             android:id="@+id/action_homeFragment_to_profileFragment"
             app:destination="@id/profileFragment" />
 
+        <!--Home to Edit Profile-->
+        <action
+            android:id="@+id/action_homeFragment_to_profileEditFragment"
+            app:destination="@id/profileEditFragment" />
+
+<!--        Home to New User-->
+        <action
+            android:id="@+id/action_homeFragment_to_createUserFragment"
+            app:destination="@id/createUserFragment" />
+
         <!--Home to Settings-->
         <action
             android:id="@+id/action_homeFragment_to_settingsFragment"
@@ -46,7 +56,7 @@
             android:id="@+id/action_homeFragment_to_mapFragment"
             app:destination="@id/mapFragment" />
 
-        </fragment>
+    </fragment>
 
     <!--OneEvent Fragment-->
     <fragment
@@ -69,6 +79,26 @@
 
     </fragment>
 
+    <!--New User Fragment-->
+    <fragment
+        android:id="@+id/createUserFragment"
+        android:name="com.example.apfinalproject.user.CreateUserFragment">
+
+        <!--Create User to Home-->
+        <action
+            android:id="@+id/action_createUserFragment_to_homeFragment"
+            app:destination="@id/homeFragment" />
+            <argument
+                android:name="authUserId"
+                app:argType="string" />
+            <argument
+                android:name="authUserName"
+                app:argType="string" />
+            <argument
+                android:name="authUserEmail"
+                app:argType="string" />
+
+    </fragment>
 
 
     <!--createEvent Fragment-->
@@ -126,16 +156,39 @@
     <!--Profile Fragment-->
     <fragment
         android:id="@+id/profileFragment"
-        android:name="com.example.apfinalproject.user.ProfileFragment" />
+        android:name="com.example.apfinalproject.user.ProfileFragment" >
+
+        <!--Profile to EditProfile-->
+        <action
+            android:id="@+id/action_profileFragment_to_profileEditFragment"
+            app:destination="@id/profileEditFragment" />
+
+    </fragment>
+
+    <!--Profile Edit Fragment-->
+    <fragment
+        android:id="@+id/profileEditFragment"
+        android:name="com.example.apfinalproject.user.ProfileEditFragment" >
+
+        <!--EditProfile to Profile-->
+        <action
+            android:id="@+id/action_profileEditFragment_to_profileFragment"
+            app:destination="@id/profileFragment" />
+
+    </fragment>
 
 
 
     <!--Settings Fragment-->
     <fragment
         android:id="@+id/settingsFragment"
-        android:name="com.example.apfinalproject.ui.SettingsFragment" />
+        android:name="com.example.apfinalproject.ui.SettingsFragment">
 
+        <action
+            android:id="@+id/action_settingsFragment_to_homeFragment"
+            app:destination="@id/homeFragment" />
 
+    </fragment>
 
     <!--EventList Fragment-->
     <fragment
@@ -144,10 +197,26 @@
 
         <!--EventList to Event-->
         <action
-            android:id="@+id/action_homeFragment_to_oneEventFragment"
+            android:id="@+id/action_eventListFragment_to_oneEventFragment"
             app:destination="@id/oneEventFragment" />
 
     </fragment>
 
+    <!--Welcome Fragment-->
+    <fragment
+        android:id="@+id/welcomeFragment"
+        android:name="com.example.apfinalproject.ui.WelcomeFragment">
+
+        <!--Welcome to Home-->
+        <action
+            android:id="@+id/action_welcomeFragment_to_homeFragment"
+            app:destination="@id/homeFragment" />
+
+        <!--Welcome to New User-->
+        <action
+            android:id="@+id/action_welcomeFragment_to_createUserFragment"
+            app:destination="@id/createUserFragment" />
+
+    </fragment>
 
 </navigation>

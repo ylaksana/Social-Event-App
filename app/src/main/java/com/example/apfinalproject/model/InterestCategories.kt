@@ -89,6 +89,34 @@ object InterestCategories {
             Interest("Technology", "Data Science"),
             Interest("Technology", "Web Development"))
     )
+
+    fun getCategories(): List<String> {
+        return eventCategories
+    }
+
+    private val eventCategories: List<String> = listOf(
+        "Business",
+        "Food & Drink",
+        "Health",
+        "Music",
+        "Auto, Boat & Air",
+        "Charity & Causes",
+        "Community",
+        "Family & Education",
+        "Fashion",
+        "Film & Media",
+        "Hobbies",
+        "Home & Lifestyle",
+        "Performing & Visual Arts",
+        "Government",
+        "Spirituality",
+        "School Activities",
+        "Science & Tech",
+        "Holidays",
+        "Sports & Fitness",
+        "Travel & Outdoor",
+        "Other"
+    )
 }
 
 

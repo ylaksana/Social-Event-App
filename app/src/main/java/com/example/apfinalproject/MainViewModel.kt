@@ -20,6 +20,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
+import java.lang.Exception
+import android.net.Uri
 
 class MainViewModel(): ViewModel() {
     companion object {
@@ -31,21 +33,17 @@ class MainViewModel(): ViewModel() {
     private var actionBarBinding : ActionBarBinding? = null
     private val storage = Storage()
     private val db = ViewModelDBHelper()
-
+    private var photoUUID = ""
 
     var activeUser = MutableLiveData<User>().apply {
         Log.d(TAG, ">>activeUser init")
         invalidUser
     }
-
-    private var events = MediatorLiveData<List<Event>>().apply {
-        Log.d(TAG, ">>events init")
-        value = listOf()
-        addSource(activeUser) { _ ->
-            Log.d(TAG, ">>events activeUser changed")
-            db.fetchEvents { eventList ->
-                Log.d(TAG, ">>events activeUser changed, fetched ${eventList.size} events")
-                postValue(eventList)
+      
+    private var events = MutableLiveData<List<Event>>().apply {
+        viewModelScope.launch(Dispatchers.IO) {
+            val events = db.fetchUpdatingEventList { fetchedEvents ->
+                postValue(fetchedEvents)
             }
         }
     }
@@ -107,11 +105,12 @@ class MainViewModel(): ViewModel() {
                 Log.d(TAG, "user exists in db")
                 activeUser.postValue(result)
             } else {
-                Log.d(TAG, "isUserInDB: user is valid")
+                Log.d(TAG, "isUserInDB: user is invalid")
                 activeUser.postValue(invalidUser)
             }
             if (result != null) {
                 resultListener(result)
+          // Check for null
             }
         }
 //        Log.d(TAG, "isUserInDB end: ${user.value?.uid}")
@@ -122,24 +121,25 @@ class MainViewModel(): ViewModel() {
     }
 
     // Converts list of event IDs to list of events, then posts to live data
-    // TODO: add exception catches here
-    private fun convertToEventAndPost(eventIdList: List<String>?) {
-        val eventList = mutableListOf<Event>()
-        viewModelScope.launch(Dispatchers.IO) {
-            eventIdList?.map {eventID ->
-                // Fetches event on background thread
-                val event = async {
-                    db.fetchEventByUid(eventID) {fetchedEvent ->
-                        fetchedEvent?.let {
-                            eventList.add(it)
-                        }
-                    }
-                }
-                event.await()
-            }
-        }
-        pastEventsLiveData.postValue(eventList)
-    }
+
+//    private fun convertToEventAndPost(eventIdList: List<String>) {
+//        val eventList = mutableListOf<Event>()
+//        viewModelScope.launch(Dispatchers.IO) {
+//            eventIdList.map {eventID ->
+//                // Fetches event on background thread
+//                val event = async {
+//                    db.fetchEventByUid(eventID) {fetchedEvent ->
+//                        fetchedEvent?.let {
+//                            eventList.add(it)
+//                        }
+//                    }
+//                }
+//                event.await()
+//            }
+//            pastEventsLiveData.postValue(eventList)
+//        }
+//    }
+
 
     fun getActiveUser(): User? {
         return activeUser.value
@@ -188,11 +188,23 @@ class MainViewModel(): ViewModel() {
         Glide.fetch(path, imageView)
     }
 
-    fun addNewUser(newUser: User) {
+
+    fun addUser(newUser: User) {
         Log.d(TAG, "addNewUser: ${newUser.uid}")
         db.createUser(newUser) { user ->
             Log.d(TAG, "addNewUser: ${user.uid}")
             activeUser.postValue(user)
         }
     }
+
+    fun addEvent(newEvent: Event) {
+        db.createEvent(newEvent) {
+
+        }
+    }
+
+    fun uploadImage(imageUri: Uri, collection: String, resultListener: (String) -> Unit) {
+        storage.uploadImage(imageUri, collection, resultListener)
+    }
+
 }

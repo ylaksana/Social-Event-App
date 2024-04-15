@@ -26,22 +26,22 @@ class PastEventAdapter(private val viewModel: MainViewModel,
     override fun onBindViewHolder(holder: pastEventViewHolder, position: Int) {
         val pastEventRowBinding = holder.pastEventRowBinding
         val event = getItem(position)
-        pastEventRowBinding.pastEventTitle.text = event.getEventTitle()
+        pastEventRowBinding.pastEventTitle.text = event.title
     }
 
     class pastEventDiff : DiffUtil.ItemCallback<Event>() {
         override fun areItemsTheSame(oldItem: Event, newItem: Event): Boolean {
-            return oldItem.getEventID() == newItem.getEventID()
+            return oldItem.uid == newItem.uid
         }
 
         override fun areContentsTheSame(oldItem: Event, newItem: Event): Boolean {
-            return oldItem.getEventLocation() == newItem.getEventLocation() &&
-                    oldItem.getEventTitle() == newItem.getEventTitle() &&
-                    oldItem.getEventDescription() == newItem.getEventDescription() &&
-                    oldItem.getEventDate() == newItem.getEventDate() &&
-                    oldItem.getEventTime() == newItem.getEventTime() &&
-                    oldItem.getEventCreator() == newItem.getEventCreator()
+            return oldItem.location == newItem.location &&
+                    oldItem.title == newItem.title &&
+                    oldItem.description == newItem.description &&
+                    oldItem.date == newItem.date &&
+                    oldItem.time == newItem.time &&
+                    oldItem.creator == newItem.creator &&
+                    oldItem.imageName == newItem.imageName
         }
-
     }
 }

@@ -4,39 +4,40 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 class Event(
-    val uid: String = "-1",
+    var uid: String = "-1",
     var title: String = "No Title",
     var description: String = "No Description",
     var date: String = "No Date",
     var time: String = "No Time",
     var location: String = "No Location",
-    val creator: String = "No Creator",
-    val imageName: String = "No Image") : Parcelable{
+    var creator: String = "No Creator",
+    var type: String = "No Type",
+    var imageName: String = "default") : Parcelable{
 
-    fun getEventID(): String {
-        return this.uid
-    }
-    fun getEventTitle(): String {
-        return this.title
-    }
-    fun getEventDescription(): String {
-        return this.description
-    }
-    fun getEventDate(): String {
-        return this.date
-    }
-    fun getEventTime(): String {
-        return this.time
-    }
-    fun getEventLocation(): String {
-        return this.location
-    }
-    fun getEventCreator(): String {
-        return this.creator
-    }
-    fun getEventImageName(): String {
-        return this.imageName
-    }
+//    fun getEventID(): String {
+//        return this.uid
+//    }
+//    fun getEventTitle(): String {
+//        return this.title
+//    }
+//    fun getEventDescription(): String {
+//        return this.description
+//    }
+//    fun getEventDate(): String {
+//        return this.date
+//    }
+//    fun getEventTime(): String {
+//        return this.time
+//    }
+//    fun getEventLocation(): String {
+//        return this.location
+//    }
+//    fun getEventCreator(): String {
+//        return this.creator
+//    }
+//    fun getEventImageName(): String {
+//        return this.imageName
+//    }
 
     // Events with the same ID are considered equal.
     // Not sure if this is the best way to do it, but it works for now.

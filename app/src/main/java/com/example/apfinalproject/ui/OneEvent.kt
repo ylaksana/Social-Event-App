@@ -56,18 +56,18 @@ class OneEvent: Fragment(){
             navController.safeNavigate(OneEventDirections.actionOneEventFragmentToCreateEventFragment())
         }
 
-        binding.eventDescription.text = args.Event.getEventDescription()
-        binding.eventLocation.text = args.Event.getEventLocation()
-        binding.eventTime.text = args.Event.getEventTime()
-        binding.eventDate.text = args.Event.getEventDate()
-        binding.eventName.text = args.Event.getEventTitle()
-        binding.posterName.text = args.Event.getEventCreator()
+        binding.eventDescription.text = args.Event.description
+        binding.eventLocation.text = args.Event.location
+        binding.eventTime.text = args.Event.time
+        binding.eventDate.text = args.Event.date
+        binding.eventName.text = args.Event.title
+        binding.posterName.text = args.Event.creator
 
         // TODO("add imageRepo")
         try {
             // Open an input stream to read the image from the assets
-            Log.d("imageName","${args.Event.getEventImageName()}.jpg")
-            context?.assets?.open("${args.Event.getEventImageName()}.jpg").use { inputStream ->
+            Log.d("imageName","${args.Event.imageName}.jpg")
+            context?.assets?.open("${args.Event.imageName}.jpg").use { inputStream ->
                 // Convert the input stream into a Drawable
                 val drawable = Drawable.createFromStream(inputStream, null)
                 // Set the Drawable as the ImageView background

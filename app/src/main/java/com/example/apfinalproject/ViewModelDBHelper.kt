@@ -7,6 +7,7 @@ import com.example.apfinalproject.user.User
 import com.example.apfinalproject.user.invalidUser
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
+import java.util.UUID
 
 class ViewModelDBHelper {
     private val TAG = "ViewModelDBHelper"
@@ -15,6 +16,11 @@ class ViewModelDBHelper {
 
     // Use .addSnapshotListener { querySnapshot, firebaseFirestoreException ->
     // to listen for real time updates
+
+    private fun generateUUID(): String {
+        return UUID.randomUUID().toString()
+    }
+
     fun fetchUsers(resultListener: (List<User>) -> Unit) {
         Log.d(TAG, "fetchUsers started")
         val query = db.collection("users")
@@ -92,17 +98,22 @@ class ViewModelDBHelper {
 
     fun createEvent(
         event: Event,
-        resultListener: (List<Event>)->Unit
+        resultListener: ()->Unit
     ) {
         Log.d(TAG, "createEvent started")
-        db.collection("events").document(event.uid).set(event)
+        val eventId = generateUUID()
+        event.uid = eventId
+
+        db.collection("events")
+            .document(eventId)
+            .set(event)
             .addOnSuccessListener {
                 Log.d(TAG, "createEvent succeeded")
-                fetchEvents(resultListener)
+                resultListener()
             }
             .addOnFailureListener {
                 Log.d(TAG, "createEvent failed", it)
-                resultListener(listOf())
+                resultListener()
             }
     }
 

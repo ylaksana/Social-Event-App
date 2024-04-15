@@ -38,27 +38,29 @@ class EventAdapter(private val viewModel: MainViewModel,
     override fun onBindViewHolder(holder: EventViewHolder, position: Int) {
         val eventRowBinding = holder.eventRowBinding
         val event = getItem(position)
-        eventRowBinding.eventTitle.text = event.getEventTitle()
-        eventRowBinding.eventDate.text = event.getEventDate()
-        eventRowBinding.eventTime.text = event.getEventTime()
-        eventRowBinding.eventLocation.text = event.getEventLocation()
-        eventRowBinding.eventDescription.text = event.getEventDescription()
+        eventRowBinding.eventTitle.text = event.title
+        eventRowBinding.eventDate.text = event.date
+        eventRowBinding.eventTime.text = event.time
+        eventRowBinding.eventLocation.text = event.location
+        eventRowBinding.eventDescription.text = event.description
 //        eventRowBinding.image.setImageBitmap(imageRepo.get(event.getEventImageName()))
-        viewModel.fetchEventImage(event.getEventImageName(), eventRowBinding.image)
+        viewModel.fetchEventImage(event.imageName, eventRowBinding.image)
     }
 
     class EventDiff : DiffUtil.ItemCallback<Event>() {
         override fun areItemsTheSame(oldItem: Event, newItem: Event): Boolean {
-            return oldItem.getEventID() == newItem.getEventID()
+            return oldItem.uid == newItem.uid
         }
 
         override fun areContentsTheSame(oldItem: Event, newItem: Event): Boolean {
-            return oldItem.getEventLocation() == newItem.getEventLocation() &&
-                    oldItem.getEventTitle() == newItem.getEventTitle() &&
-                    oldItem.getEventDescription() == newItem.getEventDescription() &&
-                    oldItem.getEventDate() == newItem.getEventDate() &&
-                    oldItem.getEventTime() == newItem.getEventTime() &&
-                    oldItem.getEventCreator() == newItem.getEventCreator()
+            return oldItem.location == newItem.location &&
+                    oldItem.title == newItem.title &&
+                    oldItem.description == newItem.description &&
+                    oldItem.date == newItem.date &&
+                    oldItem.time == newItem.time &&
+                    oldItem.creator == newItem.creator &&
+                    oldItem.type == newItem.type &&
+                    oldItem.imageName == newItem.imageName
         }
 
     }

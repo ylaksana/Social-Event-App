@@ -17,8 +17,16 @@ import com.example.apfinalproject.MainViewModel
 import com.example.apfinalproject.R
 import com.example.apfinalproject.databinding.ActivityMainBinding
 import com.example.apfinalproject.databinding.CreateEventBinding
+import com.example.apfinalproject.event.Event
+import androidx.activity.result.contract.ActivityResultContracts
+import com.example.apfinalproject.PhotoSelectorWrapper
+import android.net.Uri
 
 class CreateEventFragment: Fragment(){
+    companion object {
+        const val TAG = "CreateEventFragment"
+        private val collection = "events"
+    }
     //     XXX initialize viewModel
     private val viewModel: MainViewModel by activityViewModels()
     private var _binding: CreateEventBinding? = null
@@ -26,6 +34,16 @@ class CreateEventFragment: Fragment(){
     private val activityMainBinding: ActivityMainBinding? = null
     //     This property is only valid between onCreateView and onDestroyView.
     private val binding get() = _binding!!
+    private var imageUri: Uri? = null
+    private var imageUUID: String? = null
+
+    private val photoSelectLauncher = registerForActivityResult(
+        ActivityResultContracts.GetContent()) { uri: Uri? ->
+        uri?.let {
+            binding.eventImage.setImageURI(it)
+            imageUri = it
+        }
+    }
 
     private fun NavController.safeNavigate(direction: NavDirections) {
         currentDestination?.
@@ -58,12 +76,30 @@ class CreateEventFragment: Fragment(){
         return binding.root
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        Log.d(javaClass.simpleName, "onViewCreated")
-        (activity as? AppCompatActivity)?.supportActionBar?.hide()
-        viewModel.hideActionBar()
+    private fun setOnClickListeners() {
+        binding.backButton.setOnClickListener {
+            navController = findNavController()
+            navController.popBackStack()
+        }
+        binding.eventImage.setOnClickListener {
+            // Selects image, sets to imageView, and sets imageUri string
+            photoSelectLauncher.launch("image/*")
+        }
+        binding.finishButton.setOnClickListener {
+            if (imageUri != null) {
+                viewModel.uploadImage(imageUri!!, collection) { uuid ->
+                    imageUUID = uuid
+                    val event = createEvent()
+                    viewModel.addEvent(event)
+                }
+            } else {
+                val event = createEvent()
+                viewModel.addEvent(event)
+            }
+        }
+    }
 
+    private fun populateSpinners() {
         val spinnerMinutes = binding.spinnerMinutes
         val spinnerAMPM = binding.spinnerAMPM
         val spinnerHours = binding.spinnerHours
@@ -72,12 +108,6 @@ class CreateEventFragment: Fragment(){
         val spinnerDay = binding.spinnerDay
         val spinnerYear = binding.spinnerYear
 
-
-        binding.backButton.setOnClickListener {
-            navController = findNavController()
-            navController.popBackStack()
-        }
-
         populateSpinner(spinnerMinutes, R.array.minutes_array)
         populateSpinner(spinnerAMPM, R.array.ampm_array)
         populateSpinner(spinnerHours, R.array.hours_array)
@@ -85,6 +115,29 @@ class CreateEventFragment: Fragment(){
         populateSpinner(spinnerMonth, R.array.month_array)
         populateSpinner(spinnerDay, R.array.day_array)
         populateSpinner(spinnerYear, R.array.year_array)
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        Log.d(javaClass.simpleName, "onViewCreated")
+        (activity as? AppCompatActivity)?.supportActionBar?.hide()
+        viewModel.hideActionBar()
+
+        populateSpinners()
+        setOnClickListeners()
+    }
+
+    private fun createEvent() : Event {
+        val event = Event()
+        event.title = binding.editTextTitle.text.toString()
+        event.description = binding.editTextDescription.text.toString()
+        event.location = binding.editTextAddress.text.toString()
+        event.date = "${binding.spinnerMonth.selectedItem} ${binding.spinnerDay.selectedItem}, ${binding.spinnerYear.selectedItem}"
+        event.time = "${binding.spinnerHours.selectedItem}:${binding.spinnerMinutes.selectedItem} ${binding.spinnerAMPM.selectedItem}"
+        event.type = binding.spinnerEvent.selectedItem.toString()
+        event.creator = viewModel.getActiveUser().uid
+        event.imageName = imageUUID ?: "default"
+        return event
     }
     override fun onDestroyView() {
         _binding = null

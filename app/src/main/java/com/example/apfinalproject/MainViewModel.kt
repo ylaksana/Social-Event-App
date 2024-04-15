@@ -24,6 +24,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
+import java.lang.Exception
+import android.net.Uri
 
 class MainViewModel(): ViewModel() {
     private val TAG = "MainViewModel"
@@ -32,6 +34,7 @@ class MainViewModel(): ViewModel() {
     private var activeUser: User = invalidUser
     private val storage = Storage()
     private val db = ViewModelDBHelper()
+    private var photoUUID = ""
 
     private var events = MutableLiveData<List<Event>>().apply {
         db.fetchEvents { eventList ->
@@ -162,5 +165,15 @@ class MainViewModel(): ViewModel() {
         val path = storage.getEventPhoto(uuid)
         Log.d(TAG, "fetchEventImage: $path")
         Glide.fetch(path, imageView)
+    }
+
+    fun addEvent(newEvent: Event) {
+        db.createEvent(newEvent) {
+
+        }
+    }
+
+    fun uploadImage(imageUri: Uri, collection: String, resultListener: (String) -> Unit) {
+        storage.uploadImage(imageUri, collection, resultListener)
     }
 }

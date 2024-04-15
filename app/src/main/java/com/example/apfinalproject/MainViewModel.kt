@@ -38,8 +38,10 @@ class MainViewModel(): ViewModel() {
 
 
     private var events = MutableLiveData<List<Event>>().apply {
-        db.fetchUpdatingEventList { eventList ->
-            this.postValue(eventList)
+        viewModelScope.launch(Dispatchers.IO) {
+            val events = db.fetchUpdatingEventList { fetchedEvents ->
+                postValue(fetchedEvents)
+            }
         }
     }
 
@@ -96,7 +98,7 @@ class MainViewModel(): ViewModel() {
                 Log.d(TAG, "setActiveAuthUser: ${activeUser.displayName} ${activeUser.email} ${activeUser.uid} ${activeUser.bio}")
 
                 interestsLiveData.postValue(activeUser.userInterests)
-                convertToEventAndPost(activeUser.pastEvents)
+//                convertToEventAndPost(activeUser.pastEvents)
             }
             Log.d(TAG, "setActiveAuthUser: $uid")
         } else {
@@ -108,23 +110,23 @@ class MainViewModel(): ViewModel() {
     }
 
     // Converts list of event IDs to list of events, then posts to live data
-    private fun convertToEventAndPost(eventIdList: List<String>) {
-        val eventList = mutableListOf<Event>()
-        CoroutineScope(Dispatchers.IO).launch {
-            eventIdList.map {eventID ->
-                // Fetches event on background thread
-                val event = async {
-                    db.fetchEventByUid(eventID) {fetchedEvent ->
-                        fetchedEvent?.let {
-                            eventList.add(it)
-                        }
-                    }
-                }
-                event.await()
-            }
-        }
-        pastEventsLiveData.postValue(eventList)
-    }
+//    private fun convertToEventAndPost(eventIdList: List<String>) {
+//        val eventList = mutableListOf<Event>()
+//        viewModelScope.launch(Dispatchers.IO) {
+//            eventIdList.map {eventID ->
+//                // Fetches event on background thread
+//                val event = async {
+//                    db.fetchEventByUid(eventID) {fetchedEvent ->
+//                        fetchedEvent?.let {
+//                            eventList.add(it)
+//                        }
+//                    }
+//                }
+//                event.await()
+//            }
+//            pastEventsLiveData.postValue(eventList)
+//        }
+//    }
 
     fun getActiveUser(): User {
         return activeUser
@@ -176,5 +178,9 @@ class MainViewModel(): ViewModel() {
 
     fun uploadImage(imageUri: Uri, collection: String, resultListener: (String) -> Unit) {
         storage.uploadImage(imageUri, collection, resultListener)
+    }
+
+    fun getUserEvents(uid: String, resultListener: (List<Event>) -> Unit) {
+        db.fetchUserEvents(uid, resultListener)
     }
 }

@@ -12,7 +12,7 @@ class Event(
     var location: String = "No Location",
     var creator: String = "No Creator",
     var type: String = "No Type",
-    var imageName: String = "default") : Parcelable{
+    var imageName: String = "default.jpg") : Parcelable{
 
 //    fun getEventID(): String {
 //        return this.uid

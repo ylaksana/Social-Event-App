@@ -1,5 +1,6 @@
 package com.example.apfinalproject.event
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
@@ -44,6 +45,7 @@ class EventAdapter(private val viewModel: MainViewModel,
         eventRowBinding.eventLocation.text = event.location
         eventRowBinding.eventDescription.text = event.description
 //        eventRowBinding.image.setImageBitmap(imageRepo.get(event.getEventImageName()))
+        Log.d("EventAdapter", "fetching image: ${event.imageName}")
         viewModel.fetchEventImage(event.imageName, eventRowBinding.image)
     }
 

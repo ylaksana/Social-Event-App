@@ -21,6 +21,8 @@ import com.example.apfinalproject.event.Event
 import androidx.activity.result.contract.ActivityResultContracts
 import com.example.apfinalproject.PhotoSelectorWrapper
 import android.net.Uri
+import com.google.android.material.snackbar.Snackbar
+import com.bumptech.glide.Glide
 
 class CreateEventFragment: Fragment(){
     companion object {
@@ -35,12 +37,14 @@ class CreateEventFragment: Fragment(){
     //     This property is only valid between onCreateView and onDestroyView.
     private val binding get() = _binding!!
     private var imageUri: Uri? = null
-    private var imageUUID: String? = null
 
     private val photoSelectLauncher = registerForActivityResult(
         ActivityResultContracts.GetContent()) { uri: Uri? ->
         uri?.let {
-            binding.eventImage.setImageURI(it)
+            Glide.with(this)
+                .load(it)
+                .into(binding.eventImage)
+//            binding.eventImage.setImageURI(it)
             imageUri = it
         }
     }
@@ -72,6 +76,7 @@ class CreateEventFragment: Fragment(){
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        Log.d(TAG, "onCreateView")
         _binding = CreateEventBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -86,16 +91,35 @@ class CreateEventFragment: Fragment(){
             photoSelectLauncher.launch("image/*")
         }
         binding.finishButton.setOnClickListener {
+            if (binding.editTextTitle.text.isNullOrEmpty()) {
+                Snackbar.make(binding.root, "Please enter a title", Snackbar.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            if (binding.editTextDescription.text.isNullOrEmpty()) {
+                Snackbar.make(binding.root, "Please enter a description", Snackbar.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            if (binding.editTextAddress.text.isNullOrEmpty()) {
+                Snackbar.make(binding.root, "Please enter an address", Snackbar.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            val event = createEvent()
             if (imageUri != null) {
                 viewModel.uploadImage(imageUri!!, collection) { uuid ->
-                    imageUUID = uuid
-                    val event = createEvent()
+                    Log.d(TAG, "newEvent image upload complete")
+                    event.imageName = uuid
                     viewModel.addEvent(event)
+                    Log.d(TAG, "newEvent added to db")
                 }
             } else {
-                val event = createEvent()
+                Log.d(TAG, "creating event without image")
+                Log.d(TAG, "newEvent finished: ${event.title}")
                 viewModel.addEvent(event)
+                Log.d(TAG, "newEvent added to db")
             }
+            Log.d(TAG, "newEvent exiting")
+            navController = findNavController()
+            navController.popBackStack()
         }
     }
 
@@ -128,7 +152,10 @@ class CreateEventFragment: Fragment(){
     }
 
     private fun createEvent() : Event {
+        Log.d(TAG, "createEvent started")
         val event = Event()
+        Log.d(TAG, "createEvent new event: $event")
+        Log.d(TAG, "createEvent binding: $binding")
         event.title = binding.editTextTitle.text.toString()
         event.description = binding.editTextDescription.text.toString()
         event.location = binding.editTextAddress.text.toString()
@@ -136,14 +163,15 @@ class CreateEventFragment: Fragment(){
         event.time = "${binding.spinnerHours.selectedItem}:${binding.spinnerMinutes.selectedItem} ${binding.spinnerAMPM.selectedItem}"
         event.type = binding.spinnerEvent.selectedItem.toString()
         event.creator = viewModel.getActiveUser().uid
-        event.imageName = imageUUID ?: "default"
+        Log.d(TAG, "newEvent finished: ${event.title}")
         return event
     }
     override fun onDestroyView() {
+        Log.d(TAG, "onDestroyView")
+        super.onDestroyView()
         _binding = null
         (activity as? AppCompatActivity)?.supportActionBar?.show()
         viewModel.showActionBar()
-        super.onDestroyView()
     }
 
 }

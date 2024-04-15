@@ -20,20 +20,20 @@ class Storage {
 
     fun getUserPhoto(uuid: String): StorageReference {
         Log.d(javaClass.simpleName, "getUserPhoto: $uuid")
-        return photoStorage.child("users/${uuid}.jpg")
+        return photoStorage.child("users/${uuid}")
     }
 
     fun getEventPhoto(uuid: String): StorageReference {
         Log.d(javaClass.simpleName, "getEventPhoto: $uuid")
-        return photoStorage.child("events/${uuid}.jpg")
+        return photoStorage.child("events/${uuid}")
     }
 
     fun uploadImage(imageUri: Uri,
                     collection: String,
                     resultListener: (String) -> Unit) {
-        Log.d(TAG, "uploadImage: ${imageUri}")
+        Log.d(TAG, "uploadImage: $imageUri")
         val uuid = UUID.randomUUID().toString()
-        val photoRef = photoStorage.child("${collection}/${uuid}.jpg")
+        val photoRef = photoStorage.child("${collection}/${uuid}")
         val metadata = StorageMetadata.Builder()
             .setContentType("image/jpeg")
             .build()

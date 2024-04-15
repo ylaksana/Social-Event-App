@@ -179,8 +179,4 @@ class MainViewModel(): ViewModel() {
     fun uploadImage(imageUri: Uri, collection: String, resultListener: (String) -> Unit) {
         storage.uploadImage(imageUri, collection, resultListener)
     }
-
-    fun getUserEvents(uid: String, resultListener: (List<Event>) -> Unit) {
-        db.fetchUserEvents(uid, resultListener)
-    }
 }

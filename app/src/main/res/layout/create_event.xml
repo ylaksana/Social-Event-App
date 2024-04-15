@@ -18,7 +18,7 @@
                 android:src="@drawable/arrow_left_circle_outline"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toTopOf="@id/editTextFirstName"
+                app:layout_constraintBottom_toTopOf="@id/editTextTitle"
                 />
 
             <TextView
@@ -32,25 +32,14 @@
                 app:layout_constraintEnd_toEndOf="parent"/>
 
 
-            <!-- Text Input for First Name -->
+            <!-- Text Input for Event Title-->
             <EditText
-                android:id="@+id/editTextFirstName"
+                android:id="@+id/editTextTitle"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:hint="First Name"
+                android:hint="Title"
                 app:layout_constraintTop_toBottomOf="@id/backButton"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toStartOf="@id/editTextLastName"
-                android:layout_margin="8dp"/>
-
-            <!-- Text Input for Last Name -->
-            <EditText
-                android:id="@+id/editTextLastName"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:hint="Last Name"
-                app:layout_constraintTop_toBottomOf="@id/backButton"
-                app:layout_constraintStart_toEndOf="@id/editTextFirstName"
                 app:layout_constraintEnd_toEndOf="parent"
                 android:layout_margin="8dp"/>
 
@@ -61,7 +50,7 @@
                 android:layout_height="wrap_content"
                 android:hint="Event Address"
                 app:layout_constraintBottom_toTopOf="@id/spinnerMonth"
-                app:layout_constraintTop_toBottomOf="@id/editTextFirstName"
+                app:layout_constraintTop_toBottomOf="@id/editTextTitle"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 android:layout_margin="8dp"/>
@@ -181,22 +170,26 @@
                 app:layout_constraintTop_toBottomOf="@id/typeTitle"
                 app:layout_constraintStart_toStartOf="parent"/>
 
+            <TextView
+                android:id="@+id/eventImageTitle"
+                android:text="Upload Photo"
+                android:textSize="18sp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="8dp"
+                app:layout_constraintTop_toBottomOf="@id/spinnerEvent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintBottom_toTopOf="@+id/eventImage"/>
 
-            <EditText
-                android:id="@+id/editTextReason"
+            <ImageView
+                android:id="@+id/eventImage"
+                android:src="@drawable/image"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Why are you interested in the event?"
-                android:inputType="textMultiLine"
-                android:gravity="top|start"
-                android:maxLines="20"
-                android:minLines="6"
-                android:scrollbars="vertical"
                 app:layout_constraintBottom_toTopOf="@id/finishButton"
-                app:layout_constraintTop_toBottomOf="@id/typeTitle"
+                app:layout_constraintTop_toBottomOf="@id/eventImageTitle"
                 app:layout_constraintStart_toStartOf="parent"
                 android:layout_margin="8dp"/>
-
 
             <Button
                 android:id="@+id/finishButton"

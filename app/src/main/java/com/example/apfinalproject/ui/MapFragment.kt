@@ -17,6 +17,7 @@ import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.CustomZoomButtonsController
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
+import com.example.apfinalproject.MainViewModel
 
 class MapFragment : Fragment() {
     private var _binding: MapFragmentBinding? = null

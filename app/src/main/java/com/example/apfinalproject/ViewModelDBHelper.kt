@@ -7,6 +7,10 @@ import com.example.apfinalproject.user.User
 import com.example.apfinalproject.user.invalidUser
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import java.util.UUID
+
 
 class ViewModelDBHelper {
     private val TAG = "ViewModelDBHelper"
@@ -15,6 +19,11 @@ class ViewModelDBHelper {
 
     // Use .addSnapshotListener { querySnapshot, firebaseFirestoreException ->
     // to listen for real time updates
+
+    private fun generateUUID(): String {
+        return UUID.randomUUID().toString()
+    }
+
     fun fetchUsers(resultListener: (List<User>) -> Unit) {
         Log.d(TAG, "fetchUsers started")
         val query = db.collection("users")
@@ -92,17 +101,22 @@ class ViewModelDBHelper {
 
     fun createEvent(
         event: Event,
-        resultListener: (List<Event>)->Unit
+        resultListener: ()->Unit
     ) {
         Log.d(TAG, "createEvent started")
-        db.collection("events").document(event.uid).set(event)
+        val eventId = generateUUID()
+        event.uid = eventId
+
+        db.collection("events")
+            .document(eventId)
+            .set(event)
             .addOnSuccessListener {
                 Log.d(TAG, "createEvent succeeded")
-                fetchEvents(resultListener)
+                resultListener()
             }
             .addOnFailureListener {
                 Log.d(TAG, "createEvent failed", it)
-                resultListener(listOf())
+                resultListener()
             }
     }
 
@@ -124,6 +138,32 @@ class ViewModelDBHelper {
             .addOnFailureListener {
                 Log.d(TAG, "events fetch FAILED ", it)
                 resultListener(listOf())
+            }
+    }
+
+
+    fun fetchUpdatingEventList(resultListener: (List<Event>) -> Unit) {
+        Log.d(TAG, "fetchUpdatingEventList started")
+        val query = db.collection("events")
+        Log.d(TAG, "query: events snapshot")
+        query
+            .limit(queryLimit)
+            .addSnapshotListener { querySnapshot, firebaseFirestoreException ->
+                if (firebaseFirestoreException != null) {
+                    Log.d(TAG, "events fetch FAILED ", firebaseFirestoreException)
+                    resultListener(listOf())
+                    return@addSnapshotListener
+                }
+
+                if (querySnapshot != null && !querySnapshot.isEmpty) {
+                    Log.d(TAG, "events fetch ${querySnapshot.documents.size}")
+                    // NB: This is done on a background thread
+                    resultListener(querySnapshot.documents.mapNotNull {
+                        it.toObject(Event::class.java)})
+                } else {
+                    Log.d(TAG, "events fetch FAILED ")
+                    resultListener(listOf())
+                }
             }
     }
 

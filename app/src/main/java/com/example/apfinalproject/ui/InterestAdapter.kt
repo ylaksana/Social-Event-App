@@ -8,12 +8,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.apfinalproject.MainViewModel
 import com.example.apfinalproject.databinding.InterestItemBinding
 import android.content.Context
-import android.graphics.Typeface
 import com.example.apfinalproject.R
 import androidx.appcompat.content.res.AppCompatResources
-
-
-
 
 class InterestAdapter(
     private val viewModel: MainViewModel,

@@ -15,7 +15,6 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.apfinalproject.MainViewModel
 import com.example.apfinalproject.R
-import com.example.apfinalproject.api.ImageRepository
 import com.example.apfinalproject.databinding.ActivityMainBinding
 import com.example.apfinalproject.databinding.FragmentRvBinding
 import com.example.apfinalproject.event.EventAdapter
@@ -71,6 +70,7 @@ class EventListFragment : Fragment() {
             spinner?.adapter = adapter
         }
 
+        // TODO: add init adapter and init spinners to separate function
         // Set the spinner item selection listener
         spinner?.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(
@@ -93,27 +93,22 @@ class EventListFragment : Fragment() {
                 }
                 viewModel.observeUserEvents().observe(viewLifecycleOwner) {
                     Log.d("filterSpinner", "filterList length: $it")
-                    adapter?.submitList(it)
+                    eventAdapter.submitList(it)
                 }
             }
-
 
             override fun onNothingSelected(parent: AdapterView<*>?) {
                 viewModel.setEvents(true)
                 viewModel.observeNetTypeEvents().observe(viewLifecycleOwner) {
                     Log.d("filterSpinner", "filterList length: $it")
-                    adapter?.submitList(it)
+                    eventAdapter.submitList(it)
                 }
             }
         }
 
-        rv.adapter = adapter
-        navController = findNavController()
         binding.backButton.setOnClickListener{
             navController.popBackStack()
-
         }
-
     }
 
     override fun onDestroyView() {

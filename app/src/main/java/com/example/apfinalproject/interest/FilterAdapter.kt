@@ -66,9 +66,9 @@ class FilterAdapter(private val viewModel: MainViewModel)
         Log.d("Item Selected", "${item.category}, ${item.selected}")
         rowBinding.interestName.text = item.category
         if(item.selected){
-            rowBinding.interestName.setBackgroundResource(R.drawable.interest_background_gray)
+            rowBinding.interestName.setBackgroundResource(R.drawable.interest_selected)
         } else {
-            rowBinding.interestName.setBackgroundResource(R.drawable.interest_background)
+            rowBinding.interestName.setBackgroundResource(R.drawable.interest_unselected)
         }
     }
 

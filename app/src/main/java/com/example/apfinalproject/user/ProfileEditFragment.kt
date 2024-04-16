@@ -18,7 +18,7 @@ import com.example.apfinalproject.MainViewModel
 import com.example.apfinalproject.databinding.ProfileEditFragmentBinding
 import java.util.UUID
 import com.example.apfinalproject.ui.InterestAdapter
-import com.example.apfinalproject.model.InterestCategories
+import com.example.apfinalproject.interest.InterestCategories
 import com.google.android.flexbox.FlexDirection
 import com.google.android.flexbox.FlexWrap
 import com.google.android.flexbox.FlexboxLayoutManager
@@ -102,7 +102,9 @@ class ProfileEditFragment: Fragment() {
             flexWrap = FlexWrap.WRAP
             justifyContent = JustifyContent.FLEX_START
         }
-        val completeInterests = InterestCategories.getCategories()
+        val completeInterests = InterestCategories.getInterests().map {
+            it.category
+        }
         interestAdapter.submitList(completeInterests)
 
         binding.saveButton.setOnClickListener {

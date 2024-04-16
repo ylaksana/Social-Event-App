@@ -17,13 +17,13 @@ import com.example.apfinalproject.osm.OSMLocation
 import com.example.apfinalproject.osm.OSMRepository
 import com.example.apfinalproject.user.invalidUser
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
 import java.lang.Exception
 import android.net.Uri
+import com.example.apfinalproject.interest.InterestCategories.Interest
 
-class MainViewModel(): ViewModel() {
+class MainViewModel: ViewModel() {
     companion object {
         private const val TAG = "MainViewModel"
     }
@@ -31,15 +31,10 @@ class MainViewModel(): ViewModel() {
         Log.d(TAG, ">>init")
     }
     private var actionBarBinding : ActionBarBinding? = null
-
-//    private var events: MutableLiveData<List<Event>> = MutableLiveData(EventList.getAll())
-    private var activeUser: User = invalidUser
-    private val userUID: MutableLiveData<String> = MutableLiveData()
     private val storage = Storage()
     private val db = ViewModelDBHelper()
     private val filterTerm: MutableLiveData<String> = MutableLiveData()
     private var isMyEvents: MutableLiveData<Boolean> = MutableLiveData()
-    private var photoUUID = ""
 
 
     var activeUser = MutableLiveData<User>().apply {
@@ -60,7 +55,7 @@ class MainViewModel(): ViewModel() {
         addSource(events) { originalList ->
             val filteredList = originalList.filter { event ->
                 // Replace "userCondition" with the condition you want to filter by
-                event.creator != activeUser.uid
+                event.creator != activeUser.value?.uid
             }
             postValue(filteredList)
         }
@@ -115,15 +110,16 @@ class MainViewModel(): ViewModel() {
     }
 
     private var netUserEvents = MediatorLiveData<List<Event>>().apply {
-        addSource(isMyEvents){switch ->
+        addSource(isMyEvents) { switch ->
             var userEvents = nonUserEvents.value
-            if(switch){
+            if (switch) {
                 userEvents = events.value?.filter { event ->
-                    event.creator == activeUser.uid
+                    event.creator == activeUser.value?.uid
                 }
             }
             postValue(userEvents)
         }
+    }
 
     fun getStorage(): Storage {
         return storage
@@ -185,8 +181,7 @@ class MainViewModel(): ViewModel() {
     var interestsLiveData = MediatorLiveData<List<String>>().apply {
         value = listOf()
         addSource(activeUser) { user ->
-            this.postValue(user.userInterests)
-
+            postValue(user.userInterests)
         }
     }
 
@@ -280,5 +275,4 @@ class MainViewModel(): ViewModel() {
             storage.uploadImage(imageUri, collection, resultListener)
         }
     }
-
 }

@@ -85,7 +85,7 @@ class EventListFragment : Fragment() {
                         viewModel.setEvents(false)
                     }
                 }
-                viewModel.observeFilters().observe(viewLifecycleOwner) {
+                viewModel.observeUserEvents().observe(viewLifecycleOwner) {
                     Log.d("filterSpinner", "filterList length: $it")
                     adapter?.submitList(it)
                 }
@@ -94,7 +94,7 @@ class EventListFragment : Fragment() {
 
             override fun onNothingSelected(parent: AdapterView<*>?) {
                 viewModel.setEvents(true)
-                viewModel.observeFilters().observe(viewLifecycleOwner) {
+                viewModel.observeNetTypeEvents().observe(viewLifecycleOwner) {
                     Log.d("filterSpinner", "filterList length: $it")
                     adapter?.submitList(it)
                 }

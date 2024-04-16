@@ -35,7 +35,7 @@ class MapFragment : Fragment() {
         }
         rv.adapter = adapter
         viewModel.setEvents(false)
-        viewModel.observeFilters().observe(viewLifecycleOwner) {
+        viewModel.observeNetTypeEvents().observe(viewLifecycleOwner) {
             adapter.submitList(it)
         }
     }

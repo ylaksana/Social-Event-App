@@ -39,6 +39,16 @@ class MainViewModel(): ViewModel() {
         }
     }
 
+    private var nonUserEvents = MediatorLiveData<List<Event>>().apply {
+        addSource(events) { originalList ->
+            val filteredList = originalList.filter { event ->
+                // Replace "userCondition" with the condition you want to filter by
+                event.creator != activeUser.uid
+            }
+            postValue(filteredList)
+        }
+    }
+
 
     // OSM
     private val osmAPI = OSMApi.create()
@@ -65,14 +75,37 @@ class MainViewModel(): ViewModel() {
     }
 
     private var netTypeEvents = MediatorLiveData<List<Event>>().apply {
-        addSource(filterTerm){term ->
-            var filteredEvents = events.value
-            if(term != "" || term.isNotEmpty()) {
-                filteredEvents = events.value?.filter { event ->
+        addSource(nonUserEvents) { events ->
+            val term = filterTerm.value
+            var filteredEvents = events
+            if (!term.isNullOrEmpty()) {
+                filteredEvents = events.filter { event ->
                     event.type == term
                 }
             }
             postValue(filteredEvents)
+        }
+        addSource(filterTerm) { term ->
+            val events = nonUserEvents.value
+            var filteredEvents = events
+            if (!term.isNullOrEmpty() && events != null) {
+                filteredEvents = events.filter { event ->
+                    event.type == term
+                }
+            }
+            postValue(filteredEvents)
+        }
+    }
+
+    private var netUserEvents = MediatorLiveData<List<Event>>().apply {
+        addSource(isMyEvents){switch ->
+            var userEvents = nonUserEvents.value
+            if(switch){
+                userEvents = events.value?.filter { event ->
+                    event.creator == activeUser.uid
+                }
+            }
+            postValue(userEvents)
         }
     }
 
@@ -85,11 +118,11 @@ class MainViewModel(): ViewModel() {
         searchLocation.postValue(term)
     }
 
-    fun observeFilterTerm(): LiveData<String> {
-        return filterTerm
+    fun observeUserEvents(): LiveData<List<Event>> {
+        return netUserEvents
     }
 
-    fun observeFilters(): LiveData<List<Event>> {
+    fun observeNetTypeEvents(): LiveData<List<Event>> {
         return netTypeEvents
     }
 

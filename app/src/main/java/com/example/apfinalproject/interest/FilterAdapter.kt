@@ -27,7 +27,7 @@ class FilterAdapter(private val viewModel: MainViewModel)
 
                 notifyItemChanged(previousPosition)
                 notifyItemChanged(currentPosition)
-                Log.d("FilterBinding", "${item.category}, ${item.selected}")
+                Log.d("Item Index","current: $currentPosition, previous: $previousPosition")
                 if(item == previousItem) {
                     if(item.selected){
                         item.selected = false
@@ -37,6 +37,10 @@ class FilterAdapter(private val viewModel: MainViewModel)
                         item.selected = true
                         viewModel.setFilter(item.category)
                     }
+                }
+                else if(item.selected){
+                    item.selected = false
+                    viewModel.setFilter("")
                 }
                 else{
                     previousItem.selected = false
@@ -59,6 +63,7 @@ class FilterAdapter(private val viewModel: MainViewModel)
     override fun onBindViewHolder(holder: VH, position: Int) {
         val rowBinding = holder.rowPostBinding
         val item = getItem(position)
+        Log.d("Item Selected", "${item.category}, ${item.selected}")
         rowBinding.interestName.text = item.category
         if(item.selected){
             rowBinding.interestName.setBackgroundResource(R.drawable.interest_background_gray)

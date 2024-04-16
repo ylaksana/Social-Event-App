@@ -83,39 +83,36 @@ class HomeFragment: Fragment() {
         }
 
 
-        val adapter = EventAdapter(viewModel){ event ->
-            findNavController().navigate(HomeFragmentDirections.actionHomeFragmentToOneEventFragment(event))
+        val adapter = EventAdapter(viewModel) { event ->
+            findNavController().navigate(
+                HomeFragmentDirections.actionHomeFragmentToOneEventFragment(
+                    event
+                )
+            )
         }
 
-        viewModel.observeFilterTerm().observe(viewLifecycleOwner) {
-            Log.d(TAG, "observeFilterTerm: $it")
-            if(it != null) {
-                viewModel.observeFilters().observe(viewLifecycleOwner) { filters ->
-                    Log.d("Filter", "filterList length: ${filters.size}")
-                    adapter.submitList(filters)
-                }
+        viewModel.observeNetTypeEvents().observe(viewLifecycleOwner) { events ->
+            Log.d("Filter", "filterList length: ${events.size}")
+            adapter.submitList(events)
+        }
+
+
+            rv.adapter = adapter
+
+            val filterAdapter = FilterAdapter(viewModel)
+            val filterRV = binding.filtersRV
+            filterRV.layoutManager =
+                LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+            filterAdapter.submitList(filtersList)
+            filterRV.adapter = filterAdapter
+
+
+
+            navController = findNavController()
+            binding.chatButton.setOnClickListener {
+                navController.safeNavigate(HomeFragmentDirections.actionHomeFragmentToChatListFragment())
             }
-        }
 
-        viewModel.observeEvents().observe(viewLifecycleOwner) { eventList ->
-            Log.d("MainActivity", "eventList length: ${eventList.size}")
-            adapter.submitList(eventList)
-        }
-
-        rv.adapter = adapter
-
-       val filterAdapter = FilterAdapter(viewModel)
-        val filterRV = binding.filtersRV
-        filterRV.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
-        filterAdapter.submitList(filtersList)
-        filterRV.adapter = filterAdapter
-
-
-
-        navController = findNavController()
-        binding.chatButton.setOnClickListener{
-            navController.safeNavigate(HomeFragmentDirections.actionHomeFragmentToChatListFragment())
-        }
     }
 
 }

@@ -42,7 +42,7 @@ class MainViewModel(): ViewModel() {
       
     private var events = MutableLiveData<List<Event>>().apply {
         viewModelScope.launch(Dispatchers.IO) {
-            val events = db.fetchUpdatingEventList { fetchedEvents ->
+            db.fetchUpdatingEventList { fetchedEvents ->
                 postValue(fetchedEvents)
             }
         }
@@ -97,49 +97,30 @@ class MainViewModel(): ViewModel() {
         }
     }
 
-    fun verifyUserAndLogin(userId: String, resultListener: (User) -> Unit) {
+    /** Checks if the user has already created a profile, then sets active user
+     * @param userId: String - the user's id
+     * @param resultListener: (User) -> Unit - navigates to CreateUserFrag if user is invalidUser
+     */
+    fun setActiveUser(userId: String, resultListener: (User) -> Unit) {
         Log.d(TAG, "checking isUserInDB: $userId")
-        db.fetchUserByUid(userId) { result ->
-            Log.d(TAG, "isUserInDB: ${result?.uid} : ${result?.displayName}")
-            if (result != invalidUser) {
+        db.fetchUserByUid(userId) { user ->
+            Log.d(TAG, "isUserInDB: ${user?.uid} : ${user?.displayName}")
+            if (user != invalidUser) {
                 Log.d(TAG, "user exists in db")
-                activeUser.postValue(result)
+                activeUser.postValue(user)
             } else {
-                Log.d(TAG, "isUserInDB: user is invalid")
+                Log.d(TAG, "user is invalid")
                 activeUser.postValue(invalidUser)
             }
-            if (result != null) {
-                resultListener(result)
-          // Check for null
+            if (user != null) {
+                resultListener(user)
             }
         }
-//        Log.d(TAG, "isUserInDB end: ${user.value?.uid}")
     }
 
     fun observeActiveUser(): LiveData<User> {
         return activeUser
     }
-
-    // Converts list of event IDs to list of events, then posts to live data
-
-//    private fun convertToEventAndPost(eventIdList: List<String>) {
-//        val eventList = mutableListOf<Event>()
-//        viewModelScope.launch(Dispatchers.IO) {
-//            eventIdList.map {eventID ->
-//                // Fetches event on background thread
-//                val event = async {
-//                    db.fetchEventByUid(eventID) {fetchedEvent ->
-//                        fetchedEvent?.let {
-//                            eventList.add(it)
-//                        }
-//                    }
-//                }
-//                event.await()
-//            }
-//            pastEventsLiveData.postValue(eventList)
-//        }
-//    }
-
 
     fun getActiveUser(): User? {
         return activeUser.value
@@ -198,13 +179,13 @@ class MainViewModel(): ViewModel() {
     }
 
     fun addEvent(newEvent: Event) {
-        db.createEvent(newEvent) {
-
-        }
+        db.createEvent(newEvent) {}
     }
 
     fun uploadImage(imageUri: Uri, collection: String, resultListener: (String) -> Unit) {
-        storage.uploadImage(imageUri, collection, resultListener)
+        viewModelScope.launch(Dispatchers.IO) {
+            storage.uploadImage(imageUri, collection, resultListener)
+        }
     }
 
 }

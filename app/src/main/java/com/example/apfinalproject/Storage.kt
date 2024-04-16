@@ -5,10 +5,6 @@ import android.net.Uri
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageMetadata
 import com.google.firebase.storage.StorageReference
-
-import android.net.Uri
-import com.google.firebase.storage.StorageMetadata
-
 import java.util.UUID
 
 class Storage {
@@ -67,6 +63,9 @@ class Storage {
                 Log.d(javaClass.simpleName, "removeUserPhoto succeeded $uuid")
             }
             .addOnFailureListener {
+                Log.d(javaClass.simpleName, "removeUserPhoto failed $uuid")
+            }
+    }
 
     fun uploadImage(imageUri: Uri,
                     collection: String,

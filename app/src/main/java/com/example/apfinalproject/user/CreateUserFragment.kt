@@ -76,10 +76,10 @@ class CreateUserFragment : Fragment() {
             if (newImageUri != Uri.EMPTY){
                 uploadUserPhoto(newImageUri) {
                     newUser.profileImage = newImageUUID ?: ""
-                    viewModel.addNewUser(newUser)
+                    viewModel.addUser(newUser)
                 }
             } else {
-                viewModel.addNewUser(newUser)
+                viewModel.addUser(newUser)
             }
             navController.navigate(CreateUserFragmentDirections.actionCreateUserFragmentToHomeFragment())
         }
@@ -142,9 +142,5 @@ class CreateUserFragment : Fragment() {
         storage.uploadUserPhoto(imageUri, newImageUUID!!, "") {
             onComplete()
         }
-    }
-
-    private fun uploadNewUser(newUser: User) {
-
     }
 }

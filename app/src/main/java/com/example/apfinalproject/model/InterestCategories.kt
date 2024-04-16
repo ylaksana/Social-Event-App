@@ -1,6 +1,7 @@
 package com.example.apfinalproject.model
 
 object InterestCategories {
+
 //    data class Interest(
 //        val category: String,
 //        val subcategory: String
@@ -89,6 +90,7 @@ object InterestCategories {
 //            Interest("Technology", "Data Science"),
 //            Interest("Technology", "Web Development"))
 //    )
+
 }
 
 

@@ -16,15 +16,22 @@ import com.example.apfinalproject.osm.OSMApi
 import com.example.apfinalproject.osm.OSMLocation
 import com.example.apfinalproject.osm.OSMRepository
 import com.example.apfinalproject.user.invalidUser
-import com.example.apfinalproject.user.invalidUserUid
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
+import java.lang.Exception
+import android.net.Uri
+
 class MainViewModel(): ViewModel() {
-    private val TAG = "MainViewModel"
+    companion object {
+        private const val TAG = "MainViewModel"
+    }
+    init {
+        Log.d(TAG, ">>init")
+    }
     private var actionBarBinding : ActionBarBinding? = null
+
 //    private var events: MutableLiveData<List<Event>> = MutableLiveData(EventList.getAll())
     private var activeUser: User = invalidUser
     private val userUID: MutableLiveData<String> = MutableLiveData()
@@ -32,12 +39,22 @@ class MainViewModel(): ViewModel() {
     private val db = ViewModelDBHelper()
     private val filterTerm: MutableLiveData<String> = MutableLiveData()
     private var isMyEvents: MutableLiveData<Boolean> = MutableLiveData()
+    private var photoUUID = ""
 
+
+    var activeUser = MutableLiveData<User>().apply {
+        Log.d(TAG, ">>activeUser init")
+        invalidUser
+    }
+      
     private var events = MutableLiveData<List<Event>>().apply {
-        db.fetchEvents { eventList ->
-            this.postValue(eventList)
+        viewModelScope.launch(Dispatchers.IO) {
+            db.fetchUpdatingEventList { fetchedEvents ->
+                postValue(fetchedEvents)
+            }
         }
     }
+
 
     private var nonUserEvents = MediatorLiveData<List<Event>>().apply {
         addSource(events) { originalList ->
@@ -48,7 +65,6 @@ class MainViewModel(): ViewModel() {
             postValue(filteredList)
         }
     }
-
 
     // OSM
     private val osmAPI = OSMApi.create()
@@ -67,12 +83,13 @@ class MainViewModel(): ViewModel() {
                     }
                 }
             } catch(e: HttpException) {
-            Log.e("HTTP Error", "Error fetching posts: ${e.code()}")
+                Log.e("HTTP Error", "Error fetching posts: ${e.code()}")
             } catch(e: Exception) {
-            Log.e("General Error", "Error in fetching from API: ${e.message}")
+                Log.e("General Error", "Error in fetching from API: ${e.message}")
             }
         }
     }
+
 
     private var netTypeEvents = MediatorLiveData<List<Event>>().apply {
         addSource(nonUserEvents) { events ->
@@ -107,6 +124,10 @@ class MainViewModel(): ViewModel() {
             }
             postValue(userEvents)
         }
+
+    fun getStorage(): Storage {
+        return storage
+
     }
 
     fun observeLocations(): LiveData<List<OSMLocation>> {
@@ -117,6 +138,7 @@ class MainViewModel(): ViewModel() {
     fun setLocationTerm(term: String) {
         searchLocation.postValue(term)
     }
+
 
     fun observeUserEvents(): LiveData<List<Event>> {
         return netUserEvents
@@ -140,53 +162,61 @@ class MainViewModel(): ViewModel() {
     private var pastEventsLiveData = MutableLiveData<List<Event>>().apply {
         this.postValue(listOf())
     }
-    private var interestsLiveData = MutableLiveData<List<String>>().apply {
-        this.postValue(listOf())
-    }
-    
 
 
-    // MainActivity gets updates on this via live data and informs view model
-    fun setActiveAuthUser(uid: String) {
-        if (uid != invalidUserUid) {
-            db.fetchUserByUid(uid) {
-                activeUser = it!!
-                userUID.postValue(it.uid)
-                Log.d("ActiveUser", "setActiveAuthUser: ${activeUser.displayName} ${activeUser.email} ${activeUser.uid} ${activeUser.bio}")
+//     // MainActivity gets updates on this via live data and informs view model
+//     fun setActiveAuthUser(uid: String) {
+//         if (uid != invalidUserUid) {
+//             db.fetchUserByUid(uid) {
+//                 activeUser = it!!
+//                 userUID.postValue(it.uid)
+//                 Log.d("ActiveUser", "setActiveAuthUser: ${activeUser.displayName} ${activeUser.email} ${activeUser.uid} ${activeUser.bio}")
 
-                interestsLiveData.postValue(activeUser.userInterests)
-                convertToEventAndPost(activeUser.pastEvents)
-            }
-            Log.d(TAG, "setActiveAuthUser: $uid")
-        } else {
-            activeUser = invalidUser
-            pastEventsLiveData.postValue(listOf())
-            interestsLiveData.postValue(listOf())
-            Log.d(TAG, "setActiveAuthUser: invalid user")
+//                 interestsLiveData.postValue(activeUser.userInterests)
+//                 convertToEventAndPost(activeUser.pastEvents)
+//             }
+//             Log.d(TAG, "setActiveAuthUser: $uid")
+//         } else {
+//             activeUser = invalidUser
+//             pastEventsLiveData.postValue(listOf())
+//             interestsLiveData.postValue(listOf())
+//             Log.d(TAG, "setActiveAuthUser: invalid user")
+
+    var interestsLiveData = MediatorLiveData<List<String>>().apply {
+        value = listOf()
+        addSource(activeUser) { user ->
+            this.postValue(user.userInterests)
+
         }
     }
 
-    // Converts list of event IDs to list of events, then posts to live data
-    private fun convertToEventAndPost(eventIdList: List<String>) {
-        val eventList = mutableListOf<Event>()
-        CoroutineScope(Dispatchers.IO).launch {
-            eventIdList.map {eventID ->
-                // Fetches event on background thread
-                val event = async {
-                    db.fetchEventByUid(eventID) {fetchedEvent ->
-                        fetchedEvent?.let {
-                            eventList.add(it)
-                        }
-                    }
-                }
-                event.await()
+    /** Checks if the user has already created a profile, then sets active user
+     * @param userId: String - the user's id
+     * @param resultListener: (User) -> Unit - navigates to CreateUserFrag if user is invalidUser
+     */
+    fun setActiveUser(userId: String, resultListener: (User) -> Unit) {
+        Log.d(TAG, "checking isUserInDB: $userId")
+        db.fetchUserByUid(userId) { user ->
+            Log.d(TAG, "isUserInDB: ${user?.uid} : ${user?.displayName}")
+            if (user != invalidUser) {
+                Log.d(TAG, "user exists in db")
+                activeUser.postValue(user)
+            } else {
+                Log.d(TAG, "user is invalid")
+                activeUser.postValue(invalidUser)
+            }
+            if (user != null) {
+                resultListener(user)
             }
         }
-        pastEventsLiveData.postValue(eventList)
     }
 
-    fun getActiveUser(): User {
+    fun observeActiveUser(): LiveData<User> {
         return activeUser
+    }
+
+    fun getActiveUser(): User? {
+        return activeUser.value
     }
 
     fun observePastEvents(): LiveData<List<Event>> {
@@ -213,6 +243,11 @@ class MainViewModel(): ViewModel() {
         actionBarBinding?.root?.isGone = false
     }
 
+    fun updateUser(newUser: User) {
+        activeUser.value = newUser
+        activeUser.value?.uid?.let { db.updateUser(it, newUser) }
+    }
+
     fun fetchUserImage(uuid: String, imageView: ImageView) {
         Log.d(TAG, "fetchUserImage: $uuid")
         val path = storage.getUserPhoto(uuid)
@@ -226,4 +261,24 @@ class MainViewModel(): ViewModel() {
         Log.d(TAG, "fetchEventImage: $path")
         Glide.fetch(path, imageView)
     }
+
+
+    fun addUser(newUser: User) {
+        Log.d(TAG, "addNewUser: ${newUser.uid}")
+        db.createUser(newUser) { user ->
+            Log.d(TAG, "addNewUser: ${user.uid}")
+            activeUser.postValue(user)
+        }
+    }
+
+    fun addEvent(newEvent: Event) {
+        db.createEvent(newEvent) {}
+    }
+
+    fun uploadImage(imageUri: Uri, collection: String, resultListener: (String) -> Unit) {
+        viewModelScope.launch(Dispatchers.IO) {
+            storage.uploadImage(imageUri, collection, resultListener)
+        }
+    }
+
 }

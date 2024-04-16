@@ -20,13 +20,17 @@ import com.example.apfinalproject.databinding.ActionBarBinding
 import com.example.apfinalproject.databinding.ActivityMainBinding
 import com.example.apfinalproject.ui.HomeFragmentDirections
 import com.example.apfinalproject.user.AuthUser
-import com.example.apfinalproject.user.invalidUserUid
+import com.example.apfinalproject.user.invalidUser
 
 class MainActivity : AppCompatActivity() {
+    companion object {
+        const val TAG = "MainActivity"
+    }
     private var actionBarBinding: ActionBarBinding? = null
     private val viewModel: MainViewModel by viewModels()
     private lateinit var navController : NavController
     private lateinit var authUser : AuthUser
+    private var firstLogin: Boolean? = null
 
     private fun initActionBar(actionBar: ActionBar) {
         // Disable the default and enable the custom
@@ -98,16 +102,29 @@ class MainActivity : AppCompatActivity() {
         // Observe title changes
     }
 
+    fun getAuthUser(): AuthUser {
+        return authUser
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        Log.d(TAG, "onCreate")
         super.onCreate(savedInstanceState)
+
+        Log.d(TAG, ">>before authuser")
+        authUser = AuthUser(activityResultRegistry)
+        Log.d(TAG, ">>after authuser")
+        lifecycle.addObserver(authUser)
+
+        Log.d(TAG, ">>inflating binding")
         val activityMainBinding = ActivityMainBinding.inflate(layoutInflater)
+        Log.d(TAG, ">>setting content view")
         setContentView(activityMainBinding.root)
+        Log.d(TAG, ">>setting support action bar")
         setSupportActionBar(activityMainBinding.toolbar)
         supportActionBar?.let{
             initActionBar(it)
         }
-        Log.d("navController", "before4")
+
 
         initTitleObservers()
         actionBarTitleLaunchProfile()
@@ -124,24 +141,52 @@ class MainActivity : AppCompatActivity() {
         // onSupportNavigateUp().
         activityMainBinding.toolbar.setupWithNavController(navController, appBarConfiguration)
         //setupActionBarWithNavController(navController, appBarConfiguration)
+        Log.d(TAG, "onCreate end")
     }
 
     override fun onStart() {
         super.onStart()
-        Log.d("MainActivity", "onStart")
-        authUser = AuthUser(activityResultRegistry)
-        lifecycle.addObserver(authUser)
+        Log.d(TAG, "onStart")
+        var pendingLogin = false
 
-        authUser.observeActiveUserUid().observe(this) {
-            // XXX Write me, user status has changed
-            if (it == null) {
-                Log.d("MainActivity", "User is logged out")
-                viewModel.setActiveAuthUser(invalidUserUid)
-            } else {
-                Log.d("MainActivity", "User is logged in with uid $it")
-                viewModel.setActiveAuthUser(it)
+
+        Log.d(TAG, ">>auth user: ${authUser.observeAuthId().value}")
+
+        authUser.observeAuthId().observe(this) {authId ->
+            if (!pendingLogin) {
+                pendingLogin = true
+                Log.d(TAG, ">>observeAuthId started with $authId")
+                // XXX Write me, user status has changed
+                if ((authId == null) or (authId == invalidUser.uid)) {
+                    Log.d(TAG, ">> No user logged into Firebase : $authId")
+                    viewModel.activeUser.postValue(invalidUser)
+                } else {
+                    Log.d(TAG, ">>User is logged in with uid $authId : ${authUser.getName()}")
+                    viewModel.setActiveUser(authId) { user ->
+                        if (user == invalidUser) {
+                            navController.safeNavigate(
+                                HomeFragmentDirections.actionHomeFragmentToCreateUserFragment(
+                                    authId,
+                                    authUser.getName(),
+                                    authUser.getEmail()
+                                )
+                            )
+                        }
+                    }
+                }
+                pendingLogin = false
             }
         }
+        Log.d(TAG, "onStart end")
     }
 
+    override fun onStop() {
+        super.onStop()
+        Log.d(TAG, "onStop")
+    }
+
+    override fun onPause() {
+        super.onPause()
+        Log.d(TAG, "onPause")
+    }
 }

@@ -62,7 +62,9 @@ class ChatListFragment: Fragment() {
         }
         val user = viewModel.getActiveUser()
 
-        fetchConversationsAndSubmitToAdapter(user.conversationIDs, chatListAdapter)
+        if (user != null) {
+            fetchConversationsAndSubmitToAdapter(user.conversationIDs, chatListAdapter)
+        }
         binding.chatListRV.layoutManager = LinearLayoutManager(context)
         binding.chatListRV.adapter = chatListAdapter
 

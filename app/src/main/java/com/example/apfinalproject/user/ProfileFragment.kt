@@ -7,6 +7,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.Fragment
+import androidx.navigation.NavController
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.flexbox.*
 import com.example.apfinalproject.ui.InterestAdapter
@@ -14,14 +16,17 @@ import com.example.apfinalproject.MainViewModel
 import com.example.apfinalproject.ui.PastEventAdapter
 import com.example.apfinalproject.databinding.ProfileFragmentBinding
 
+
 class ProfileFragment: Fragment() {
     private val viewModel: MainViewModel by activityViewModels()
     private var _binding: ProfileFragmentBinding? = null
+    private lateinit var navController : NavController
     private val binding get() = _binding!!
     private val TAG = "ProfileFragment"
 
     private fun initAdapters(binding: ProfileFragmentBinding) {
         Log.d(TAG, "initAdapters")
+        // Event RV
         binding.pastEventsRV.layoutManager = LinearLayoutManager(context)
         val adapter = PastEventAdapter(viewModel) {
             // Navigate to OneEvent
@@ -30,18 +35,18 @@ class ProfileFragment: Fragment() {
         viewModel.observePastEvents().observe(viewLifecycleOwner) {
             adapter.submitList(it)
         }
-        binding.interestsRV.layoutManager = FlexboxLayoutManager(context).apply {
-            flexDirection = FlexDirection.ROW
-            flexWrap = FlexWrap.WRAP
-            justifyContent = JustifyContent.FLEX_START
-        }
+
+        // Interest RV
         val interestAdapter = InterestAdapter(viewModel)
         binding.interestsRV.adapter = interestAdapter
         viewModel.observeInterests().observe(viewLifecycleOwner) {
             interestAdapter.submitList(it)
         }
-
-
+        binding.interestsRV.layoutManager = FlexboxLayoutManager(context).apply {
+            flexDirection = FlexDirection.ROW
+            flexWrap = FlexWrap.WRAP
+            justifyContent = JustifyContent.FLEX_START
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -65,9 +70,18 @@ class ProfileFragment: Fragment() {
         super.onViewCreated(view, savedInstanceState)
         initAdapters(binding)
         val user = viewModel.getActiveUser()
-        binding.userName.text = user.firstName
-        binding.profileBio.text = user.bio
-        viewModel.fetchUserImage(user.profileImage, binding.profileImage)
+        navController = findNavController()
+
+        if (user != null) {
+            binding.userName.text = user.firstName
+            binding.profileBio.text = user.bio
+            viewModel.fetchUserImage(user.profileImage, binding.profileImage)
+        }
+
+        binding.editProfileButton.setOnClickListener {
+            // Navigate to EditProfile
+            navController.navigate(ProfileFragmentDirections.actionProfileFragmentToProfileEditFragment())
+        }
     }
 
     override fun onDestroyView() {

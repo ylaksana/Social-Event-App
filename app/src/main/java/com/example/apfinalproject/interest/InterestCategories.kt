@@ -32,6 +32,7 @@ object InterestCategories {
         Interest("Sports & Fitness",false),
         Interest("Travel & Outdoor",false),
         Interest("Other",false)
+
     )
 
 

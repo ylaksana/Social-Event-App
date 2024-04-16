@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.apfinalproject.MainViewModel
 import com.example.apfinalproject.R
 import com.example.apfinalproject.api.ImageRepository
+import com.example.apfinalproject.databinding.ActivityMainBinding
 import com.example.apfinalproject.databinding.FragmentRvBinding
 import com.example.apfinalproject.event.EventAdapter
 
@@ -40,16 +41,21 @@ class EventListFragment : Fragment() {
         Log.d(javaClass.simpleName, "onViewCreated")
         (activity as? AppCompatActivity)?.supportActionBar?.hide()
         viewModel.hideActionBar()
+        navController = findNavController()
 
-        // Move this to home fragment
+        // Set up Event RecyclerView
         val rv = binding.rv
         rv.layoutManager = LinearLayoutManager(context)
-        val imageRepo = context?.let {
-            ImageRepository(it)
+
+        val eventAdapter = EventAdapter(viewModel) {event ->
+            navController.navigate(
+                EventListFragmentDirections.actionEventListFragmentToOneEventFragment(event)
+            )
         }
-        val adapter = imageRepo?.let { EventAdapter(viewModel) {event ->
-            findNavController().navigate(HomeFragmentDirections.actionHomeFragmentToOneEventFragment(event))
-        }
+        rv.adapter = eventAdapter
+        viewModel.observeEvents().observe(viewLifecycleOwner) {events ->
+            Log.d("MainActivity", "eventList length: ${events.size}")
+            eventAdapter.submitList(events)
         }
 
         // Insert items into spinner

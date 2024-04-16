@@ -41,7 +41,7 @@ class ChatListAdapter(private val viewModel: MainViewModel,
         val chatListRowBinding = holder.chatListRowBinding
         val conversation = getItem(position)
         val activeUser = viewModel.getActiveUser()
-        val otherUser = conversation.userIDs.find { it != activeUser.uid }
+        val otherUser = conversation.userIDs.find { it != (activeUser?.uid ?: "-1") }
         Log.d("ChatListAdapter", "Binding conversationID: ${conversation.conversationID}")
 
         if (otherUser != null) {

@@ -33,6 +33,7 @@ class HomeFragment: Fragment() {
     private val activityMainBinding: ActivityMainBinding? = null
 //     This property is only valid between onCreateView and onDestroyView.
     private val binding get() = _binding!!
+    private var adapter: EventAdapter? = null
 
     private fun NavController.safeNavigate(direction: NavDirections) {
         currentDestination?.
@@ -54,7 +55,18 @@ class HomeFragment: Fragment() {
                 override fun onSwiped(viewHolder: RecyclerView.ViewHolder,
                                       direction: Int) {
                     val position = viewHolder.bindingAdapterPosition
-                    Log.d(TAG, "Swipe delete $position")
+                    val event = adapter?.currentList?.get(position)
+                    Log.d(TAG, "Swipe delete $direction")
+
+                    event?.let {
+                        val eventId = it.uid
+                        viewModel.addEventSwipe(eventId, direction)
+                        viewModel.removeEventFromView(event)
+                        Log.d(TAG, "adapter list: ${adapter?.currentList}")
+                        Log.d(TAG, "event list: ${viewModel.observeEvents().value}")
+                        //TODO: find new way to update, iteRemovedAt duplicated bound objects
+                        adapter?.notifyDataSetChanged()
+                    }
                 }
             }
         return ItemTouchHelper(simpleItemTouchCallback)
@@ -64,15 +76,15 @@ class HomeFragment: Fragment() {
         Log.d(TAG, "initAdapters")
         // Event RV
         binding.eventRV.layoutManager = LinearLayoutManager(context)
-        val adapter = EventAdapter(viewModel) {event ->
+        adapter = EventAdapter(viewModel) {event ->
             navController.navigate(
                 HomeFragmentDirections.actionHomeFragmentToOneEventFragment(event)
             )
         }
         binding.eventRV.adapter = adapter
         viewModel.observeEvents().observe(viewLifecycleOwner) {events ->
-            Log.d(TAG, "submitting list: ${events.size} items")
-            adapter.submitList(events)
+            Log.d(TAG, "submitting list: ${events?.size} items")
+            adapter!!.submitList(events)
         }
         Log.d(TAG, "end initadapters")
     }
@@ -91,8 +103,8 @@ class HomeFragment: Fragment() {
         Log.d(TAG, "onViewCreated")
         navController = findNavController()
 
-        initTouchHelper().attachToRecyclerView(binding.eventRV)
         initAdapters(binding)
+        initTouchHelper().attachToRecyclerView(binding.eventRV)
 
         binding.chatButton.setOnClickListener{
             navController.safeNavigate(HomeFragmentDirections.actionHomeFragmentToChatListFragment())

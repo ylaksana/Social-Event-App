@@ -52,7 +52,7 @@ class EventListFragment : Fragment() {
         }
         rv.adapter = eventAdapter
         viewModel.observeEvents().observe(viewLifecycleOwner) {events ->
-            Log.d("MainActivity", "eventList length: ${events.size}")
+            Log.d("MainActivity", "eventList length: ${events?.size}")
             eventAdapter.submitList(events)
         }
 

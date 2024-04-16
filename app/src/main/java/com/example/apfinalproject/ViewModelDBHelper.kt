@@ -1,15 +1,11 @@
 package com.example.apfinalproject
 
 import android.util.Log
-import android.widget.Toast
-import com.example.apfinalproject.chat.Conversation
 import com.example.apfinalproject.event.Event
 import com.example.apfinalproject.user.User
 import com.example.apfinalproject.user.invalidUser
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.Query
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import java.util.UUID
 
 
@@ -151,6 +147,31 @@ class ViewModelDBHelper {
             }
     }
 
+    fun fetchOthersUnswipedEvents(activeUserId: String,
+                                  resultListener: (List<Event>) -> Unit) {
+        Log.d(TAG, "fetchEvents started")
+        val eventsRef = db.collection("events")
+            .whereNotEqualTo("creator", activeUserId)
+            .limit(queryLimit)
+
+        Log.d(TAG, "query: events")
+        eventsRef
+            .get()
+            .addOnSuccessListener { allEvents ->
+                val unswipedEvents = allEvents.documents.mapNotNull {
+                    it.toObject(Event::class.java)
+                }.filter { event ->
+                    Log.d(TAG, "event: ${event.uid} ${event.noSwipes} ${event.yesSwipes}")
+                    activeUserId !in event.noSwipes && activeUserId !in event.yesSwipes
+                }
+                Log.d(TAG, "events fetch ${unswipedEvents.size}")
+                resultListener(unswipedEvents)
+            }
+            .addOnFailureListener {
+                Log.d(TAG, "events fetch FAILED ", it)
+                resultListener(listOf())
+            }
+    }
 
     fun fetchUpdatingEventList(resultListener: (List<Event>) -> Unit) {
         Log.d(TAG, "fetchUpdatingEventList started")
@@ -230,6 +251,19 @@ class ViewModelDBHelper {
             }
             .addOnFailureListener {
                 Log.d(TAG, "updateUser failed", it)
+            }
+    }
+
+    fun addEventSwipe(eventId: String, userId: String, direction: String) {
+        Log.d(TAG, "addEventSwipe started for $eventId, $userId, $direction")
+        db.collection("events")
+            .document(eventId)
+            .update(direction, FieldValue.arrayUnion(userId))
+            .addOnSuccessListener {
+                Log.d(TAG, "addEventSwipe succeeded")
+            }
+            .addOnFailureListener {
+                Log.d(TAG, "addEventSwipe failed", it)
             }
     }
 }

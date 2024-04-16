@@ -61,9 +61,11 @@ class OneEvent: Fragment(){
         binding.eventTime.text = args.Event.time
         binding.eventDate.text = args.Event.date
         binding.eventName.text = args.Event.title
+        // TODO: update this with user name, not user id
         binding.posterName.text = args.Event.creator
+        // TODO: add user profile image
 
-        // TODO("add imageRepo")
+        // TODO: use glide.fetch
         try {
             // Open an input stream to read the image from the assets
             Log.d("imageName","${args.Event.imageName}.jpg")

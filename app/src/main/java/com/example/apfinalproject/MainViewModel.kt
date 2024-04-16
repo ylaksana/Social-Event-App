@@ -17,7 +17,6 @@ import com.example.apfinalproject.osm.OSMLocation
 import com.example.apfinalproject.osm.OSMRepository
 import com.example.apfinalproject.user.invalidUser
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
 import java.lang.Exception
@@ -33,20 +32,13 @@ class MainViewModel(): ViewModel() {
     private var actionBarBinding : ActionBarBinding? = null
     private val storage = Storage()
     private val db = ViewModelDBHelper()
-    private var photoUUID = ""
 
     var activeUser = MutableLiveData<User>().apply {
         Log.d(TAG, ">>activeUser init")
         invalidUser
     }
       
-    private var events = MutableLiveData<List<Event>>().apply {
-        viewModelScope.launch(Dispatchers.IO) {
-            db.fetchUpdatingEventList { fetchedEvents ->
-                postValue(fetchedEvents)
-            }
-        }
-    }
+    private var events = MutableLiveData<List<Event>?>()
 
     // OSM
     private val osmAPI = OSMApi.create()
@@ -108,6 +100,9 @@ class MainViewModel(): ViewModel() {
             if (user != invalidUser) {
                 Log.d(TAG, "user exists in db")
                 activeUser.postValue(user)
+                db.fetchOthersUnswipedEvents(userId) {
+                    events.postValue(it)
+                }
             } else {
                 Log.d(TAG, "user is invalid")
                 activeUser.postValue(invalidUser)
@@ -134,7 +129,7 @@ class MainViewModel(): ViewModel() {
         return interestsLiveData
     }
 
-    fun observeEvents(): LiveData<List<Event>> {
+    fun observeEvents(): LiveData<List<Event>?> {
         return events
     }
 
@@ -188,4 +183,16 @@ class MainViewModel(): ViewModel() {
         }
     }
 
+    fun addEventSwipe(eventId: String, direction: Int) {
+        when(direction) {
+            4 -> db.addEventSwipe(eventId, activeUser.value?.uid!!, "noSwipes")
+            8 -> db.addEventSwipe(eventId, activeUser.value?.uid!!, "yesSwipes")
+        }
+    }
+
+    fun removeEventFromView(event: Event) {
+        val currentEvents = events.value?.toMutableList()
+        currentEvents?.remove(event)
+        events.postValue(currentEvents)
+    }
 }

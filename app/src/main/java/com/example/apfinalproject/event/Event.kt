@@ -12,7 +12,9 @@ class Event(
     var location: String = "No Location",
     var creator: String = "No Creator",
     var type: String = "No Type",
-    var imageName: String = "default.jpg") : Parcelable{
+    var imageName: String = "default.jpg",
+    var yesSwipes: List<String> = listOf(),
+    var noSwipes: List<String> = listOf()) : Parcelable{
 
     // Events with the same ID are considered equal.
     // Not sure if this is the best way to do it, but it works for now.

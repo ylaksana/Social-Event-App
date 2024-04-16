@@ -146,34 +146,28 @@ class MainActivity : AppCompatActivity() {
     override fun onStart() {
         super.onStart()
         Log.d(TAG, "onStart")
-        var pendingLogin = false
-
 
         Log.d(TAG, ">>auth user: ${authUser.observeAuthId().value}")
 
         authUser.observeAuthId().observe(this) {authId ->
-            if (!pendingLogin) {
-                pendingLogin = true
-                Log.d(TAG, ">>observeAuthId started with $authId")
-                // XXX Write me, user status has changed
-                if ((authId == null) or (authId == invalidUser.uid)) {
-                    Log.d(TAG, ">> No user logged into Firebase : $authId")
-                    viewModel.activeUser.postValue(invalidUser)
-                } else {
-                    Log.d(TAG, ">>User is logged in with uid $authId : ${authUser.getName()}")
-                    viewModel.setActiveUser(authId) { user ->
-                        if (user == invalidUser) {
-                            navController.safeNavigate(
-                                HomeFragmentDirections.actionHomeFragmentToCreateUserFragment(
-                                    authId,
-                                    authUser.getName(),
-                                    authUser.getEmail()
-                                )
+            Log.d(TAG, ">>observeAuthId started with $authId")
+            // XXX Write me, user status has changed
+            if ((authId == null) or (authId == invalidUser.uid)) {
+                Log.d(TAG, ">> No user logged into Firebase : $authId")
+                viewModel.activeUser.postValue(invalidUser)
+            } else {
+                Log.d(TAG, ">>User is logged in with uid $authId : ${authUser.getName()}")
+                viewModel.setActiveUser(authId) { user ->
+                    if (user == invalidUser) {
+                        navController.safeNavigate(
+                            HomeFragmentDirections.actionHomeFragmentToCreateUserFragment(
+                                authId,
+                                authUser.getName(),
+                                authUser.getEmail()
                             )
-                        }
+                        )
                     }
                 }
-                pendingLogin = false
             }
         }
         Log.d(TAG, "onStart end")

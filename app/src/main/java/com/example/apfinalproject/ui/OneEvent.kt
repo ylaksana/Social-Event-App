@@ -16,6 +16,7 @@ import androidx.navigation.fragment.navArgs
 import com.example.apfinalproject.MainViewModel
 import com.example.apfinalproject.databinding.OneEventBinding
 import java.io.IOException
+import com.example.apfinalproject.glide.Glide
 
 class OneEvent: Fragment(){
     private val viewModel : MainViewModel by activityViewModels()
@@ -61,30 +62,32 @@ class OneEvent: Fragment(){
         binding.eventTime.text = args.Event.time
         binding.eventDate.text = args.Event.date
         binding.eventName.text = args.Event.title
-        // TODO: update this with user name, not user id
-        binding.posterName.text = args.Event.creator
-        // TODO: add user profile image
 
-        // TODO: use glide.fetch
-        try {
-            // Open an input stream to read the image from the assets
-            Log.d("imageName","${args.Event.imageName}.jpg")
-            context?.assets?.open("${args.Event.imageName}.jpg").use { inputStream ->
-                // Convert the input stream into a Drawable
-                val drawable = Drawable.createFromStream(inputStream, null)
-                // Set the Drawable as the ImageView background
-                binding.eventImage.background = drawable
+        viewModel.fetchUserByUid(args.Event.creator) {
+            it?.let {
+                binding.posterName.text = it.firstName
+                viewModel.fetchUserImage(it.profileImage, binding.profileImage)
             }
-        } catch (e: IOException) {
-            e.printStackTrace()
-            // Handle the exception, e.g., if the image file is not found
         }
+        viewModel.fetchEventImage(args.Event.imageName, binding.eventImage)
+//        // TODO: use glide.fetch
+//        try {
+//            // Open an input stream to read the image from the assets
+//            Log.d("imageName","${args.Event.imageName}.jpg")
+//            context?.assets?.open("${args.Event.imageName}.jpg").use { inputStream ->
+//                // Convert the input stream into a Drawable
+//                val drawable = Drawable.createFromStream(inputStream, null)
+//                // Set the Drawable as the ImageView background
+//                binding.eventImage.background = drawable
+//            }
+//        } catch (e: IOException) {
+//            e.printStackTrace()
+//            // Handle the exception, e.g., if the image file is not found
+//        }
 
         binding.backButton.setOnClickListener{
             navController.popBackStack()
-
         }
-
     }
 
     override fun onDestroyView() {

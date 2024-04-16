@@ -195,4 +195,10 @@ class MainViewModel(): ViewModel() {
         currentEvents?.remove(event)
         events.postValue(currentEvents)
     }
+
+    fun fetchUserByUid(uid: String, resultListener: (User?) -> Unit) {
+        db.fetchUserByUid(uid) {
+            resultListener(it)
+        }
+    }
 }

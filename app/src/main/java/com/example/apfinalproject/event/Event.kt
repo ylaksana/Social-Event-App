@@ -23,6 +23,7 @@ class Event(
             false
         }
 
+
     override fun hashCode(): Int {
         var result = uid.hashCode()
         result = 31 * result + title.hashCode()

@@ -17,19 +17,19 @@ class EventAdapter(private val viewModel: MainViewModel,
 
     inner class EventViewHolder(val eventRowBinding: EventRowBinding)
         : RecyclerView.ViewHolder(eventRowBinding.root) {
-            init{
-                itemView.setOnClickListener {
-                    val position = bindingAdapterPosition
-                    if (position != RecyclerView.NO_POSITION) {
-                        // Get the RedditPost
-                        val post = getItem(position)
-                        // Go to OnePost
-                        navigateToOneEvent(post)
-                        viewModel.hideActionBar()
-                    }
+        init{
+            itemView.setOnClickListener {
+                val position = bindingAdapterPosition
+                if (position != RecyclerView.NO_POSITION) {
+                    // Get the RedditPost
+                    val post = getItem(position)
+                    // Go to OnePost
+                    navigateToOneEvent(post)
+                    viewModel.hideActionBar()
                 }
             }
         }
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): EventViewHolder {
         val eventRowBinding = EventRowBinding.inflate(LayoutInflater.from(parent.context), parent, false)

@@ -31,9 +31,16 @@ class MainViewModel(): ViewModel() {
         Log.d(TAG, ">>init")
     }
     private var actionBarBinding : ActionBarBinding? = null
+
+//    private var events: MutableLiveData<List<Event>> = MutableLiveData(EventList.getAll())
+    private var activeUser: User = invalidUser
+    private val userUID: MutableLiveData<String> = MutableLiveData()
     private val storage = Storage()
     private val db = ViewModelDBHelper()
+    private val filterTerm: MutableLiveData<String> = MutableLiveData()
+    private var isMyEvents: MutableLiveData<Boolean> = MutableLiveData()
     private var photoUUID = ""
+
 
     var activeUser = MutableLiveData<User>().apply {
         Log.d(TAG, ">>activeUser init")
@@ -45,6 +52,17 @@ class MainViewModel(): ViewModel() {
             db.fetchUpdatingEventList { fetchedEvents ->
                 postValue(fetchedEvents)
             }
+        }
+    }
+
+
+    private var nonUserEvents = MediatorLiveData<List<Event>>().apply {
+        addSource(events) { originalList ->
+            val filteredList = originalList.filter { event ->
+                // Replace "userCondition" with the condition you want to filter by
+                event.creator != activeUser.uid
+            }
+            postValue(filteredList)
         }
     }
 
@@ -72,8 +90,44 @@ class MainViewModel(): ViewModel() {
         }
     }
 
+
+    private var netTypeEvents = MediatorLiveData<List<Event>>().apply {
+        addSource(nonUserEvents) { events ->
+            val term = filterTerm.value
+            var filteredEvents = events
+            if (!term.isNullOrEmpty()) {
+                filteredEvents = events.filter { event ->
+                    event.type == term
+                }
+            }
+            postValue(filteredEvents)
+        }
+        addSource(filterTerm) { term ->
+            val events = nonUserEvents.value
+            var filteredEvents = events
+            if (!term.isNullOrEmpty() && events != null) {
+                filteredEvents = events.filter { event ->
+                    event.type == term
+                }
+            }
+            postValue(filteredEvents)
+        }
+    }
+
+    private var netUserEvents = MediatorLiveData<List<Event>>().apply {
+        addSource(isMyEvents){switch ->
+            var userEvents = nonUserEvents.value
+            if(switch){
+                userEvents = events.value?.filter { event ->
+                    event.creator == activeUser.uid
+                }
+            }
+            postValue(userEvents)
+        }
+
     fun getStorage(): Storage {
         return storage
+
     }
 
     fun observeLocations(): LiveData<List<OSMLocation>> {
@@ -85,15 +139,54 @@ class MainViewModel(): ViewModel() {
         searchLocation.postValue(term)
     }
 
+
+    fun observeUserEvents(): LiveData<List<Event>> {
+        return netUserEvents
+    }
+
+    fun observeNetTypeEvents(): LiveData<List<Event>> {
+        return netTypeEvents
+    }
+
+    fun setFilter(filter: String){
+        filterTerm.value = filter
+        Log.d(TAG, "Filter: $filter")
+    }
+
+    fun setEvents(switch: Boolean){
+            isMyEvents.value = switch
+    }
+    
+
     // Convert these to Event/Interest objects later
     private var pastEventsLiveData = MutableLiveData<List<Event>>().apply {
         this.postValue(listOf())
     }
 
+
+//     // MainActivity gets updates on this via live data and informs view model
+//     fun setActiveAuthUser(uid: String) {
+//         if (uid != invalidUserUid) {
+//             db.fetchUserByUid(uid) {
+//                 activeUser = it!!
+//                 userUID.postValue(it.uid)
+//                 Log.d("ActiveUser", "setActiveAuthUser: ${activeUser.displayName} ${activeUser.email} ${activeUser.uid} ${activeUser.bio}")
+
+//                 interestsLiveData.postValue(activeUser.userInterests)
+//                 convertToEventAndPost(activeUser.pastEvents)
+//             }
+//             Log.d(TAG, "setActiveAuthUser: $uid")
+//         } else {
+//             activeUser = invalidUser
+//             pastEventsLiveData.postValue(listOf())
+//             interestsLiveData.postValue(listOf())
+//             Log.d(TAG, "setActiveAuthUser: invalid user")
+
     var interestsLiveData = MediatorLiveData<List<String>>().apply {
         value = listOf()
         addSource(activeUser) { user ->
             this.postValue(user.userInterests)
+
         }
     }
 

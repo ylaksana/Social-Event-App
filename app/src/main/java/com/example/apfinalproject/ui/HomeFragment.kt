@@ -20,6 +20,8 @@ import com.example.apfinalproject.MainViewModel
 import com.example.apfinalproject.databinding.ActivityMainBinding
 import com.example.apfinalproject.databinding.HomeFragmentBinding
 import com.example.apfinalproject.event.EventAdapter
+import com.example.apfinalproject.interest.FilterAdapter
+import com.example.apfinalproject.interest.InterestCategories
 
 class HomeFragment: Fragment() {
 //     XXX initialize viewModel
@@ -30,7 +32,7 @@ class HomeFragment: Fragment() {
     private val viewModel: MainViewModel by activityViewModels()
     private var _binding: HomeFragmentBinding? = null
     private lateinit var navController : NavController
-    private val activityMainBinding: ActivityMainBinding? = null
+    private val filtersList : List<InterestCategories.Interest> = InterestCategories.getInterests()
 //     This property is only valid between onCreateView and onDestroyView.
     private val binding get() = _binding!!
 
@@ -70,10 +72,17 @@ class HomeFragment: Fragment() {
             )
         }
         binding.eventRV.adapter = adapter
-        viewModel.observeEvents().observe(viewLifecycleOwner) {events ->
-            Log.d(TAG, "submitting list: ${events.size} items")
+        viewModel.observeNetTypeEvents().observe(viewLifecycleOwner) { events ->
+            Log.d("Filter", "filterList length: ${events.size}")
             adapter.submitList(events)
         }
+
+          val filterAdapter = FilterAdapter(viewModel)
+          val filterRV = binding.filtersRV
+          filterRV.layoutManager =
+              LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+          filterAdapter.submitList(filtersList)
+          filterRV.adapter = filterAdapter
         Log.d(TAG, "end initadapters")
     }
 

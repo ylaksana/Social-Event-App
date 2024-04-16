@@ -44,7 +44,6 @@ class CreateEventFragment: Fragment(){
             Glide.with(this)
                 .load(it)
                 .into(binding.eventImage)
-//            binding.eventImage.setImageURI(it)
             imageUri = it
         }
     }
@@ -162,7 +161,7 @@ class CreateEventFragment: Fragment(){
         event.date = "${binding.spinnerMonth.selectedItem} ${binding.spinnerDay.selectedItem}, ${binding.spinnerYear.selectedItem}"
         event.time = "${binding.spinnerHours.selectedItem}:${binding.spinnerMinutes.selectedItem} ${binding.spinnerAMPM.selectedItem}"
         event.type = binding.spinnerEvent.selectedItem.toString()
-        event.creator = viewModel.getActiveUser().uid
+        event.creator = viewModel.getActiveUser()?.uid ?: "-1"
         Log.d(TAG, "newEvent finished: ${event.title}")
         return event
     }

@@ -161,7 +161,7 @@ class MainActivity : AppCompatActivity() {
                     viewModel.activeUser.postValue(invalidUser)
                 } else {
                     Log.d(TAG, ">>User is logged in with uid $authId : ${authUser.getName()}")
-                    viewModel.verifyUserAndLogin(authId) { user ->
+                    viewModel.setActiveUser(authId) { user ->
                         if (user == invalidUser) {
                             navController.safeNavigate(
                                 HomeFragmentDirections.actionHomeFragmentToCreateUserFragment(

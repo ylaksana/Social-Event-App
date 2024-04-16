@@ -64,6 +64,18 @@ class MainViewModel(): ViewModel() {
         }
     }
 
+    private var netTypeEvents = MediatorLiveData<List<Event>>().apply {
+        addSource(filterTerm){term ->
+            var filteredEvents = events.value
+            if(term != "" || term.isNotEmpty()) {
+                filteredEvents = events.value?.filter { event ->
+                    event.type == term
+                }
+            }
+            postValue(filteredEvents)
+        }
+    }
+
     fun observeLocations(): LiveData<List<OSMLocation>> {
         Log.d("ObserveLocations", "Fetched locations: ${netLocations.value}")
         return netLocations
@@ -73,86 +85,12 @@ class MainViewModel(): ViewModel() {
         searchLocation.postValue(term)
     }
 
-    // Filter events by search term
-    private var netFilters = MediatorLiveData<List<Event>>().apply{
-        addSource(filterTerm) { term ->
-            Log.d("netFilters", "Filter term: $term")
-            if(term != null && term != "") {
-                Log.d("netFilters", "Fetching filtered events")
-                try {
-                    viewModelScope.launch(Dispatchers.IO) {
-                        val events = db.fetchEventsByType(term){
-                            postValue(it)
-                        }
-                        Log.d("netFilters", "Fetched locations: $events")
-
-                    }
-                } catch(e: HttpException) {
-                    Log.e("HTTP Error", "Error fetching posts: ${e.code()}")
-                } catch(e: Exception) {
-                    Log.e("General Error", "Error in fetching from API: ${e.message}")
-                }
-            }
-            else{
-                try {
-                    Log.d("netFilters", "Fetching all events")
-                    Log.d("netFilters", "Fetched locations before: ${events.value}")
-                    viewModelScope.launch(Dispatchers.IO) {
-                        db.fetchEvents {
-                            postValue(it)
-                        }
-                    }
-                    Log.d("netFilters", "Fetched locations after: ${events.value}")
-                } catch(e: HttpException) {
-                    Log.e("HTTP Error", "Error fetching posts: ${e.code()}")
-                } catch(e: Exception) {
-                    Log.e("General Error", "Error in fetching from API: ${e.message}")
-                }
-            }
-
-        }
-        // To differentiate between user's events and requests
-        addSource(isMyEvents){ myEvents ->
-            if(myEvents){
-                try {
-                    viewModelScope.launch(Dispatchers.IO) {
-                        db.fetchEventsByUser(userUID.value, myEvents){
-                            postValue(it)
-                        }
-                        Log.d("netFiltersByUser", "Fetched locations: ${events.value}")
-
-                    }
-                } catch(e: HttpException) {
-                    Log.e("HTTP Error", "Error fetching posts: ${e.code()}")
-                } catch(e: Exception) {
-                    Log.e("General Error", "Error in fetching from API: ${e.message}")
-                }
-            }
-            else{
-                try {
-                    viewModelScope.launch(Dispatchers.IO) {
-                        db.fetchEventsByUser(userUID.value, myEvents){
-                            postValue(it)
-                        }
-                        Log.d("netFiltersNotByUser", "Fetched locations: ${events.value}")
-
-                    }
-                } catch(e: HttpException) {
-                    Log.e("HTTP Error", "Error fetching posts: ${e.code()}")
-                } catch(e: Exception) {
-                    Log.e("General Error", "Error in fetching from API: ${e.message}")
-                }
-            }
-        }
-    }
-
     fun observeFilterTerm(): LiveData<String> {
         return filterTerm
     }
 
     fun observeFilters(): LiveData<List<Event>> {
-        Log.d("ObserveFilters", "Fetched locations: ${netFilters.value}")
-        return netFilters
+        return netTypeEvents
     }
 
     fun setFilter(filter: String){
@@ -160,13 +98,8 @@ class MainViewModel(): ViewModel() {
         Log.d(TAG, "Filter: $filter")
     }
 
-    fun setUserFilter(filter: String){
-        if(filter == "My Events"){
-            isMyEvents.value = true
-        }
-        else{
-            isMyEvents.value = false
-        }
+    fun setEvents(switch: Boolean){
+            isMyEvents.value = switch
     }
     
 

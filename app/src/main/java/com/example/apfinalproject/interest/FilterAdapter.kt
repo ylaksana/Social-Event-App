@@ -19,6 +19,7 @@ class FilterAdapter(private val viewModel: MainViewModel)
         : RecyclerView.ViewHolder(rowPostBinding.root) {
         init {
             itemView.setOnClickListener {
+                Log.d("Binding index" , "$bindingAdapterPosition")
                 val previousPosition: Int = currentPosition
                 currentPosition = bindingAdapterPosition
                 val previousItem = getItem(previousPosition)

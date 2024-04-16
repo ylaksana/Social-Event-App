@@ -83,14 +83,8 @@ class HomeFragment: Fragment() {
         }
 
 
-        val adapter = imageRepo?.let { EventAdapter(viewModel, it) {event ->
-                findNavController().navigate(HomeFragmentDirections.actionHomeFragmentToOneEventFragment(event))
-            }
-        }
-
-        viewModel.observeEvents().observe(viewLifecycleOwner) { eventList ->
-            Log.d("MainActivity", "eventList length: ${eventList.size}")
-            adapter?.submitList(eventList)
+        val adapter = EventAdapter(viewModel){ event ->
+            findNavController().navigate(HomeFragmentDirections.actionHomeFragmentToOneEventFragment(event))
         }
 
         viewModel.observeFilterTerm().observe(viewLifecycleOwner) {
@@ -98,9 +92,14 @@ class HomeFragment: Fragment() {
             if(it != null) {
                 viewModel.observeFilters().observe(viewLifecycleOwner) { filters ->
                     Log.d("Filter", "filterList length: ${filters.size}")
-                    adapter?.submitList(filters)
+                    adapter.submitList(filters)
                 }
             }
+        }
+
+        viewModel.observeEvents().observe(viewLifecycleOwner) { eventList ->
+            Log.d("MainActivity", "eventList length: ${eventList.size}")
+            adapter.submitList(eventList)
         }
 
         rv.adapter = adapter

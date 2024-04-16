@@ -16,7 +16,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.apfinalproject.MainViewModel
 import com.example.apfinalproject.R
 import com.example.apfinalproject.api.ImageRepository
-import com.example.apfinalproject.databinding.ActivityMainBinding
 import com.example.apfinalproject.databinding.FragmentRvBinding
 import com.example.apfinalproject.event.EventAdapter
 
@@ -48,7 +47,7 @@ class EventListFragment : Fragment() {
         val imageRepo = context?.let {
             ImageRepository(it)
         }
-        val adapter = imageRepo?.let { EventAdapter(viewModel, it) {event ->
+        val adapter = imageRepo?.let { EventAdapter(viewModel) {event ->
             findNavController().navigate(HomeFragmentDirections.actionHomeFragmentToOneEventFragment(event))
         }
         }
@@ -78,12 +77,12 @@ class EventListFragment : Fragment() {
                 when (selectedItem) {
                     "My Events" -> {
                         // Change the filter to "My Events"
-                        viewModel.setUserFilter("My Events")
+                        viewModel.setEvents(true)
                     }
 
                     "My Requests" -> {
                         // Change the filter to "My Requests"
-                        viewModel.setUserFilter("My Requests")
+                        viewModel.setEvents(false)
                     }
                 }
                 viewModel.observeFilters().observe(viewLifecycleOwner) {
@@ -94,7 +93,7 @@ class EventListFragment : Fragment() {
 
 
             override fun onNothingSelected(parent: AdapterView<*>?) {
-                viewModel.setUserFilter("My Events")
+                viewModel.setEvents(true)
                 viewModel.observeFilters().observe(viewLifecycleOwner) {
                     Log.d("filterSpinner", "filterList length: $it")
                     adapter?.submitList(it)

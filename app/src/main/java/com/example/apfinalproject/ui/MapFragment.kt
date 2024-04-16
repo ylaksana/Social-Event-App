@@ -10,6 +10,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.apfinalproject.databinding.MapFragmentBinding
 import org.osmdroid.config.Configuration
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
@@ -25,6 +26,19 @@ class MapFragment : Fragment() {
     private lateinit var navController : NavController
     private val binding get() = _binding!!
     private lateinit var mapView: MapView
+
+    private fun initAdapter(binding: MapFragmentBinding){
+        val rv = binding.eventRV
+        rv.layoutManager = LinearLayoutManager(context)
+        val adapter = PastEventAdapter(viewModel){
+            // Navigate to OneEvent
+        }
+        rv.adapter = adapter
+        viewModel.setEvents(false)
+        viewModel.observeFilters().observe(viewLifecycleOwner) {
+            adapter.submitList(it)
+        }
+    }
     
     private fun moveCamera(location: String) {
         val mapController = mapView.controller
@@ -52,6 +66,9 @@ class MapFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         (activity as? AppCompatActivity)?.supportActionBar?.hide()
         viewModel.hideActionBar()
+
+        // Set up adapter for event list
+        initAdapter(binding)
 
         // Back Button
         _binding?.backButton?.setOnClickListener{

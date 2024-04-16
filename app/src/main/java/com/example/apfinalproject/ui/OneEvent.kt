@@ -15,6 +15,9 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.example.apfinalproject.MainViewModel
 import com.example.apfinalproject.databinding.OneEventBinding
+import com.example.apfinalproject.UserAdapter
+import androidx.recyclerview.widget.LinearLayoutManager
+
 import java.io.IOException
 import com.example.apfinalproject.glide.Glide
 
@@ -70,6 +73,26 @@ class OneEvent: Fragment(){
             }
         }
         viewModel.fetchEventImage(args.Event.imageName, binding.eventImage)
+
+
+        if (args.Event.yesSwipes.isNotEmpty() && viewModel.getActiveUser()?.uid == args.Event.creator) {
+            binding.interestedUsersRV.visibility = View.VISIBLE
+            val adapter = UserAdapter(viewModel) {clickedUser ->
+                // On Click Callback
+                viewModel.enterChatRoom(args.Event.creator, clickedUser.uid) {conv ->
+                    navController.safeNavigate(OneEventDirections.actionOneEventFragmentToChatFragment(conv))
+                }
+            }
+            binding.interestedUsersRV.adapter = adapter
+            viewModel.fetchUsersByUids(args.Event.yesSwipes) {
+                adapter.submitList(it)
+            }
+            binding.interestedUsersRV.layoutManager = LinearLayoutManager(context)
+        } else {
+            binding.interestedUsersRV.visibility = View.GONE
+        }
+
+
 //        // TODO: use glide.fetch
 //        try {
 //            // Open an input stream to read the image from the assets

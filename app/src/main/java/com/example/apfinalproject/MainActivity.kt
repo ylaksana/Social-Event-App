@@ -110,10 +110,7 @@ class MainActivity : AppCompatActivity() {
         Log.d(TAG, "onCreate")
         super.onCreate(savedInstanceState)
 
-        Log.d(TAG, ">>before authuser")
-        authUser = AuthUser(activityResultRegistry)
-        Log.d(TAG, ">>after authuser")
-        lifecycle.addObserver(authUser)
+
 
         Log.d(TAG, ">>inflating binding")
         val activityMainBinding = ActivityMainBinding.inflate(layoutInflater)
@@ -146,7 +143,10 @@ class MainActivity : AppCompatActivity() {
     override fun onStart() {
         super.onStart()
         Log.d(TAG, "onStart")
-
+        Log.d(TAG, ">>before authuser")
+        authUser = AuthUser(activityResultRegistry)
+        Log.d(TAG, ">>after authuser")
+        lifecycle.addObserver(authUser)
         Log.d(TAG, ">>auth user: ${authUser.observeAuthId().value}")
 
         authUser.observeAuthId().observe(this) {authId ->

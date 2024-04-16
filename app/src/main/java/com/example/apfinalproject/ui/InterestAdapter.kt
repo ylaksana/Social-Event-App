@@ -12,9 +12,6 @@ import android.graphics.Typeface
 import com.example.apfinalproject.R
 import androidx.appcompat.content.res.AppCompatResources
 
-
-
-
 class InterestAdapter(
     private val viewModel: MainViewModel,
     private val editMode: Boolean = false)

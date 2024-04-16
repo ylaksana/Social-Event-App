@@ -73,6 +73,11 @@
             android:id="@+id/action_oneEventFragment_to_createEventFragment"
             app:destination="@id/createEventFragment"/>
 
+        <!--OneEvent to Chat-->
+        <action
+            android:id="@+id/action_oneEventFragment_to_chatFragment"
+            app:destination="@id/chatFragment"/>
+
         <argument
             android:name="Event"
             app:argType="com.example.apfinalproject.event.Event" />
@@ -125,12 +130,22 @@
             android:id="@+id/action_chatListFragment_to_chatFragment"
             app:destination="@id/chatFragment" />
 
+        <!--ChatList to Home-->
+        <action
+            android:id="@+id/action_chatListFragment_to_homeFragment"
+            app:destination="@id/homeFragment" />
+
     </fragment>
 
-<!--    Chat Fragment-->
+    <!--Chat Fragment-->
     <fragment
         android:id="@+id/chatFragment"
         android:name="com.example.apfinalproject.ui.ChatFragment">
+
+        <!--Chat to ChatList-->
+        <action
+            android:id="@+id/action_chatFragment_to_chatListFragment"
+            app:destination="@id/chatListFragment" />
 
         <argument
             android:name="Conversation"

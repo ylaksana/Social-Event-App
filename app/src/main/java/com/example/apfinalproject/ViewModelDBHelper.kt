@@ -7,7 +7,7 @@ import com.example.apfinalproject.user.invalidUser
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import java.util.UUID
-
+import com.example.apfinalproject.chat.Conversation
 
 class ViewModelDBHelper {
     private val TAG = "ViewModelDBHelper"
@@ -76,7 +76,9 @@ class ViewModelDBHelper {
         resultListener: (User)->Unit
     ) {
         Log.d(TAG, "createUser started")
-        db.collection("users").document(user.uid).set(user)
+        db.collection("users")
+            .document(user.uid)
+            .set(user)
             .addOnSuccessListener {
                 Log.d(TAG, "createUser succeeded")
                 resultListener(user)
@@ -198,6 +200,29 @@ class ViewModelDBHelper {
             }
     }
 
+    fun fetchUsersByUids(
+        uids: List<String>,
+        resultListener: (List<User>)->Unit
+    ) {
+        Log.d(TAG, "fetchUserByList started")
+        val query = db.collection("users").whereIn("uid", uids)
+        Log.d(TAG, "query: users")
+        query
+            .limit(queryLimit)
+            .get()
+            .addOnSuccessListener { result ->
+                Log.d(TAG, "users fetch ${result!!.documents.size}")
+                // NB: This is done on a background thread
+                resultListener(result.documents.mapNotNull {
+                    it.toObject(User::class.java)
+                })
+            }
+            .addOnFailureListener {
+                Log.d(TAG, "users fetch FAILED ", it)
+                resultListener(listOf())
+            }
+    }
+
     // Fetches event by uid from "events" collection and converts it to an Event object
     // This is used for grabbing event IDs on a user object (and later converting them to events)
     fun fetchEventByUid(
@@ -264,6 +289,94 @@ class ViewModelDBHelper {
             }
             .addOnFailureListener {
                 Log.d(TAG, "addEventSwipe failed", it)
+            }
+    }
+
+    fun fetchMyEvents(
+        userId: String,
+        resultListener: (List<Event>)->Unit
+    ) {
+        Log.d(TAG, "fetchMyEvents started")
+        val query = db.collection("events").whereEqualTo("creator", userId)
+        Log.d(TAG, "query: $query")
+        query
+            .limit(queryLimit)
+            .get()
+            .addOnSuccessListener { result ->
+                Log.d(TAG, "events fetch ${result!!.documents.size}")
+                // NB: This is done on a background thread
+                resultListener(result.documents.mapNotNull {
+                    it.toObject(Event::class.java)
+                })
+            }
+            .addOnFailureListener {
+                Log.d(TAG, "events fetch FAILED ", it)
+                resultListener(listOf())
+            }
+    }
+
+    fun findChatRoom(userId: String, otherUserId: String, resultListener: (Conversation?) -> Unit) {
+        Log.d(TAG, "findChatRoom started")
+        val chatRoomRef = db.collection("chats")
+        // this is weird but need to do it this way in order to match a list in a list
+        val userIDs = listOf(listOf(userId, otherUserId))
+
+        Log.d(TAG, "query: chatRooms $userIDs")
+
+        Log.d(TAG, "query: chatRooms")
+        chatRoomRef
+            .whereIn("userIDs", userIDs)
+            .limit(1)
+            .get()
+            .addOnSuccessListener { result ->
+                Log.d(TAG, "chatRooms fetch ${result!!.documents.size}")
+                // NB: This is done on a background thread
+                if (result.documents.isNotEmpty()) {
+                    Log.d(TAG, "chatRooms fetch: chatRoom found ${result.documents[0].id}")
+                    result.documents[0].toObject(Conversation::class.java)?.let {
+                        resultListener(it)
+                    }
+                } else {
+                    Log.d(TAG, "chatRooms fetch: chatRoom not found")
+                    resultListener(null)
+                }
+            }
+            .addOnFailureListener {
+                Log.d(TAG, "chatRooms fetch FAILED ", it)
+            }
+    }
+
+    fun createChatRoom(userId: String, otherUserId: String, resultListener: (Conversation) -> Unit) {
+        Log.d(TAG, "createChatRoom started")
+        val chatRoomRef = db.collection("chats")
+        val userIDs = listOf(userId, otherUserId)
+        val roomID = generateUUID()
+        val newChatRoom = Conversation(roomID, userIDs)
+
+        Log.d(TAG, "query: chatRooms")
+        chatRoomRef
+            .document(roomID)
+            .set(newChatRoom)
+            .addOnSuccessListener { _ ->
+                Log.d(TAG, "chatRooms create succeeded")
+                // NB: This is done on a background thread
+                resultListener(newChatRoom)
+            }
+            .addOnFailureListener {
+                Log.d(TAG, "chatRooms create FAILED ", it)
+            }
+    }
+
+    fun addConversationIDtoUser(userId: String, conversationID: String) {
+        Log.d(TAG, "addConversationIDtoUser started")
+        db.collection("users")
+            .document(userId)
+            .update("conversationIDs", FieldValue.arrayUnion(conversationID))
+            .addOnSuccessListener {
+                Log.d(TAG, "addConversationIDtoUser succeeded")
+            }
+            .addOnFailureListener {
+                Log.d(TAG, "addConversationIDtoUser failed", it)
             }
     }
 }

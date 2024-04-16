@@ -21,7 +21,7 @@ import kotlinx.coroutines.launch
 import retrofit2.HttpException
 import java.lang.Exception
 import android.net.Uri
-
+import com.example.apfinalproject.chat.Conversation
 class MainViewModel(): ViewModel() {
     companion object {
         private const val TAG = "MainViewModel"
@@ -38,7 +38,7 @@ class MainViewModel(): ViewModel() {
         invalidUser
     }
       
-    private var events = MutableLiveData<List<Event>?>()
+    private var suggestedEvents = MutableLiveData<List<Event>?>()
 
     // OSM
     private val osmAPI = OSMApi.create()
@@ -101,11 +101,12 @@ class MainViewModel(): ViewModel() {
                 Log.d(TAG, "user exists in db")
                 activeUser.postValue(user)
                 db.fetchOthersUnswipedEvents(userId) {
-                    events.postValue(it)
+                    suggestedEvents.postValue(it)
                 }
             } else {
                 Log.d(TAG, "user is invalid")
                 activeUser.postValue(invalidUser)
+
             }
             if (user != null) {
                 resultListener(user)
@@ -129,8 +130,8 @@ class MainViewModel(): ViewModel() {
         return interestsLiveData
     }
 
-    fun observeEvents(): LiveData<List<Event>?> {
-        return events
+    fun observeSuggestedEvents(): LiveData<List<Event>?> {
+        return suggestedEvents
     }
 
     fun initActionBarBinding(it: ActionBarBinding) {
@@ -191,14 +192,62 @@ class MainViewModel(): ViewModel() {
     }
 
     fun removeEventFromView(event: Event) {
-        val currentEvents = events.value?.toMutableList()
+        val currentEvents = suggestedEvents.value?.toMutableList()
         currentEvents?.remove(event)
-        events.postValue(currentEvents)
+        suggestedEvents.postValue(currentEvents)
     }
 
     fun fetchUserByUid(uid: String, resultListener: (User?) -> Unit) {
         db.fetchUserByUid(uid) {
             resultListener(it)
+        }
+    }
+
+    fun fetchUsersByUids(uids: List<String>, resultListener: (List<User>) -> Unit) {
+        db.fetchUsersByUids(uids) {
+            resultListener(it)
+        }
+    }
+
+    fun fetchMyEvents(resultListener: (List<Event>) -> Unit) {
+        Log.d(TAG, "fetchMyEvents: ${activeUser.value?.uid}")
+        if (activeUser.value != invalidUser && activeUser.value != null) {
+            db.fetchMyEvents(activeUser.value?.uid!!) {
+                resultListener(it)
+            }
+        }
+    }
+
+    fun enterChatRoom(userId: String,
+                      otherUserId: String,
+                      resultListener: (Conversation) -> Unit
+    ) {
+        Log.d(TAG, "enterChatRoom start")
+        Log.d(TAG, "searching for chat room: $userId, $otherUserId")
+        db.findChatRoom(userId, otherUserId) { conv ->
+            conv?.let {
+                Log.d(TAG, "chat room found ${conv.conversationID}")
+                resultListener(conv)
+            } ?: run {
+                Log.d(TAG, "chat room not found. Creating one.")
+                createChatRoom(userId, otherUserId) { conv ->
+                    resultListener(conv)
+                }
+            }
+        }
+    }
+
+    private fun createChatRoom(userId: String,
+                      otherUserId: String,
+                      resultListener: (Conversation) -> Unit
+    ) {
+        Log.d(TAG, "createChatRoom start")
+        Log.d(TAG, "creating chat room: $userId, $otherUserId")
+        db.createChatRoom(userId, otherUserId) { conv ->
+            Log.d(TAG, "chat room created ${conv.conversationID}")
+            db.addConversationIDtoUser(userId, conv.conversationID)
+            db.addConversationIDtoUser(otherUserId, conv.conversationID)
+            resultListener(conv)
         }
     }
 }

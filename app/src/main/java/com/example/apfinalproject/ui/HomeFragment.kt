@@ -62,8 +62,7 @@ class HomeFragment: Fragment() {
                         val eventId = it.uid
                         viewModel.addEventSwipe(eventId, direction)
                         viewModel.removeEventFromView(event)
-                        Log.d(TAG, "adapter list: ${adapter?.currentList}")
-                        Log.d(TAG, "event list: ${viewModel.observeEvents().value}")
+
                         //TODO: find new way to update, iteRemovedAt duplicated bound objects
                         adapter?.notifyDataSetChanged()
                     }
@@ -82,7 +81,7 @@ class HomeFragment: Fragment() {
             )
         }
         binding.eventRV.adapter = adapter
-        viewModel.observeEvents().observe(viewLifecycleOwner) {events ->
+        viewModel.observeSuggestedEvents().observe(viewLifecycleOwner) {events ->
             Log.d(TAG, "submitting list: ${events?.size} items")
             adapter!!.submitList(events)
         }

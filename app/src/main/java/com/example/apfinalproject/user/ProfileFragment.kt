@@ -32,9 +32,12 @@ class ProfileFragment: Fragment() {
             // Navigate to OneEvent
         }
         binding.pastEventsRV.adapter = adapter
-        viewModel.observePastEvents().observe(viewLifecycleOwner) {
+        Log.d(TAG, "fetching my events")
+        viewModel.fetchMyEvents {
+            Log.d(TAG, "submitting list of size ${it.size}")
             adapter.submitList(it)
         }
+        // TODO: hide pastEvents or replace with text view if empty
 
         // Interest RV
         val interestAdapter = InterestAdapter(viewModel)

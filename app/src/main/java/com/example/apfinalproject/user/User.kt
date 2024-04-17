@@ -1,25 +1,37 @@
 package com.example.apfinalproject.user
 
+import android.os.Parcelable
+import com.example.apfinalproject.chat.Conversation
+import kotlinx.parcelize.Parcelize
+
+@Parcelize
 class User(private val nullableName: String? = null,
            private val nullableEmail: String? = null,
-           val uid: String = "-1") {
+           val uid: String = "-1",
+           var firstName: String = "Unknown",
+           var lastName: String = "User",
+           var bio: String = "Empty Bio",
+           var profileImage: String = "default",
+           var conversationIDs: List<String> = listOf(),
+           var userInterests: List<String> = listOf(),
+           var pastEvents: List<String> = listOf()) : Parcelable {
     val displayName: String = nullableName ?: "User logged out"
     val email: String = nullableEmail ?: "User logged out"
 
-    var firstName: String = ""
-    var lastName: String = ""
-    var bio: String = "Wow... nothing's here yet!"
-    var profileImage: String = ""
-    var conversationIDs: List<String> = listOf()
+//    var firstName: String = ""
+//    var lastName: String = ""
+//    var bio: String = "Wow... nothing's here yet!"
+//    var profileImage: String = ""
+//    var conversationIDs: List<String> = listOf()
 
     // These need to be lists of strings because Firestore can't
     // unpack livedata or other objects
-    var userInterests: List<String> = listOf()
-    var pastEvents: List<String> = listOf() // TODO: Switch to created Events in the past
+//    var userInterests: List<String> = listOf()
+//    var pastEvents: List<String> = listOf() // TODO: Switch to created Events in the past
 
-    fun isInvalid(): Boolean {
-        return this.uid == invalidUserUid
-    }
+//    fun isInvalid(): Boolean {
+//        return this.uid == invalidUserUid
+//    }
     fun copy(
         firstName: String = this.firstName,
         lastName: String = this.lastName,

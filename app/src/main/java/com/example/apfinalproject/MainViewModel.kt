@@ -148,13 +148,13 @@ class MainViewModel: ViewModel() {
     fun setEvents(switch: Boolean){
             isMyEvents.value = switch
     }
-    
 
     // Convert these to Event/Interest objects later
     private var pastEventsLiveData = MutableLiveData<List<Event>>().apply {
         this.postValue(listOf())
     }
 
+    // TODO: need to reset interests when logging out and creating new account
     var interestsLiveData = MediatorLiveData<List<String>>().apply {
         value = listOf()
         addSource(activeUser) { user ->
@@ -182,7 +182,6 @@ class MainViewModel: ViewModel() {
             } else {
                 Log.d(TAG, "user is invalid")
                 activeUser.postValue(invalidUser)
-
             }
             if (user != null) {
                 resultListener(user)

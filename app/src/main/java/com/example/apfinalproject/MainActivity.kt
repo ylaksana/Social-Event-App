@@ -67,7 +67,8 @@ class MainActivity : AppCompatActivity() {
     private fun actionBarTitleLaunchProfile() {
         // XXX Write me actionBarBinding, safeNavigate
         actionBarBinding?.profileButton?.setOnClickListener{
-            navController.safeNavigate(HomeFragmentDirections.actionHomeFragmentToProfileFragment())
+            navController.safeNavigate(HomeFragmentDirections.actionHomeFragmentToProfileFragment(
+                viewModel.getActiveUser() ?: invalidUser))
         }
     }
     private fun actionBarLaunchMap() {

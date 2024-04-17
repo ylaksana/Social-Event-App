@@ -36,6 +36,10 @@ class OneEvent: Fragment(){
             navigate(direction)
         }
     }
+    override fun onResume() {
+        super.onResume()
+        (activity as? AppCompatActivity)?.supportActionBar?.hide()
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -49,7 +53,7 @@ class OneEvent: Fragment(){
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         Log.d(javaClass.simpleName, "onViewCreated")
-        (activity as? AppCompatActivity)?.supportActionBar?.hide()
+        viewModel.hideActionBar()
         navController = findNavController()
 
         binding.profileLink.setOnClickListener{

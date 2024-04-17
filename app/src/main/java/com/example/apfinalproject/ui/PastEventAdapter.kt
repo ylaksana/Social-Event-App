@@ -2,6 +2,7 @@
 
 package com.example.apfinalproject.ui
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
@@ -13,24 +14,39 @@ import com.example.apfinalproject.databinding.PastEventRowBinding
 
 class PastEventAdapter(private val viewModel: MainViewModel,
                        private val navigateToOneEvent: (Event) -> Unit)
-    : ListAdapter<Event, PastEventAdapter.pastEventViewHolder>(pastEventDiff()) {
+    : ListAdapter<Event, PastEventAdapter.PastEventViewHolder>(pastEventDiff()) {
 
-    inner class pastEventViewHolder(val pastEventRowBinding: PastEventRowBinding)
-        : RecyclerView.ViewHolder(pastEventRowBinding.root) {}
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): pastEventViewHolder {
-        val pastEventRowBinding = PastEventRowBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        return pastEventViewHolder(pastEventRowBinding)
+    inner class PastEventViewHolder(val pastEventRowBinding: PastEventRowBinding)
+        : RecyclerView.ViewHolder(pastEventRowBinding.root) {
+        init {
+            itemView.setOnClickListener {
+                val position = bindingAdapterPosition
+                if (position != RecyclerView.NO_POSITION) {
+                    // Get the RedditPost
+                    val post = getItem(position)
+                    // Go to OnePost
+                    Log.d("MapToOnePost", "Navigating to OnePost: ${post.title}")
+                    navigateToOneEvent(post)
+                    viewModel.hideActionBar()
+                }
+            }
+        }
     }
 
-    override fun onBindViewHolder(holder: pastEventViewHolder, position: Int) {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PastEventViewHolder {
+        val pastEventRowBinding = PastEventRowBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        return PastEventViewHolder(pastEventRowBinding)
+    }
+
+    override fun onBindViewHolder(holder: PastEventViewHolder, position: Int) {
         val pastEventRowBinding = holder.pastEventRowBinding
         val event = getItem(position)
         pastEventRowBinding.pastEventTitle.text = event.title
     }
 
     class pastEventDiff : DiffUtil.ItemCallback<Event>() {
-        override fun areItemsTheSame(oldItem: Event, newItem: Event): Boolean {
+        override fun areItemsTheSame(oldItem: Event, newItem: Event):
+                Boolean {
             return oldItem.uid == newItem.uid
         }
 

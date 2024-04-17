@@ -32,6 +32,9 @@ class MapFragment : Fragment() {
         rv.layoutManager = LinearLayoutManager(context)
         val adapter = PastEventAdapter(viewModel){
             // Navigate to OneEvent
+            navController.navigate(
+                MapFragmentDirections.actionMapFragmentToOneEventFragment(it)
+            )
         }
         rv.adapter = adapter
         viewModel.setEvents(false)
@@ -53,6 +56,11 @@ class MapFragment : Fragment() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        (activity as? AppCompatActivity)?.supportActionBar?.hide()
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -64,15 +72,13 @@ class MapFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        (activity as? AppCompatActivity)?.supportActionBar?.hide()
-        viewModel.hideActionBar()
+        navController = findNavController()
 
         // Set up adapter for event list
         initAdapter(binding)
 
         // Back Button
         _binding?.backButton?.setOnClickListener{
-            navController = findNavController()
             navController.popBackStack()
         }
 
@@ -103,7 +109,7 @@ class MapFragment : Fragment() {
 
                 // Initialize the map controller here
                 val mapController = mapView.controller
-                mapController.setZoom(18.5)
+                mapController.setZoom(15.0)
                 mapController.setCenter(GeoPoint(startLat, startLong))
             }
         }

@@ -9,6 +9,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.Fragment
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.flexbox.*
 import com.example.apfinalproject.ui.InterestAdapter
@@ -23,6 +24,7 @@ class ProfileFragment: Fragment() {
     private lateinit var navController : NavController
     private val binding get() = _binding!!
     private val TAG = "ProfileFragment"
+    private val args: ProfileFragmentArgs by navArgs()
 
     private fun initAdapters(binding: ProfileFragmentBinding) {
         Log.d(TAG, "initAdapters")
@@ -72,18 +74,21 @@ class ProfileFragment: Fragment() {
         Log.d(TAG, "onViewCreated")
         super.onViewCreated(view, savedInstanceState)
         initAdapters(binding)
-        val user = viewModel.getActiveUser()
+        val user = args.User
         navController = findNavController()
 
-        if (user != null) {
-            binding.userName.text = user.firstName
-            binding.profileBio.text = user.bio
-            viewModel.fetchUserImage(user.profileImage, binding.profileImage)
-        }
+        binding.userName.text = user.firstName
+        binding.profileBio.text = user.bio
+        viewModel.fetchUserImage(user.profileImage, binding.profileImage)
 
-        binding.editProfileButton.setOnClickListener {
-            // Navigate to EditProfile
-            navController.navigate(ProfileFragmentDirections.actionProfileFragmentToProfileEditFragment())
+        if (user == viewModel.getActiveUser()) {
+            binding.editProfileButton.visibility = View.VISIBLE
+            binding.editProfileButton.setOnClickListener {
+                // Navigate to EditProfile
+                navController.navigate(ProfileFragmentDirections.actionProfileFragmentToProfileEditFragment())
+            }
+        } else {
+            binding.editProfileButton.visibility = View.GONE
         }
     }
 

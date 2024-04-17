@@ -31,6 +31,10 @@ object Glide {
         .fitCenter()
         // Rounded corners are so lovely.
         .transform(RoundedCorners (20))
+
+    //TODO: figure out how to get the image's to fit. want to fill up width for event images, and
+    // layout size for profiles. event list view should have rounded corners.
+
     /**
     * Fetch an image and display it in an ImageView
     * @param imageSource: Any - Accepts either Uri or StorageReference

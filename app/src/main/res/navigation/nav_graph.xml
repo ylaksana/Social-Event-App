@@ -61,7 +61,7 @@
     <!--OneEvent Fragment-->
     <fragment
         android:id="@+id/oneEventFragment"
-        android:name="com.example.apfinalproject.ui.OneEvent">
+        android:name="com.example.apfinalproject.ui.OneEventFragment">
 
         <!--OneEvent to Profile-->
         <action
@@ -177,6 +177,10 @@
         <action
             android:id="@+id/action_profileFragment_to_profileEditFragment"
             app:destination="@id/profileEditFragment" />
+
+        <argument
+            android:name="User"
+            app:argType="com.example.apfinalproject.user.User" />
 
     </fragment>
 

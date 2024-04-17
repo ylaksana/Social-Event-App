@@ -89,7 +89,7 @@ class HomeFragment: Fragment() {
       // TODO: need to add logic from suggested events to netTypeEvents
         viewModel.observeNetTypeEvents().observe(viewLifecycleOwner) { events ->
             Log.d("Filter", "filterList length: ${events.size}")
-            adapter.submitList(events)
+            adapter?.submitList(events)
         }
 
           val filterAdapter = FilterAdapter(viewModel)

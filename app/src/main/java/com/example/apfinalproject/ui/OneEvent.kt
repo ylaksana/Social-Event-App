@@ -109,7 +109,9 @@ class OneEvent: Fragment(){
 //        }
 
         binding.backButton.setOnClickListener{
+            Log.d("OneEvent", "backButton clicked")
             navController.popBackStack()
+            Log.d("OneEvent", "backButton exit")
         }
     }
 

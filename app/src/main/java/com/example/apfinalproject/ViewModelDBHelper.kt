@@ -303,7 +303,8 @@ class ViewModelDBHelper {
             .limit(queryLimit)
             .get()
             .addOnSuccessListener { result ->
-                Log.d(TAG, "events fetch ${result!!.documents.size}")
+                Log.d(TAG, "events fetch enter")
+                Log.d(TAG, "events fetch ${result?.documents?.size}")
                 // NB: This is done on a background thread
                 resultListener(result.documents.mapNotNull {
                     it.toObject(Event::class.java)

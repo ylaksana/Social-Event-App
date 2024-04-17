@@ -42,10 +42,16 @@ class ChatFragment: Fragment() {
         return binding.root
     }
 
+    override fun onResume() {
+        super.onResume()
+        (activity as? AppCompatActivity)?.supportActionBar?.hide()
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         Log.d(TAG, "onViewCreated")
         super.onViewCreated(view, savedInstanceState)
         (activity as? AppCompatActivity)?.supportActionBar?.hide()
+        viewModel.hideActionBar()
         navController = findNavController()
 
         val conversationID = args.Conversation.conversationID

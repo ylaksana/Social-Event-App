@@ -41,6 +41,8 @@ class MainViewModel: ViewModel() {
         Log.d(TAG, ">>activeUser init")
         invalidUser
     }
+
+    private var events = MutableLiveData<List<Event>>()
       
     private var suggestedEvents = MutableLiveData<List<Event>?>()
 
@@ -174,6 +176,9 @@ class MainViewModel: ViewModel() {
                 db.fetchOthersUnswipedEvents(userId) {
                     suggestedEvents.postValue(it)
                 }
+                db.fetchEvents { eventList ->
+                    events.postValue(eventList)
+                }
             } else {
                 Log.d(TAG, "user is invalid")
                 activeUser.postValue(invalidUser)
@@ -263,9 +268,9 @@ class MainViewModel: ViewModel() {
     }
 
     fun removeEventFromView(event: Event) {
-        val currentEvents = suggestedEvents.value?.toMutableList()
+        val currentEvents = netTypeEvents.value?.toMutableList()
         currentEvents?.remove(event)
-        suggestedEvents.postValue(currentEvents)
+        netTypeEvents.postValue(currentEvents)
     }
 
     fun fetchUserByUid(uid: String, resultListener: (User?) -> Unit) {

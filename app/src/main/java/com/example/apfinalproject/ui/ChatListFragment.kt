@@ -71,7 +71,6 @@ class ChatListFragment: Fragment() {
 
         binding.backButton.setOnClickListener {
             navController.navigate(ChatListFragmentDirections.actionChatListFragmentToHomeFragment())
-            viewModel.showActionBar()
         }
     }
 
@@ -85,5 +84,6 @@ class ChatListFragment: Fragment() {
         super.onDestroyView()
         _binding = null
         (activity as? AppCompatActivity)?.supportActionBar?.show()
+        viewModel.showActionBar()
     }
 }

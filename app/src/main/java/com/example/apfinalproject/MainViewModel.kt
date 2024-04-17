@@ -21,6 +21,7 @@ import kotlinx.coroutines.launch
 import retrofit2.HttpException
 import java.lang.Exception
 import android.net.Uri
+import com.example.apfinalproject.chat.Conversation
 import com.example.apfinalproject.interest.InterestCategories.Interest
 
 class MainViewModel: ViewModel() {
@@ -36,19 +37,12 @@ class MainViewModel: ViewModel() {
     private val filterTerm: MutableLiveData<String> = MutableLiveData()
     private var isMyEvents: MutableLiveData<Boolean> = MutableLiveData()
 
-
     var activeUser = MutableLiveData<User>().apply {
         Log.d(TAG, ">>activeUser init")
         invalidUser
     }
       
-    private var events = MutableLiveData<List<Event>>().apply {
-        viewModelScope.launch(Dispatchers.IO) {
-            db.fetchUpdatingEventList { fetchedEvents ->
-                postValue(fetchedEvents)
-            }
-        }
-    }
+    private var suggestedEvents = MutableLiveData<List<Event>?>()
 
 
     private var nonUserEvents = MediatorLiveData<List<Event>>().apply {
@@ -159,25 +153,6 @@ class MainViewModel: ViewModel() {
         this.postValue(listOf())
     }
 
-
-//     // MainActivity gets updates on this via live data and informs view model
-//     fun setActiveAuthUser(uid: String) {
-//         if (uid != invalidUserUid) {
-//             db.fetchUserByUid(uid) {
-//                 activeUser = it!!
-//                 userUID.postValue(it.uid)
-//                 Log.d("ActiveUser", "setActiveAuthUser: ${activeUser.displayName} ${activeUser.email} ${activeUser.uid} ${activeUser.bio}")
-
-//                 interestsLiveData.postValue(activeUser.userInterests)
-//                 convertToEventAndPost(activeUser.pastEvents)
-//             }
-//             Log.d(TAG, "setActiveAuthUser: $uid")
-//         } else {
-//             activeUser = invalidUser
-//             pastEventsLiveData.postValue(listOf())
-//             interestsLiveData.postValue(listOf())
-//             Log.d(TAG, "setActiveAuthUser: invalid user")
-
     var interestsLiveData = MediatorLiveData<List<String>>().apply {
         value = listOf()
         addSource(activeUser) { user ->
@@ -196,9 +171,13 @@ class MainViewModel: ViewModel() {
             if (user != invalidUser) {
                 Log.d(TAG, "user exists in db")
                 activeUser.postValue(user)
+                db.fetchOthersUnswipedEvents(userId) {
+                    suggestedEvents.postValue(it)
+                }
             } else {
                 Log.d(TAG, "user is invalid")
                 activeUser.postValue(invalidUser)
+
             }
             if (user != null) {
                 resultListener(user)
@@ -222,8 +201,8 @@ class MainViewModel: ViewModel() {
         return interestsLiveData
     }
 
-    fun observeEvents(): LiveData<List<Event>> {
-        return events
+    fun observeSuggestedEvents(): LiveData<List<Event>?> {
+        return suggestedEvents
     }
 
     fun initActionBarBinding(it: ActionBarBinding) {
@@ -273,6 +252,73 @@ class MainViewModel: ViewModel() {
     fun uploadImage(imageUri: Uri, collection: String, resultListener: (String) -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
             storage.uploadImage(imageUri, collection, resultListener)
+        }
+    }
+
+    fun addEventSwipe(eventId: String, direction: Int) {
+        when(direction) {
+            4 -> db.addEventSwipe(eventId, activeUser.value?.uid!!, "noSwipes")
+            8 -> db.addEventSwipe(eventId, activeUser.value?.uid!!, "yesSwipes")
+        }
+    }
+
+    fun removeEventFromView(event: Event) {
+        val currentEvents = suggestedEvents.value?.toMutableList()
+        currentEvents?.remove(event)
+        suggestedEvents.postValue(currentEvents)
+    }
+
+    fun fetchUserByUid(uid: String, resultListener: (User?) -> Unit) {
+        db.fetchUserByUid(uid) {
+            resultListener(it)
+        }
+    }
+
+    fun fetchUsersByUids(uids: List<String>, resultListener: (List<User>) -> Unit) {
+        db.fetchUsersByUids(uids) {
+            resultListener(it)
+        }
+    }
+
+    fun fetchMyEvents(resultListener: (List<Event>) -> Unit) {
+        Log.d(TAG, "fetchMyEvents: ${activeUser.value?.uid}")
+        if (activeUser.value != invalidUser && activeUser.value != null) {
+            db.fetchMyEvents(activeUser.value?.uid!!) {
+                resultListener(it)
+            }
+        }
+    }
+
+    fun enterChatRoom(userId: String,
+                      otherUserId: String,
+                      resultListener: (Conversation) -> Unit
+    ) {
+        Log.d(TAG, "enterChatRoom start")
+        Log.d(TAG, "searching for chat room: $userId, $otherUserId")
+        db.findChatRoom(userId, otherUserId) { conv ->
+            conv?.let {
+                Log.d(TAG, "chat room found ${conv.conversationID}")
+                resultListener(conv)
+            } ?: run {
+                Log.d(TAG, "chat room not found. Creating one.")
+                createChatRoom(userId, otherUserId) { conv ->
+                    resultListener(conv)
+                }
+            }
+        }
+    }
+
+    private fun createChatRoom(userId: String,
+                      otherUserId: String,
+                      resultListener: (Conversation) -> Unit
+    ) {
+        Log.d(TAG, "createChatRoom start")
+        Log.d(TAG, "creating chat room: $userId, $otherUserId")
+        db.createChatRoom(userId, otherUserId) { conv ->
+            Log.d(TAG, "chat room created ${conv.conversationID}")
+            db.addConversationIDtoUser(userId, conv.conversationID)
+            db.addConversationIDtoUser(otherUserId, conv.conversationID)
+            resultListener(conv)
         }
     }
 }

@@ -1,17 +1,13 @@
 package com.example.apfinalproject
 
 import android.util.Log
-import android.widget.Toast
-import com.example.apfinalproject.chat.Conversation
 import com.example.apfinalproject.event.Event
 import com.example.apfinalproject.user.User
 import com.example.apfinalproject.user.invalidUser
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.Query
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import java.util.UUID
-
+import com.example.apfinalproject.chat.Conversation
 
 class ViewModelDBHelper {
     private val TAG = "ViewModelDBHelper"
@@ -80,7 +76,9 @@ class ViewModelDBHelper {
         resultListener: (User)->Unit
     ) {
         Log.d(TAG, "createUser started")
-        db.collection("users").document(user.uid).set(user)
+        db.collection("users")
+            .document(user.uid)
+            .set(user)
             .addOnSuccessListener {
                 Log.d(TAG, "createUser succeeded")
                 resultListener(user)
@@ -151,6 +149,31 @@ class ViewModelDBHelper {
             }
     }
 
+    fun fetchOthersUnswipedEvents(activeUserId: String,
+                                  resultListener: (List<Event>) -> Unit) {
+        Log.d(TAG, "fetchEvents started")
+        val eventsRef = db.collection("events")
+            .whereNotEqualTo("creator", activeUserId)
+            .limit(queryLimit)
+
+        Log.d(TAG, "query: events")
+        eventsRef
+            .get()
+            .addOnSuccessListener { allEvents ->
+                val unswipedEvents = allEvents.documents.mapNotNull {
+                    it.toObject(Event::class.java)
+                }.filter { event ->
+                    Log.d(TAG, "event: ${event.uid} ${event.noSwipes} ${event.yesSwipes}")
+                    activeUserId !in event.noSwipes && activeUserId !in event.yesSwipes
+                }
+                Log.d(TAG, "events fetch ${unswipedEvents.size}")
+                resultListener(unswipedEvents)
+            }
+            .addOnFailureListener {
+                Log.d(TAG, "events fetch FAILED ", it)
+                resultListener(listOf())
+            }
+    }
 
     fun fetchUpdatingEventList(resultListener: (List<Event>) -> Unit) {
         Log.d(TAG, "fetchUpdatingEventList started")
@@ -174,6 +197,29 @@ class ViewModelDBHelper {
                     Log.d(TAG, "events fetch FAILED ")
                     resultListener(listOf())
                 }
+            }
+    }
+
+    fun fetchUsersByUids(
+        uids: List<String>,
+        resultListener: (List<User>)->Unit
+    ) {
+        Log.d(TAG, "fetchUserByList started")
+        val query = db.collection("users").whereIn("uid", uids)
+        Log.d(TAG, "query: users")
+        query
+            .limit(queryLimit)
+            .get()
+            .addOnSuccessListener { result ->
+                Log.d(TAG, "users fetch ${result!!.documents.size}")
+                // NB: This is done on a background thread
+                resultListener(result.documents.mapNotNull {
+                    it.toObject(User::class.java)
+                })
+            }
+            .addOnFailureListener {
+                Log.d(TAG, "users fetch FAILED ", it)
+                resultListener(listOf())
             }
     }
 
@@ -230,6 +276,107 @@ class ViewModelDBHelper {
             }
             .addOnFailureListener {
                 Log.d(TAG, "updateUser failed", it)
+            }
+    }
+
+    fun addEventSwipe(eventId: String, userId: String, direction: String) {
+        Log.d(TAG, "addEventSwipe started for $eventId, $userId, $direction")
+        db.collection("events")
+            .document(eventId)
+            .update(direction, FieldValue.arrayUnion(userId))
+            .addOnSuccessListener {
+                Log.d(TAG, "addEventSwipe succeeded")
+            }
+            .addOnFailureListener {
+                Log.d(TAG, "addEventSwipe failed", it)
+            }
+    }
+
+    fun fetchMyEvents(
+        userId: String,
+        resultListener: (List<Event>)->Unit
+    ) {
+        Log.d(TAG, "fetchMyEvents started")
+        val query = db.collection("events").whereEqualTo("creator", userId)
+        Log.d(TAG, "query: $query")
+        query
+            .limit(queryLimit)
+            .get()
+            .addOnSuccessListener { result ->
+                Log.d(TAG, "events fetch ${result!!.documents.size}")
+                // NB: This is done on a background thread
+                resultListener(result.documents.mapNotNull {
+                    it.toObject(Event::class.java)
+                })
+            }
+            .addOnFailureListener {
+                Log.d(TAG, "events fetch FAILED ", it)
+                resultListener(listOf())
+            }
+    }
+
+    fun findChatRoom(userId: String, otherUserId: String, resultListener: (Conversation?) -> Unit) {
+        Log.d(TAG, "findChatRoom started")
+        val chatRoomRef = db.collection("chats")
+        // this is weird but need to do it this way in order to match a list in a list
+        val userIDs = listOf(listOf(userId, otherUserId))
+
+        Log.d(TAG, "query: chatRooms $userIDs")
+
+        Log.d(TAG, "query: chatRooms")
+        chatRoomRef
+            .whereIn("userIDs", userIDs)
+            .limit(1)
+            .get()
+            .addOnSuccessListener { result ->
+                Log.d(TAG, "chatRooms fetch ${result!!.documents.size}")
+                // NB: This is done on a background thread
+                if (result.documents.isNotEmpty()) {
+                    Log.d(TAG, "chatRooms fetch: chatRoom found ${result.documents[0].id}")
+                    result.documents[0].toObject(Conversation::class.java)?.let {
+                        resultListener(it)
+                    }
+                } else {
+                    Log.d(TAG, "chatRooms fetch: chatRoom not found")
+                    resultListener(null)
+                }
+            }
+            .addOnFailureListener {
+                Log.d(TAG, "chatRooms fetch FAILED ", it)
+            }
+    }
+
+    fun createChatRoom(userId: String, otherUserId: String, resultListener: (Conversation) -> Unit) {
+        Log.d(TAG, "createChatRoom started")
+        val chatRoomRef = db.collection("chats")
+        val userIDs = listOf(userId, otherUserId)
+        val roomID = generateUUID()
+        val newChatRoom = Conversation(roomID, userIDs)
+
+        Log.d(TAG, "query: chatRooms")
+        chatRoomRef
+            .document(roomID)
+            .set(newChatRoom)
+            .addOnSuccessListener { _ ->
+                Log.d(TAG, "chatRooms create succeeded")
+                // NB: This is done on a background thread
+                resultListener(newChatRoom)
+            }
+            .addOnFailureListener {
+                Log.d(TAG, "chatRooms create FAILED ", it)
+            }
+    }
+
+    fun addConversationIDtoUser(userId: String, conversationID: String) {
+        Log.d(TAG, "addConversationIDtoUser started")
+        db.collection("users")
+            .document(userId)
+            .update("conversationIDs", FieldValue.arrayUnion(conversationID))
+            .addOnSuccessListener {
+                Log.d(TAG, "addConversationIDtoUser succeeded")
+            }
+            .addOnFailureListener {
+                Log.d(TAG, "addConversationIDtoUser failed", it)
             }
     }
 }

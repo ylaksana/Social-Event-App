@@ -58,6 +58,8 @@ class ChatDBHelper {
         conversationIDs: List<String>,
         resultListener: (List<Conversation>) -> Unit
     ) {
+        //TODO: use where to fetch all conversations at once
+        Log.d(TAG, "fetchConversationByID started $conversationIDs")
         val conversations = mutableListOf<Conversation>()
         conversationIDs.forEach { conversationID ->
             db.collection(rootCollection)

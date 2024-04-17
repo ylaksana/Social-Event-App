@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.Fragment
 import androidx.navigation.NavController
+import androidx.navigation.NavDirections
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.example.apfinalproject.MainViewModel
@@ -18,6 +19,7 @@ import com.example.apfinalproject.chat.Message
 import com.example.apfinalproject.chat.ChatAdapter
 import com.example.apfinalproject.chat.ChatDBHelper
 import androidx.recyclerview.widget.LinearLayoutManager
+
 
 class ChatFragment: Fragment() {
     private val TAG = "ChatFragment"
@@ -29,7 +31,6 @@ class ChatFragment: Fragment() {
     private val binding get() = _binding!!
     private lateinit var navController : NavController
     private val args: ChatFragmentArgs by navArgs()
-
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -52,7 +53,7 @@ class ChatFragment: Fragment() {
         chatAdapter = ChatAdapter(viewModel, ViewModelDBHelper())
         val activeUser = viewModel.getActiveUser()
 
-        // I think this is unnecessary because users are already in the conversation arg
+        // I think this db call is unnecessary because users are already in the conversation arg
         if (activeUser != null) {
             chatDBHelper.getChatUsers(activeUser.uid, conversationID) { users ->
                 val otherUser = users.filter { it != activeUser.uid }
@@ -94,7 +95,7 @@ class ChatFragment: Fragment() {
         binding.chatRV.layoutManager = LinearLayoutManager(context)
 
         binding.backButton.setOnClickListener{
-            navController.popBackStack()
+            navController.navigate(ChatFragmentDirections.actionChatFragmentToChatListFragment())
         }
     }
 

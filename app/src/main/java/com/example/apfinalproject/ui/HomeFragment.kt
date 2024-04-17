@@ -35,6 +35,7 @@ class HomeFragment: Fragment() {
     private val filtersList : List<InterestCategories.Interest> = InterestCategories.getInterests()
 //     This property is only valid between onCreateView and onDestroyView.
     private val binding get() = _binding!!
+    private var adapter: EventAdapter? = null
 
     private fun NavController.safeNavigate(direction: NavDirections) {
         currentDestination?.
@@ -56,7 +57,17 @@ class HomeFragment: Fragment() {
                 override fun onSwiped(viewHolder: RecyclerView.ViewHolder,
                                       direction: Int) {
                     val position = viewHolder.bindingAdapterPosition
-                    Log.d(TAG, "Swipe delete $position")
+                    val event = adapter?.currentList?.get(position)
+                    Log.d(TAG, "Swipe delete $direction")
+
+                    event?.let {
+                        val eventId = it.uid
+                        viewModel.addEventSwipe(eventId, direction)
+                        viewModel.removeEventFromView(event)
+
+                        //TODO: find new way to update, itemRemovedAt duplicated bound objects
+                        adapter?.notifyDataSetChanged()
+                    }
                 }
             }
         return ItemTouchHelper(simpleItemTouchCallback)
@@ -66,12 +77,16 @@ class HomeFragment: Fragment() {
         Log.d(TAG, "initAdapters")
         // Event RV
         binding.eventRV.layoutManager = LinearLayoutManager(context)
-        val adapter = EventAdapter(viewModel) {event ->
+        adapter = EventAdapter(viewModel) {event ->
             navController.navigate(
                 HomeFragmentDirections.actionHomeFragmentToOneEventFragment(event)
             )
         }
         binding.eventRV.adapter = adapter
+//         viewModel.observeSuggestedEvents().observe(viewLifecycleOwner) {events ->
+//             Log.d(TAG, "submitting list: ${events?.size} items")
+//             adapter!!.submitList(events)
+      // TODO: need to add logic from suggested events to netTypeEvents
         viewModel.observeNetTypeEvents().observe(viewLifecycleOwner) { events ->
             Log.d("Filter", "filterList length: ${events.size}")
             adapter.submitList(events)
@@ -100,8 +115,8 @@ class HomeFragment: Fragment() {
         Log.d(TAG, "onViewCreated")
         navController = findNavController()
 
-        initTouchHelper().attachToRecyclerView(binding.eventRV)
         initAdapters(binding)
+        initTouchHelper().attachToRecyclerView(binding.eventRV)
 
         binding.chatButton.setOnClickListener{
             navController.safeNavigate(HomeFragmentDirections.actionHomeFragmentToChatListFragment())

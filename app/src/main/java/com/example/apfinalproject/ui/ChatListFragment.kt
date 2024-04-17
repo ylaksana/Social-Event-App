@@ -60,8 +60,9 @@ class ChatListFragment: Fragment() {
             val action = ChatListFragmentDirections.actionChatListFragmentToChatFragment(conversation)
             navController.safeNavigate(action)
         }
-        val user = viewModel.getActiveUser()
+        val user = viewModel.observeActiveUser().value
 
+        // TODO: Switch this to submit list of convs to adapter with callback
         if (user != null) {
             fetchConversationsAndSubmitToAdapter(user.conversationIDs, chatListAdapter)
         }
@@ -69,7 +70,7 @@ class ChatListFragment: Fragment() {
         binding.chatListRV.adapter = chatListAdapter
 
         binding.backButton.setOnClickListener {
-            navController.popBackStack()
+            navController.navigate(ChatListFragmentDirections.actionChatListFragmentToHomeFragment())
             viewModel.showActionBar()
         }
     }

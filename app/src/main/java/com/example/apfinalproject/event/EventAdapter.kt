@@ -11,7 +11,6 @@ import com.example.apfinalproject.databinding.EventRowBinding
 import com.example.apfinalproject.MainViewModel
 
 class EventAdapter(private val viewModel: MainViewModel,
-//                   private val imageRepo: ImageRepository,
                    private val navigateToOneEvent: (Event) -> Unit)
     : ListAdapter<Event, EventAdapter.EventViewHolder>(EventDiff()) {
 

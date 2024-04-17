@@ -5,6 +5,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
@@ -22,7 +23,6 @@ class EventListFragment : Fragment() {
     private val viewModel: MainViewModel by activityViewModels()
     private var _binding: FragmentRvBinding? = null
     private lateinit var navController : NavController
-    private val activityMainBinding: ActivityMainBinding? = null
     //     This property is only valid between onCreateView and onDestroyView.
     private val binding get() = _binding!!
 
@@ -45,6 +45,7 @@ class EventListFragment : Fragment() {
         // Set up Event RecyclerView
         val rv = binding.rv
         rv.layoutManager = LinearLayoutManager(context)
+
         val eventAdapter = EventAdapter(viewModel) {event ->
             navController.navigate(
                 EventListFragmentDirections.actionEventListFragmentToOneEventFragment(event)
@@ -69,7 +70,45 @@ class EventListFragment : Fragment() {
             spinner?.adapter = adapter
         }
 
-        binding.backButton.setOnClickListener{ navController.popBackStack() }
+        // TODO: add init adapter and init spinners to separate function
+        // Set the spinner item selection listener
+        spinner?.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(
+                parent: AdapterView<*>,
+                view: View,
+                position: Int,
+                id: Long
+            ) {
+                val selectedItem = parent.getItemAtPosition(position).toString()
+                when (selectedItem) {
+                    "My Events" -> {
+                        // Change the filter to "My Events"
+                        viewModel.setEvents(true)
+                    }
+
+                    "My Requests" -> {
+                        // Change the filter to "My Requests"
+                        viewModel.setEvents(false)
+                    }
+                }
+                viewModel.observeUserEvents().observe(viewLifecycleOwner) {
+                    Log.d("filterSpinner", "filterList length: $it")
+                    eventAdapter.submitList(it)
+                }
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                viewModel.setEvents(true)
+                viewModel.observeNetTypeEvents().observe(viewLifecycleOwner) {
+                    Log.d("filterSpinner", "filterList length: $it")
+                    eventAdapter.submitList(it)
+                }
+            }
+        }
+
+        binding.backButton.setOnClickListener{
+            navController.popBackStack()
+        }
     }
 
     override fun onDestroyView() {

@@ -21,7 +21,7 @@ import com.example.apfinalproject.MainViewModel
 import com.example.apfinalproject.databinding.NewUserFragmentBinding
 import com.example.apfinalproject.glide.Glide
 import com.example.apfinalproject.ui.InterestAdapter
-import com.example.apfinalproject.model.InterestCategories
+import com.example.apfinalproject.interest.InterestCategories
 import java.util.UUID
 
 
@@ -49,7 +49,11 @@ class CreateUserFragment : Fragment() {
         }
         interestAdapter = InterestAdapter(viewModel, true)
         binding.interestsRV.adapter = interestAdapter
-        interestAdapter!!.submitList(InterestCategories.getCategories())
+
+        val stringInterests = InterestCategories.getInterests().map {
+            it.category
+        }
+        interestAdapter!!.submitList(stringInterests)
         binding.interestsRV.layoutManager = FlexboxLayoutManager(context).apply {
             flexDirection = FlexDirection.ROW
             flexWrap = FlexWrap.WRAP

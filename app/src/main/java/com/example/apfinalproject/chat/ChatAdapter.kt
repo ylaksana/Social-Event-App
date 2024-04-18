@@ -10,6 +10,8 @@ import androidx.recyclerview.widget.ListAdapter
 import com.example.apfinalproject.MainViewModel
 import com.example.apfinalproject.databinding.MessageRowBinding
 import com.example.apfinalproject.ViewModelDBHelper
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 class ChatAdapter(private val viewModel: MainViewModel,
                   private val dbHelper: ViewModelDBHelper)
@@ -40,6 +42,11 @@ class ChatAdapter(private val viewModel: MainViewModel,
             }
         }
         messageRowBinding.chatMessageTV.text = message.messageText
+
+        message.timestamp?.toDate()?.let {
+            val dateFormat = SimpleDateFormat("MM/dd/yyyy HH:mm:ss", Locale.getDefault())
+            messageRowBinding.chatTimeTV.text = dateFormat.format(it)
+        }
 
     }
 

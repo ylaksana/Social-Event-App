@@ -1,5 +1,6 @@
 package com.example.apfinalproject.ui
 
+import android.location.Geocoder
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -19,6 +20,8 @@ import org.osmdroid.views.CustomZoomButtonsController
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
 import com.example.apfinalproject.MainViewModel
+import org.osmdroid.util.BoundingBox
+import java.util.Locale
 
 class MapFragment : Fragment() {
     private var _binding: MapFragmentBinding? = null
@@ -26,8 +29,9 @@ class MapFragment : Fragment() {
     private lateinit var navController : NavController
     private val binding get() = _binding!!
     private lateinit var mapView: MapView
+    private val coder = this.context?.let { Geocoder(it, Locale.getDefault()) }
 
-    private fun initAdapter(binding: MapFragmentBinding){
+    private fun initAdapter(binding: MapFragmentBinding, boundingBox: BoundingBox, coder: Geocoder?){
         val rv = binding.eventRV
         rv.layoutManager = LinearLayoutManager(context)
         val adapter = PastEventAdapter(viewModel){
@@ -37,9 +41,26 @@ class MapFragment : Fragment() {
             )
         }
         rv.adapter = adapter
+        // Get the min and max for the x and y coordinates
+        val minX = boundingBox.lonWest
+        val maxX = boundingBox.lonEast
+        val minY = boundingBox.latSouth
+        val maxY = boundingBox.latNorth
+        // Log the values
+        Log.d("MapFragment", "Min X: $minX, Max X: $maxX, Min Y: $minY, Max Y: $maxY")
         viewModel.setEvents(false)
-        viewModel.observeNetTypeEvents().observe(viewLifecycleOwner) {
-            adapter.submitList(it)
+        viewModel.observeNetTypeEvents().observe(viewLifecycleOwner) { events ->
+            val filteredEvents = events.filter { event ->
+                val address = coder?.getFromLocationName(event.location, 1, object:Geocoder.GeocodeListener)
+                if (address != null) {
+                    val lat = address[0].latitude
+                    val long = address[0].longitude
+                    lat in minY..maxY && long in minX..maxX
+                } else {
+                    false
+                }
+            }
+            adapter.submitList(filteredEvents)
         }
     }
     
@@ -73,9 +94,6 @@ class MapFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         navController = findNavController()
-
-        // Set up adapter for event list
-        initAdapter(binding)
 
         // Back Button
         _binding?.backButton?.setOnClickListener{
@@ -111,9 +129,15 @@ class MapFragment : Fragment() {
                 val mapController = mapView.controller
                 mapController.setZoom(15.0)
                 mapController.setCenter(GeoPoint(startLat, startLong))
+
+                // Get the current bounding box of the visible area
+                val boundingBox = mapView.boundingBox
+
+                // Set up adapter for event list
+                initAdapter(binding, boundingBox)
+
             }
         }
-
 
     }
 

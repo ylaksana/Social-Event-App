@@ -67,6 +67,18 @@ class Storage {
             }
     }
 
+    fun deleteImage(uuid: String, collection: String) {
+        Log.d(TAG, "deleteImage: $uuid")
+        val photoRef = photoStorage.child("${collection}/${uuid}")
+        photoRef.delete()
+            .addOnSuccessListener {
+                Log.d(TAG, "deleteImage succeeded $uuid")
+            }
+            .addOnFailureListener {
+                Log.d(TAG, "deleteImage failed $uuid")
+            }
+    }
+
     fun uploadImage(imageUri: Uri,
                     collection: String,
                     resultListener: (String) -> Unit) {

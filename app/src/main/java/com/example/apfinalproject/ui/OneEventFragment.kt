@@ -17,6 +17,8 @@ import com.example.apfinalproject.databinding.OneEventBinding
 import com.example.apfinalproject.UserAdapter
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.apfinalproject.user.User
+import com.example.apfinalproject.R
+
 
 class OneEventFragment: Fragment(){
     companion object {
@@ -70,9 +72,8 @@ class OneEventFragment: Fragment(){
                 }
             }
         }
-
         binding.backButton.setOnClickListener{
-            navController.popBackStack()
+            navController.popBackStack(R.id.editEventFragment, true)
         }
     }
 

@@ -6,7 +6,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.app.AppCompatActivity
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.MutableLiveData
@@ -14,14 +14,9 @@ import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import com.example.apfinalproject.MainViewModel
 import com.example.apfinalproject.databinding.EditEventFragmentBinding
-import com.example.apfinalproject.databinding.ProfileEditFragmentBinding
-import com.example.apfinalproject.user.ProfileEditFragment
 import androidx.navigation.fragment.navArgs
-import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.apfinalproject.ViewModelDBHelper
-import com.example.apfinalproject.chat.ChatListAdapter
-import com.example.apfinalproject.databinding.ChatListFragmentBinding
-
+import com.bumptech.glide.Glide
+import com.example.apfinalproject.event.Event
 
 class EditEventFragment : Fragment() {
     companion object {
@@ -29,11 +24,21 @@ class EditEventFragment : Fragment() {
     }
     private val viewModel: MainViewModel by activityViewModels()
     private var _binding: EditEventFragmentBinding? = null
-//    private var newImageUri: MutableLiveData<Uri> = MutableLiveData()
-//    private var newImageUUID: String? = null
+    private var newImageUri: Uri? = null
+    private var newImageUUID: String? = null
     private val binding get() = _binding!!
     private val args: EditEventFragmentArgs by navArgs()
     private lateinit var navController : NavController
+
+    private val photoSelectLauncher = registerForActivityResult(
+        ActivityResultContracts.GetContent()) { uri: Uri? ->
+        uri?.let {
+            Glide.with(this)
+                .load(it)
+                .into(binding.eventImage)
+            newImageUri = it
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -51,6 +56,7 @@ class EditEventFragment : Fragment() {
         navController = findNavController()
 
         bindEventInfo()
+        addOnClickListeners()
     }
 
     private fun bindEventInfo() {
@@ -60,6 +66,54 @@ class EditEventFragment : Fragment() {
         binding.eventDateET.setText(args.Event.date)
         binding.eventTimeET.setText(args.Event.time)
         viewModel.fetchEventImage(args.Event.imageName, binding.eventImage)
+    }
+
+    private fun addOnClickListeners() {
+        binding.saveButton.setOnClickListener {
+            saveChanges {newEvent ->
+                Log.d(TAG, "changes saved for image ${newEvent.imageName}")
+                navController.navigate(
+                    EditEventFragmentDirections.actionEditEventFragmentToOneEventFragment(newEvent))
+            }
+        }
+        binding.backButton.setOnClickListener() {
+            navController.popBackStack()
+        }
+        binding.eventImage.setOnClickListener {
+            photoSelectLauncher.launch("image/*")
+        }
+    }
+
+    private fun saveChanges(navigateCallback: (Event) -> Unit) {
+        if (newImageUri != null) {
+            viewModel.uploadImage(newImageUri!!, "events") { uuid ->
+                val newEvent = createEvent()
+                newEvent.imageName = uuid
+                viewModel.updateEvent(newEvent)
+                viewModel.deleteImage(args.Event.imageName, "events")
+                navigateCallback(newEvent)
+            }
+        } else {
+            val newEvent = createEvent()
+            viewModel.updateEvent(newEvent)
+            navigateCallback(newEvent)
+        }
+    }
+
+    private fun createEvent(): Event {
+        val newEvent = Event()
+        newEvent.id = args.Event.id
+        newEvent.creator = args.Event.creator
+        newEvent.type = args.Event.type
+        newEvent.yesSwipes = args.Event.yesSwipes
+        newEvent.noSwipes = args.Event.noSwipes
+        newEvent.title = binding.eventNameET.text.toString()
+        newEvent.description = binding.eventDescriptionET.text.toString()
+        newEvent.location = binding.eventLocationET.text.toString()
+        newEvent.date = binding.eventDateET.text.toString()
+        newEvent.time = binding.eventTimeET.text.toString()
+        newEvent.imageName = args.Event.imageName
+        return newEvent
     }
 
     override fun onDestroyView() {

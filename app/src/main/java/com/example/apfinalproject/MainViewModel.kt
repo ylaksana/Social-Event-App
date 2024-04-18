@@ -246,8 +246,16 @@ class MainViewModel: ViewModel() {
     }
 
     fun uploadImage(imageUri: Uri, collection: String, resultListener: (String) -> Unit) {
+        Log.d(TAG, "uploadImage to $collection: $imageUri")
         viewModelScope.launch(Dispatchers.IO) {
             storage.uploadImage(imageUri, collection, resultListener)
+        }
+    }
+
+    fun deleteImage(uuid: String, collection: String) {
+        Log.d(TAG, "deleteImage: $uuid")
+        viewModelScope.launch(Dispatchers.IO) {
+            storage.deleteImage(uuid, collection)
         }
     }
 
@@ -316,5 +324,9 @@ class MainViewModel: ViewModel() {
             db.addConversationIDtoUser(otherUserId, conv.id)
             resultListener(conv)
         }
+    }
+
+    fun updateEvent(event: Event) {
+        db.updateEvent(event)
     }
 }

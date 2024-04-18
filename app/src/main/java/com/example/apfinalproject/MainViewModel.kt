@@ -22,7 +22,6 @@ import retrofit2.HttpException
 import java.lang.Exception
 import android.net.Uri
 import com.example.apfinalproject.chat.Conversation
-import com.example.apfinalproject.interest.InterestCategories.Interest
 
 class MainViewModel: ViewModel() {
     companion object {
@@ -43,15 +42,15 @@ class MainViewModel: ViewModel() {
     }
 
     private var events = MutableLiveData<List<Event>>()
-      
-    private var suggestedEvents = MutableLiveData<List<Event>?>()
-
 
     private var nonUserEvents = MediatorLiveData<List<Event>>().apply {
         addSource(events) { originalList ->
             val filteredList = originalList.filter { event ->
-                // Replace "userCondition" with the condition you want to filter by
-                event.creator != activeUser.value?.uid
+                Log.d(TAG, "Filtering events: ${event.title}")
+                Log.d(TAG, "Active user: ${activeUser.value?.id}")
+                Log.d(TAG, "Event.yesSwipes: ${event.yesSwipes}")
+                Log.d(TAG, "event.noSwipes: ${event.noSwipes}")
+                event.creator != activeUser.value?.id
             }
             postValue(filteredList)
         }
@@ -110,7 +109,7 @@ class MainViewModel: ViewModel() {
             var userEvents = nonUserEvents.value
             if (switch) {
                 userEvents = events.value?.filter { event ->
-                    event.creator == activeUser.value?.uid
+                    event.creator == activeUser.value?.id
                 }
             }
             postValue(userEvents)
@@ -169,13 +168,10 @@ class MainViewModel: ViewModel() {
     fun setActiveUser(userId: String, resultListener: (User) -> Unit) {
         Log.d(TAG, "checking isUserInDB: $userId")
         db.fetchUserByUid(userId) { user ->
-            Log.d(TAG, "isUserInDB: ${user?.uid} : ${user?.displayName}")
+            Log.d(TAG, "isUserInDB: ${user?.id} : ${user?.displayName}")
             if (user != invalidUser) {
                 Log.d(TAG, "user exists in db")
                 activeUser.postValue(user)
-                db.fetchOthersUnswipedEvents(userId) {
-                    suggestedEvents.postValue(it)
-                }
                 db.fetchEvents { eventList ->
                     events.postValue(eventList)
                 }
@@ -205,10 +201,6 @@ class MainViewModel: ViewModel() {
         return interestsLiveData
     }
 
-    fun observeSuggestedEvents(): LiveData<List<Event>?> {
-        return suggestedEvents
-    }
-
     fun initActionBarBinding(it: ActionBarBinding) {
         actionBarBinding = it
     }
@@ -223,7 +215,7 @@ class MainViewModel: ViewModel() {
 
     fun updateUser(newUser: User) {
         activeUser.value = newUser
-        activeUser.value?.uid?.let { db.updateUser(it, newUser) }
+        activeUser.value?.id?.let { db.updateUser(it, newUser) }
     }
 
     fun fetchUserImage(uuid: String, imageView: ImageView) {
@@ -242,9 +234,9 @@ class MainViewModel: ViewModel() {
 
 
     fun addUser(newUser: User) {
-        Log.d(TAG, "addNewUser: ${newUser.uid}")
+        Log.d(TAG, "addNewUser: ${newUser.id}")
         db.createUser(newUser) { user ->
-            Log.d(TAG, "addNewUser: ${user.uid}")
+            Log.d(TAG, "addNewUser: ${user.id}")
             activeUser.postValue(user)
         }
     }
@@ -261,8 +253,8 @@ class MainViewModel: ViewModel() {
 
     fun addEventSwipe(eventId: String, direction: Int) {
         when(direction) {
-            4 -> db.addEventSwipe(eventId, activeUser.value?.uid!!, "noSwipes")
-            8 -> db.addEventSwipe(eventId, activeUser.value?.uid!!, "yesSwipes")
+            4 -> db.addEventSwipe(eventId, activeUser.value?.id!!, "noSwipes")
+            8 -> db.addEventSwipe(eventId, activeUser.value?.id!!, "yesSwipes")
         }
     }
 
@@ -285,9 +277,9 @@ class MainViewModel: ViewModel() {
     }
 
     fun fetchMyEvents(resultListener: (List<Event>) -> Unit) {
-        Log.d(TAG, "fetchMyEvents: ${activeUser.value?.uid}")
+        Log.d(TAG, "fetchMyEvents: ${activeUser.value?.id}")
         if (activeUser.value != invalidUser && activeUser.value != null) {
-            db.fetchMyEvents(activeUser.value?.uid!!) {
+            db.fetchMyEvents(activeUser.value?.id!!) {
                 resultListener(it)
             }
         }
@@ -301,7 +293,7 @@ class MainViewModel: ViewModel() {
         Log.d(TAG, "searching for chat room: $userId, $otherUserId")
         db.findChatRoom(userId, otherUserId) { conv ->
             conv?.let {
-                Log.d(TAG, "chat room found ${conv.conversationID}")
+                Log.d(TAG, "chat room found ${conv.id}")
                 resultListener(conv)
             } ?: run {
                 Log.d(TAG, "chat room not found. Creating one.")
@@ -319,9 +311,9 @@ class MainViewModel: ViewModel() {
         Log.d(TAG, "createChatRoom start")
         Log.d(TAG, "creating chat room: $userId, $otherUserId")
         db.createChatRoom(userId, otherUserId) { conv ->
-            Log.d(TAG, "chat room created ${conv.conversationID}")
-            db.addConversationIDtoUser(userId, conv.conversationID)
-            db.addConversationIDtoUser(otherUserId, conv.conversationID)
+            Log.d(TAG, "chat room created ${conv.id}")
+            db.addConversationIDtoUser(userId, conv.id)
+            db.addConversationIDtoUser(otherUserId, conv.id)
             resultListener(conv)
         }
     }

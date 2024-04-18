@@ -17,7 +17,6 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.example.apfinalproject.MainViewModel
 //import com.example.apfinalproject.api.ImageRepository
-import com.example.apfinalproject.databinding.ActivityMainBinding
 import com.example.apfinalproject.databinding.HomeFragmentBinding
 import com.example.apfinalproject.event.EventAdapter
 import com.example.apfinalproject.interest.FilterAdapter
@@ -59,9 +58,13 @@ class HomeFragment: Fragment() {
                     val position = viewHolder.bindingAdapterPosition
                     val event = adapter?.currentList?.get(position)
                     Log.d(TAG, "Swipe delete $direction")
+                    Log.d(TAG, "adapter: $adapter")
+                    Log.d(TAG, "position: $position")
+                    Log.d(TAG, "event: ${adapter?.currentList}")
+                    Log.d(TAG, "event: ${event?.title}")
 
                     event?.let {
-                        val eventId = it.uid
+                        val eventId = it.id
                         viewModel.addEventSwipe(eventId, direction)
                         viewModel.removeEventFromView(event)
 
@@ -83,21 +86,23 @@ class HomeFragment: Fragment() {
             )
         }
         binding.eventRV.adapter = adapter
-//         viewModel.observeSuggestedEvents().observe(viewLifecycleOwner) {events ->
-//             Log.d(TAG, "submitting list: ${events?.size} items")
-//             adapter!!.submitList(events)
-      // TODO: need to add logic from suggested events to netTypeEvents
+
+        val activeUser = viewModel.getActiveUser()
         viewModel.observeNetTypeEvents().observe(viewLifecycleOwner) { events ->
             Log.d("Filter", "filterList length: ${events.size}")
+            events.filter { event ->
+                !event.yesSwipes.contains(activeUser?.id) &&
+                !event.noSwipes.contains(activeUser?.id)
+            }
             adapter?.submitList(events)
         }
 
-          val filterAdapter = FilterAdapter(viewModel)
-          val filterRV = binding.filtersRV
-          filterRV.layoutManager =
-              LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
-          filterAdapter.submitList(filtersList)
-          filterRV.adapter = filterAdapter
+        val filterAdapter = FilterAdapter(viewModel)
+        val filterRV = binding.filtersRV
+        filterRV.layoutManager =
+            LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+        filterAdapter.submitList(filtersList)
+        filterRV.adapter = filterAdapter
         Log.d(TAG, "end initadapters")
     }
 

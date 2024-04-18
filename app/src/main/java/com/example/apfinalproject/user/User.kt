@@ -1,13 +1,12 @@
 package com.example.apfinalproject.user
 
 import android.os.Parcelable
-import com.example.apfinalproject.chat.Conversation
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
 class User(private val nullableName: String? = null,
            private val nullableEmail: String? = null,
-           val uid: String = "-1",
+           val id: String = "-1",
            var firstName: String = "Unknown",
            var lastName: String = "User",
            var bio: String = "Empty Bio",
@@ -41,7 +40,7 @@ class User(private val nullableName: String? = null,
         pastEvents: List<String> = this.pastEvents,
         conversationIDs: List<String> = this.conversationIDs
     ): User {
-        val newUser = User(this.displayName, this.email, this.uid)
+        val newUser = User(this.displayName, this.email, this.id)
         newUser.firstName = firstName
         newUser.lastName = lastName
         newUser.bio = bio
@@ -51,7 +50,6 @@ class User(private val nullableName: String? = null,
         newUser.conversationIDs = conversationIDs
         return newUser
     }
-
 }
 const val invalidUserUid = "-1"
 val invalidUser = User(null, null, invalidUserUid)

@@ -19,7 +19,6 @@ import com.example.apfinalproject.databinding.ActivityMainBinding
 import com.example.apfinalproject.databinding.CreateEventBinding
 import com.example.apfinalproject.event.Event
 import androidx.activity.result.contract.ActivityResultContracts
-import com.example.apfinalproject.PhotoSelectorWrapper
 import android.net.Uri
 import com.google.android.material.snackbar.Snackbar
 import com.bumptech.glide.Glide
@@ -161,7 +160,7 @@ class CreateEventFragment: Fragment(){
         event.date = "${binding.spinnerMonth.selectedItem} ${binding.spinnerDay.selectedItem}, ${binding.spinnerYear.selectedItem}"
         event.time = "${binding.spinnerHours.selectedItem}:${binding.spinnerMinutes.selectedItem} ${binding.spinnerAMPM.selectedItem}"
         event.type = binding.spinnerEvent.selectedItem.toString()
-        event.creator = viewModel.getActiveUser()?.uid ?: "-1"
+        event.creator = viewModel.getActiveUser()?.id ?: "-1"
         Log.d(TAG, "newEvent finished: ${event.title}")
         return event
     }

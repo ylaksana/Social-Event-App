@@ -27,6 +27,9 @@ class PastEventAdapter(private val viewModel: MainViewModel,
         val pastEventRowBinding = holder.pastEventRowBinding
         val event = getItem(position)
         pastEventRowBinding.pastEventTitle.text = event.title
+        pastEventRowBinding.root.setOnClickListener {
+            navigateToOneEvent(event)
+        }
     }
 
     class pastEventDiff : DiffUtil.ItemCallback<Event>() {

@@ -205,7 +205,7 @@ class ViewModelDBHelper {
         resultListener: (List<User>)->Unit
     ) {
         Log.d(TAG, "fetchUserByList started")
-        val query = db.collection("users").whereIn("uid", uids)
+        val query = db.collection("users").whereIn("id", uids)
         Log.d(TAG, "query: users")
         query
             .limit(queryLimit)

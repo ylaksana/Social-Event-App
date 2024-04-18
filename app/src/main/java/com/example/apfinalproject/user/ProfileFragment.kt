@@ -94,7 +94,7 @@ class ProfileFragment: Fragment() {
         binding.profileBio.text = user.bio
         viewModel.fetchUserImage(user.profileImage, binding.profileImage)
 
-        if (user.uid == viewModel.getActiveUser()?.uid) {
+        if (user.id == viewModel.getActiveUser()?.id) {
             binding.editProfileButton.visibility = View.VISIBLE
             binding.editProfileButton.setOnClickListener {
                 // Navigate to EditProfile

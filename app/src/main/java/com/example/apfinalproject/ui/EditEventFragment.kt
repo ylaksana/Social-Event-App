@@ -11,12 +11,14 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.NavController
+import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import com.example.apfinalproject.MainViewModel
 import com.example.apfinalproject.databinding.EditEventFragmentBinding
 import androidx.navigation.fragment.navArgs
 import com.bumptech.glide.Glide
 import com.example.apfinalproject.event.Event
+import com.example.apfinalproject.R
 
 class EditEventFragment : Fragment() {
     companion object {
@@ -72,8 +74,16 @@ class EditEventFragment : Fragment() {
         binding.saveButton.setOnClickListener {
             saveChanges {newEvent ->
                 Log.d(TAG, "changes saved for image ${newEvent.imageName}")
+
+                // Removes the editEvent fragment from the backstack
+                val navOptions = NavOptions.Builder()
+                    .setPopUpTo(R.id.oneEventFragment, true)
+                    .build()
+
                 navController.navigate(
-                    EditEventFragmentDirections.actionEditEventFragmentToOneEventFragment(newEvent))
+                    EditEventFragmentDirections.actionEditEventFragmentToOneEventFragment(newEvent),
+                    navOptions)
+
             }
         }
         binding.backButton.setOnClickListener() {

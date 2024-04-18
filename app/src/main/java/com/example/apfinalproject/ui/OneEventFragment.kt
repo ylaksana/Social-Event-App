@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.NavController
 import androidx.navigation.NavDirections
@@ -73,7 +74,7 @@ class OneEventFragment: Fragment(){
             }
         }
         binding.backButton.setOnClickListener{
-            navController.popBackStack(R.id.editEventFragment, true)
+            navController.popBackStack()
         }
     }
 

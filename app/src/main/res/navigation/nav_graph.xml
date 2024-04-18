@@ -178,6 +178,11 @@
             android:id="@+id/action_profileFragment_to_profileEditFragment"
             app:destination="@id/profileEditFragment" />
 
+        <!--Profile to OneEvent-->
+        <action
+            android:id="@+id/action_profileFragment_to_oneEventFragment"
+            app:destination="@id/oneEventFragment" />
+
         <argument
             android:name="User"
             app:argType="com.example.apfinalproject.user.User" />

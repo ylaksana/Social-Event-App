@@ -154,7 +154,7 @@ class MainActivity : AppCompatActivity() {
         authUser.observeAuthId().observe(this) {authId ->
             Log.d(TAG, ">>observeAuthId started with $authId")
             // XXX Write me, user status has changed
-            if ((authId == null) or (authId == invalidUser.uid)) {
+            if ((authId == null) or (authId == invalidUser.id)) {
                 Log.d(TAG, ">> No user logged into Firebase : $authId")
                 viewModel.activeUser.postValue(invalidUser)
             } else {

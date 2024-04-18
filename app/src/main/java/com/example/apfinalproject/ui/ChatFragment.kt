@@ -9,7 +9,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.Fragment
 import androidx.navigation.NavController
-import androidx.navigation.NavDirections
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.example.apfinalproject.MainViewModel
@@ -54,15 +53,15 @@ class ChatFragment: Fragment() {
         viewModel.hideActionBar()
         navController = findNavController()
 
-        val conversationID = args.Conversation.conversationID
+        val conversationID = args.Conversation.id
 
         chatAdapter = ChatAdapter(viewModel, ViewModelDBHelper())
         val activeUser = viewModel.getActiveUser()
 
         // I think this db call is unnecessary because users are already in the conversation arg
         if (activeUser != null) {
-            chatDBHelper.getChatUsers(activeUser.uid, conversationID) { users ->
-                val otherUser = users.filter { it != activeUser.uid }
+            chatDBHelper.getChatUsers(activeUser.id, conversationID) { users ->
+                val otherUser = users.filter { it != activeUser.id }
                 DBHelper.fetchUserByUid(otherUser[0]) {
                     binding.chatTitle.text = it?.firstName
                 }
@@ -78,7 +77,7 @@ class ChatFragment: Fragment() {
             val messageText = binding.messageET.text.toString()
             val message = activeUser?.let { it1 ->
                 Message(
-                    senderID = it1.uid,
+                    senderID = it1.id,
                     messageText = messageText
                 )
             }

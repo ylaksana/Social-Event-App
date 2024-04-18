@@ -54,7 +54,7 @@ class ViewModelDBHelper {
             .addOnSuccessListener { result ->
                 Log.d(TAG, "fetchUserByUid succeeded for $uid")
                 val user = result.toObject(User::class.java)
-                Log.d(TAG, "fetchUserByUid: ${user?.uid}")
+                Log.d(TAG, "fetchUserByUid: ${user?.id}")
                 // NB: This is done on a background thread
 
                 if (user == null) {
@@ -77,7 +77,7 @@ class ViewModelDBHelper {
     ) {
         Log.d(TAG, "createUser started")
         db.collection("users")
-            .document(user.uid)
+            .document(user.id)
             .set(user)
             .addOnSuccessListener {
                 Log.d(TAG, "createUser succeeded")
@@ -95,7 +95,7 @@ class ViewModelDBHelper {
     ) {
         Log.d(TAG, "removeUser started")
         db.collection("users")
-            .document(user.uid)
+            .document(user.id)
             .delete()
             .addOnSuccessListener {
                 Log.d(TAG, "removeUser succeeded")
@@ -113,7 +113,7 @@ class ViewModelDBHelper {
     ) {
         Log.d(TAG, "createEvent started")
         val eventId = generateUUID()
-        event.uid = eventId
+        event.id = eventId
 
         db.collection("events")
             .document(eventId)
@@ -163,7 +163,7 @@ class ViewModelDBHelper {
                 val unswipedEvents = allEvents.documents.mapNotNull {
                     it.toObject(Event::class.java)
                 }.filter { event ->
-                    Log.d(TAG, "event: ${event.uid} ${event.noSwipes} ${event.yesSwipes}")
+                    Log.d(TAG, "event: ${event.id} ${event.noSwipes} ${event.yesSwipes}")
                     activeUserId !in event.noSwipes && activeUserId !in event.yesSwipes
                 }
                 Log.d(TAG, "events fetch ${unswipedEvents.size}")
@@ -250,7 +250,7 @@ class ViewModelDBHelper {
     ) {
         Log.d(TAG, "removeEvent started")
         db.collection("events")
-            .document(event.uid)
+            .document(event.id)
             .delete()
             .addOnSuccessListener {
                 Log.d(TAG, "removeEvent succeeded")

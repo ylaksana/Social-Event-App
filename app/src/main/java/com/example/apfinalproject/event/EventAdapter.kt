@@ -46,12 +46,11 @@ class EventAdapter(private val viewModel: MainViewModel,
         eventRowBinding.eventDescription.text = event.description
         Log.d("EventAdapter", "fetching image: ${event.imageName}")
         viewModel.fetchEventImage(event.imageName, eventRowBinding.image)
-
     }
 
     class EventDiff : DiffUtil.ItemCallback<Event>() {
         override fun areItemsTheSame(oldItem: Event, newItem: Event): Boolean {
-            return oldItem.uid == newItem.uid
+            return oldItem.id == newItem.id
         }
 
         override fun areContentsTheSame(oldItem: Event, newItem: Event): Boolean {

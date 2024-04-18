@@ -68,7 +68,7 @@ class CreateUserFragment : Fragment() {
         }
         binding.saveButton.setOnClickListener {
             val newUser = User(
-                uid = args.authUserId,
+                id = args.authUserId,
                 nullableEmail = args.authUserEmail,
                 nullableName = args.authUserName)
             newUser.firstName = binding.firstNameET.text.toString()

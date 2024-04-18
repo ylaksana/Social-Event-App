@@ -8,7 +8,7 @@ import com.google.firebase.firestore.ServerTimestamp
 
 @Parcelize
 data class Conversation(
-    val conversationID: String = "null conversation",
+    val id: String = "null conversation",
     val userIDs: List<String> = listOf(),
     val lastMessage: String = "",
     val messages: List<Message> = listOf(),
@@ -19,6 +19,6 @@ data class Conversation(
 data class Message(
     val senderID: String = "",
     val messageText: String = "",
-    @DocumentId val messageID: String = "",
+    @DocumentId val id: String = "",
     @ServerTimestamp val timestamp: Timestamp? = null,
 ) : Parcelable

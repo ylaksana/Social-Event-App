@@ -1,7 +1,6 @@
 package com.example.apfinalproject.chat
 
 import android.util.Log
-import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
@@ -11,7 +10,6 @@ import com.example.apfinalproject.MainViewModel
 import com.example.apfinalproject.databinding.ChatListRowBinding
 import com.example.apfinalproject.ViewModelDBHelper
 import com.example.apfinalproject.user.invalidUser
-import com.example.apfinalproject.chat.Conversation
 
 
 class ChatListAdapter(private val viewModel: MainViewModel,
@@ -41,8 +39,8 @@ class ChatListAdapter(private val viewModel: MainViewModel,
         val chatListRowBinding = holder.chatListRowBinding
         val conversation = getItem(position)
         val activeUser = viewModel.getActiveUser()
-        val otherUser = conversation.userIDs.find { it != (activeUser?.uid ?: "-1") }
-        Log.d("ChatListAdapter", "Binding conversationID: ${conversation.conversationID}")
+        val otherUser = conversation.userIDs.find { it != (activeUser?.id ?: "-1") }
+        Log.d("ChatListAdapter", "Binding conversationID: ${conversation.id}")
 
         if (otherUser != null) {
             dbHelper.fetchUserByUid(otherUser) { user ->
@@ -58,11 +56,11 @@ class ChatListAdapter(private val viewModel: MainViewModel,
 
     class ChatListDiff : DiffUtil.ItemCallback<Conversation>() {
         override fun areItemsTheSame(oldItem: Conversation, newItem: Conversation): Boolean {
-            return oldItem.conversationID == newItem.conversationID
+            return oldItem.id == newItem.id
         }
 
         override fun areContentsTheSame(oldItem: Conversation, newItem: Conversation): Boolean {
-            return oldItem.conversationID == newItem.conversationID &&
+            return oldItem.id == newItem.id &&
 //                    oldItem.userIDs == newItem.userIDs &&
 //                    oldItem.messages == newItem.messages &&
                     oldItem.lastMessage == newItem.lastMessage

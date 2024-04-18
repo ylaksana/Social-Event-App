@@ -58,10 +58,10 @@ class OneEventFragment: Fragment(){
 
         val user = viewModel.getActiveUser()
 
-        if (user?.uid == args.Event.creator) {
+        if (user?.id == args.Event.creator) {
             setCreatorView(binding, user)
         } else {
-            viewModel.fetchUserByUid(args.Event.creator) {creator ->
+            viewModel.fetchUserByUid(args.Event.creator) { creator ->
                 if (creator != null) {
                     setVisitorView(binding, creator)
                 }
@@ -103,7 +103,7 @@ class OneEventFragment: Fragment(){
         binding.interestedUsersHolder.visibility = View.GONE
         binding.creatorHolder.visibility = View.VISIBLE
 
-        viewModel.fetchUserByUid(args.Event.creator) {creator ->
+        viewModel.fetchUserByUid(args.Event.creator) { creator ->
             creator?.let {
                 binding.posterName.text = creator.firstName
                 viewModel.fetchUserImage(creator.profileImage, binding.profileImage)
@@ -119,7 +119,7 @@ class OneEventFragment: Fragment(){
     private fun initAdapter(binding: OneEventBinding) {
         val adapter = UserAdapter(viewModel) { clickedUser ->
             // On Click Callback
-            viewModel.enterChatRoom(args.Event.creator, clickedUser.uid) { conv ->
+            viewModel.enterChatRoom(args.Event.creator, clickedUser.id) { conv ->
                 navController.safeNavigate(
                     OneEventFragmentDirections.actionOneEventFragmentToChatFragment(conv))
             }

@@ -8,12 +8,8 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.ListAdapter
 import com.example.apfinalproject.MainViewModel
-import com.example.apfinalproject.databinding.EventRowBinding
 import com.example.apfinalproject.databinding.MessageRowBinding
-import com.example.apfinalproject.event.EventAdapter
 import com.example.apfinalproject.ViewModelDBHelper
-import com.example.apfinalproject.user.invalidUser
-import com.example.apfinalproject.user.User
 
 class ChatAdapter(private val viewModel: MainViewModel,
                   private val dbHelper: ViewModelDBHelper)
@@ -35,7 +31,7 @@ class ChatAdapter(private val viewModel: MainViewModel,
         Log.d("ChatAdapter", "message sender: ${message.senderID}")
 
         if (activeUser != null) {
-            if (message.senderID == activeUser.uid) {
+            if (message.senderID == activeUser.id) {
                 messageRowBinding.chatMessageTV.gravity = Gravity.END
                 messageRowBinding.chatTimeTV.gravity = Gravity.END
             } else {
@@ -49,7 +45,7 @@ class ChatAdapter(private val viewModel: MainViewModel,
 
     class MessageDiff : DiffUtil.ItemCallback<Message>() {
         override fun areItemsTheSame(oldItem: Message, newItem: Message): Boolean {
-            return oldItem.messageID == newItem.messageID
+            return oldItem.id == newItem.id
         }
 
         override fun areContentsTheSame(oldItem: Message, newItem: Message): Boolean {

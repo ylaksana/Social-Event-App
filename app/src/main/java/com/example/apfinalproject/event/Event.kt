@@ -4,7 +4,7 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 class Event(
-    var uid: String = "-1",
+    var id: String = "-1",
     var title: String = "No Title",
     var description: String = "No Description",
     var date: String = "No Date",
@@ -20,14 +20,14 @@ class Event(
     // Not sure if this is the best way to do it, but it works for now.
     override fun equals(other: Any?): Boolean =
         if (other is Event) {
-            uid == other.uid
+            id == other.id
         } else {
             false
         }
 
 
     override fun hashCode(): Int {
-        var result = uid.hashCode()
+        var result = id.hashCode()
         result = 31 * result + title.hashCode()
         result = 31 * result + description.hashCode()
         result = 31 * result + date.hashCode()

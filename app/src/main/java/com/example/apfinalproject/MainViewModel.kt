@@ -22,7 +22,6 @@ import retrofit2.HttpException
 import java.lang.Exception
 import android.net.Uri
 import com.example.apfinalproject.chat.Conversation
-import com.example.apfinalproject.interest.InterestCategories.Interest
 
 class MainViewModel: ViewModel() {
     companion object {
@@ -43,7 +42,7 @@ class MainViewModel: ViewModel() {
     }
 
     private var events = MutableLiveData<List<Event>>()
-      
+
     private var suggestedEvents = MutableLiveData<List<Event>?>()
 
 
@@ -53,6 +52,7 @@ class MainViewModel: ViewModel() {
                 // Replace "userCondition" with the condition you want to filter by
                 event.creator != activeUser.value?.uid
             }
+            Log.d("NonUserEvents", "Fetched events: $filteredList")
             postValue(filteredList)
         }
     }
@@ -63,10 +63,11 @@ class MainViewModel: ViewModel() {
     private var searchLocation = MutableLiveData<String>()
 
     private var netLocations =  MediatorLiveData<List<OSMLocation>>().apply{
-        addSource(searchLocation) { term ->
+        addSource(nonUserEvents) { events ->
+            Log.d("OSM", "Fetching locations")
             try {
                 viewModelScope.launch(Dispatchers.IO) {
-                    val locations = osmRepository.fetchLocation(term)
+                    val locations = osmRepository.fetchLocations(events)
                     Log.d("OSM", "Fetched locations: $locations")
                     if (locations.isNotEmpty()) {
                         // Post the location to a LiveData object

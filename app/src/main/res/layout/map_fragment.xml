@@ -71,5 +71,17 @@
         app:layout_constraintBottom_toBottomOf="parent"
         />
 
+    <TextView
+        android:id="@+id/noEvents"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:text="No events found"
+        android:textSize="30sp"
+        android:gravity="center"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/eventRV"
+        app:layout_constraintBottom_toBottomOf="parent"
+        />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

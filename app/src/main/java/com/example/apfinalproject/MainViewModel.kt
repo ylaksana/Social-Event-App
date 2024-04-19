@@ -141,6 +141,10 @@ class MainViewModel: ViewModel() {
         return netTypeEvents
     }
 
+    fun observeAllEvents(): LiveData<List<Event>> {
+        return events
+    }
+
     fun setFilter(filter: String){
         filterTerm.value = filter
         Log.d(TAG, "Filter: $filter")
@@ -177,6 +181,7 @@ class MainViewModel: ViewModel() {
                 db.fetchEvents { eventList ->
                     events.postValue(eventList)
                 }
+                interestsLiveData.postValue(user?.userInterests)
             } else {
                 Log.d(TAG, "user is invalid")
                 activeUser.postValue(invalidUser)
@@ -233,7 +238,6 @@ class MainViewModel: ViewModel() {
         Log.d(TAG, "fetchEventImage: $path")
         Glide.fetch(path, imageView)
     }
-
 
     fun addUser(newUser: User) {
         Log.d(TAG, "addNewUser: ${newUser.id}")

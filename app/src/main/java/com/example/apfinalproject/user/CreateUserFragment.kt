@@ -35,7 +35,6 @@ class CreateUserFragment : Fragment() {
     private lateinit var navController: NavController
     private val args: CreateUserFragmentArgs by navArgs()
     private var interestAdapter: InterestAdapter? = null
-//    private var newImageUri: MutableLiveData<Uri> = MutableLiveData()
     private var newImageUri: Uri = Uri.EMPTY
     private var newImageUUID: String? = null
 

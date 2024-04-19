@@ -181,6 +181,11 @@
             android:id="@+id/action_profileFragment_to_oneEventFragment"
             app:destination="@id/oneEventFragment" />
 
+        <!--Profile to Home-->
+        <action
+            android:id="@+id/action_profileFragment_to_homeFragment"
+            app:destination="@id/homeFragment" />
+
         <argument
             android:name="User"
             app:argType="com.example.apfinalproject.user.User" />

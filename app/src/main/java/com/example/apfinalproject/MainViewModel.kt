@@ -42,12 +42,6 @@ class MainViewModel: ViewModel() {
     }
 
     private var events = MutableLiveData<List<Event>>()
-<<<<<<< HEAD
-=======
-
-    private var suggestedEvents = MutableLiveData<List<Event>?>()
-
->>>>>>> origin/MapMarkers
 
     private var nonUserEvents = MediatorLiveData<List<Event>>().apply {
         addSource(events) { originalList ->

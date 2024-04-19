@@ -68,10 +68,10 @@
             android:id="@+id/action_oneEventFragment_to_profileFragment"
             app:destination="@id/profileFragment"/>
 
-        <!--OneEvent to CreateEvent-->
+        <!--OneEvent to editEvent-->
         <action
-            android:id="@+id/action_oneEventFragment_to_createEventFragment"
-            app:destination="@id/createEventFragment"/>
+            android:id="@+id/action_oneEventFragment_to_editEventFragment"
+            app:destination="@id/editEventFragment"/>
 
         <!--OneEvent to Chat-->
         <action
@@ -159,14 +159,12 @@
         android:id="@+id/mapFragment"
         android:name="com.example.apfinalproject.ui.MapFragment">
 
-        <!--Map to OneEvent-->
-    <action
-        android:id="@+id/action_mapFragment_to_oneEventFragment"
-        app:destination="@id/oneEventFragment" />
+            <!--Map to OneEvent-->
+        <action
+            android:id="@+id/action_mapFragment_to_oneEventFragment"
+            app:destination="@id/oneEventFragment" />
 
     </fragment>
-
-
 
     <!--Profile Fragment-->
     <fragment
@@ -240,6 +238,21 @@
         <action
             android:id="@+id/action_welcomeFragment_to_createUserFragment"
             app:destination="@id/createUserFragment" />
+
+    </fragment>
+
+    <!--Edit Event Fragment-->
+    <fragment
+        android:id="@+id/editEventFragment"
+        android:name="com.example.apfinalproject.ui.EditEventFragment">
+
+        <action
+            android:id="@+id/action_editEventFragment_to_oneEventFragment"
+            app:destination="@id/oneEventFragment" />
+
+        <argument
+            android:name="Event"
+            app:argType="com.example.apfinalproject.event.Event" />
 
     </fragment>
 

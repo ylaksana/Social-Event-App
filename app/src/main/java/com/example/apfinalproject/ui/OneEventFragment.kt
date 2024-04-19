@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.NavController
 import androidx.navigation.NavDirections
@@ -17,8 +18,13 @@ import com.example.apfinalproject.databinding.OneEventBinding
 import com.example.apfinalproject.UserAdapter
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.apfinalproject.user.User
+import com.example.apfinalproject.R
+
 
 class OneEventFragment: Fragment(){
+    companion object {
+        private const val TAG = "OneEventFragment"
+    }
     private val viewModel : MainViewModel by activityViewModels()
     private var _binding: OneEventBinding? = null
     private lateinit var navController : NavController
@@ -49,8 +55,10 @@ class OneEventFragment: Fragment(){
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        Log.d(javaClass.simpleName, "onViewCreated")
+        Log.d(TAG, "onViewCreated")
+        (activity as? AppCompatActivity)?.supportActionBar?.hide()
         viewModel.hideActionBar()
+
         navController = findNavController()
 
         binding.eventDescription.text = args.Event.description
@@ -71,27 +79,18 @@ class OneEventFragment: Fragment(){
                 }
             }
         }
-
         binding.backButton.setOnClickListener{
             navController.popBackStack()
         }
     }
 
-    override fun onDestroyView() {
-        _binding = null
-        (activity as? AppCompatActivity)?.supportActionBar?.show()
-        viewModel.showActionBar()
-        super.onDestroyView()
-    }
-
     private fun setCreatorView(binding: OneEventBinding, creator: User) {
         binding.creatorHolder.visibility = View.GONE
-
         binding.editEventButton.visibility = View.VISIBLE
         binding.editEventButton.setOnClickListener {
             //TODO: create editFragment
             navController.safeNavigate(
-                OneEventFragmentDirections.actionOneEventFragmentToCreateEventFragment())
+                OneEventFragmentDirections.actionOneEventFragmentToEditEventFragment(args.Event))
         }
 
         if (args.Event.yesSwipes.isNotEmpty()) {
@@ -133,5 +132,13 @@ class OneEventFragment: Fragment(){
             adapter.submitList(it)
         }
         binding.interestedUsersRV.layoutManager = LinearLayoutManager(context)
+    }
+
+    override fun onDestroyView() {
+        Log.d(TAG, "onDestroyView")
+        _binding = null
+        (activity as? AppCompatActivity)?.supportActionBar?.show()
+        viewModel.showActionBar()
+        super.onDestroyView()
     }
 }

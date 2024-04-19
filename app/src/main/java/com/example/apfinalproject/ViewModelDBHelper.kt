@@ -380,4 +380,17 @@ class ViewModelDBHelper {
                 Log.d(TAG, "addConversationIDtoUser failed", it)
             }
     }
+
+    fun updateEvent(event: Event) {
+        Log.d(TAG, "updateEvent started")
+        db.collection("events")
+            .document(event.id)
+            .set(event)
+            .addOnSuccessListener {
+                Log.d(TAG, "updateEvent succeeded")
+            }
+            .addOnFailureListener {
+                Log.d(TAG, "updateEvent failed", it)
+            }
+    }
 }

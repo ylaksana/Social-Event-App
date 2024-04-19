@@ -28,7 +28,7 @@ object Glide {
         // Options like CenterCrop are possible, but I like this one best
         // Evidently you need fitCenter or Transform.  If you use centerCrop, your
         // list disappears.  I think that was an old bug.
-        .fitCenter()
+        .centerCrop()
         // Rounded corners are so lovely.
         .transform(RoundedCorners (20))
 

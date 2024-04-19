@@ -76,9 +76,13 @@ dependencies {
 
     // Glide
     implementation libs.glide
+    implementation libs.play.services.location
     kapt libs.glide.compiler
     kapt libs.androidx.annotation
     annotationProcessor libs.glide.compiler
+
+//    implementation libs.javax.annotation.api
+//    implementation libs.play.services.location.v1800
 
     // OpenStreetMap
     implementation libs.osmdroid.android // Check for the latest version

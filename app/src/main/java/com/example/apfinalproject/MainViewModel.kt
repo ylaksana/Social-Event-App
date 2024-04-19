@@ -52,6 +52,7 @@ class MainViewModel: ViewModel() {
                 Log.d(TAG, "event.noSwipes: ${event.noSwipes}")
                 event.creator != activeUser.value?.id
             }
+            Log.d("NonUserEvents", "Fetched events: $filteredList")
             postValue(filteredList)
         }
     }
@@ -62,10 +63,11 @@ class MainViewModel: ViewModel() {
     private var searchLocation = MutableLiveData<String>()
 
     private var netLocations =  MediatorLiveData<List<OSMLocation>>().apply{
-        addSource(searchLocation) { term ->
+        addSource(nonUserEvents) { events ->
+            Log.d("OSM", "Fetching locations")
             try {
                 viewModelScope.launch(Dispatchers.IO) {
-                    val locations = osmRepository.fetchLocation(term)
+                    val locations = osmRepository.fetchLocations(events)
                     Log.d("OSM", "Fetched locations: $locations")
                     if (locations.isNotEmpty()) {
                         // Post the location to a LiveData object

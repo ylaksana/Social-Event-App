@@ -124,4 +124,29 @@ class ChatDBHelper {
             }
     }
 
+    fun updateConversationLastMessage(
+        conversationID: String,
+        message: Message,
+        resultListener: (Boolean) -> Unit
+    ) {
+        Log.d(TAG, "updateConversationLastMessage: started")
+        db.collection(rootCollection)
+            .document(conversationID)
+            .update(
+                mapOf(
+                    "lastMessage" to message.messageText,
+                    "lastMessageTimestamp" to Timestamp.now(),
+                    "lastMessageSender" to message.senderID
+                )
+            )
+            .addOnSuccessListener {
+                Log.d(TAG, "updateConversationLastMessage: succeeded")
+                resultListener(true)
+            }
+            .addOnFailureListener {
+                Log.d(TAG, "updateConversationLastMessage: failed")
+                resultListener(false)
+            }
+    }
+
 }

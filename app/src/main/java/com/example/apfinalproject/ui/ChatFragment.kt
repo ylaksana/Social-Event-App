@@ -55,6 +55,7 @@ class ChatFragment: Fragment() {
 
         val conversationID = args.Conversation.id
 
+
         chatAdapter = ChatAdapter(viewModel, ViewModelDBHelper())
         val activeUser = viewModel.getActiveUser()
 
@@ -68,29 +69,37 @@ class ChatFragment: Fragment() {
             }
         }
 
-        // Can we get messages from the conversation arg?
         chatDBHelper.fetchMessages(conversationID) {messages ->
-            chatAdapter!!.submitList(messages)
+            chatAdapter?.submitList(messages)
+            binding.chatRV.scrollToPosition(chatAdapter!!.itemCount - 1)
         }
 
         binding.sendButton.setOnClickListener(){
             val messageText = binding.messageET.text.toString()
+
+            if (messageText.isEmpty()) {
+                return@setOnClickListener
+            }
+
             val message = activeUser?.let { it1 ->
                 Message(
                     senderID = it1.id,
-                    messageText = messageText
+                    messageText = messageText,
                 )
             }
             if (message != null) {
                 chatDBHelper.uploadMessage(conversationID, message) {
                     Log.d(TAG, "Message uploaded")
                     if (it) {
-                        chatAdapter!!.notifyItemChanged(chatAdapter!!.itemCount - 1)
+                        chatAdapter?.notifyItemChanged(chatAdapter!!.itemCount - 1)
                         binding.chatRV.scrollToPosition(chatAdapter!!.itemCount - 1)
                     } else {
                         Log.d(TAG, "Failed to upload message")
                     }
                     // Update the conversation's last message and timestamp
+                    chatDBHelper.updateConversationLastMessage(conversationID, message) {
+                        Log.d(TAG, "Conversation updated")
+                    }
                 }
             }
             binding.messageET.text.clear()
@@ -98,6 +107,8 @@ class ChatFragment: Fragment() {
 
         binding.chatRV.adapter = chatAdapter
         binding.chatRV.layoutManager = LinearLayoutManager(context)
+
+
 
         binding.backButton.setOnClickListener{
             navController.navigate(ChatFragmentDirections.actionChatFragmentToChatListFragment())

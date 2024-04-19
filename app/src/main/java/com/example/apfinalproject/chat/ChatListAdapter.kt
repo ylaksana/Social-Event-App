@@ -10,7 +10,7 @@ import com.example.apfinalproject.MainViewModel
 import com.example.apfinalproject.databinding.ChatListRowBinding
 import com.example.apfinalproject.ViewModelDBHelper
 import com.example.apfinalproject.user.invalidUser
-
+import com.example.apfinalproject.glide.Glide
 
 class ChatListAdapter(private val viewModel: MainViewModel,
                       private val dbHelper: ViewModelDBHelper,
@@ -36,7 +36,7 @@ class ChatListAdapter(private val viewModel: MainViewModel,
     }
 
     override fun onBindViewHolder(holder: ChatListAdapter.ChatListViewHolder, position: Int) {
-        val chatListRowBinding = holder.chatListRowBinding
+        val binding = holder.chatListRowBinding
         val conversation = getItem(position)
         val activeUser = viewModel.getActiveUser()
         val otherUser = conversation.userIDs.find { it != (activeUser?.id ?: "-1") }
@@ -44,15 +44,33 @@ class ChatListAdapter(private val viewModel: MainViewModel,
 
         if (otherUser != null) {
             dbHelper.fetchUserByUid(otherUser) { user ->
-                if (user != invalidUser) {
-                    chatListRowBinding.chatUserNameTV.text = user!!.firstName
+                if (user != invalidUser && user != null) {
+                    viewModel.fetchUserImage(user.profileImage, binding.chatUserImage)
+                    binding.chatUserNameTV.text = user.firstName
                 } else {
-                    chatListRowBinding.chatUserNameTV.text = "Unknown User"
+                    binding.chatUserNameTV.text = "Unknown User"
                 }
             }
         }
-        chatListRowBinding.chatMessageTV.text = conversation.lastMessage
+        if (conversation.lastMessage.isEmpty()) {
+            binding.chatMessageTV.text = "No messages yet"
+        } else {
+            if (activeUser?.id == conversation.lastMessageSender) {
+                binding.chatMessageTV.text = "You: ${truncateMessage(conversation.lastMessage)}"
+            } else {
+                binding.chatMessageTV.text = truncateMessage(conversation.lastMessage)
+            }
+        }
     }
+
+    private fun truncateMessage(message: String): String {
+        return if (message.length > 40) {
+            message.substring(0, 40) + "..."
+        } else {
+            message
+        }
+    }
+
 
     class ChatListDiff : DiffUtil.ItemCallback<Conversation>() {
         override fun areItemsTheSame(oldItem: Conversation, newItem: Conversation): Boolean {

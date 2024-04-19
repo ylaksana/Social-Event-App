@@ -6,9 +6,9 @@ data class OSMLocation(
     @SerializedName("place_id")
     val placeId: Long,
     @SerializedName("lat")
-    val latitude: String,
+    val latitude: Double,
     @SerializedName("lon")
-    val longitude: String,
+    val longitude: Double,
     @SerializedName("display_name")
     val displayName: String
 )

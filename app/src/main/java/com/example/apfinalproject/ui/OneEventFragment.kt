@@ -39,6 +39,10 @@ class OneEventFragment: Fragment(){
             navigate(direction)
         }
     }
+    override fun onResume() {
+        super.onResume()
+        (activity as? AppCompatActivity)?.supportActionBar?.hide()
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -53,6 +57,8 @@ class OneEventFragment: Fragment(){
         super.onViewCreated(view, savedInstanceState)
         Log.d(TAG, "onViewCreated")
         (activity as? AppCompatActivity)?.supportActionBar?.hide()
+        viewModel.hideActionBar()
+
         navController = findNavController()
 
         binding.eventDescription.text = args.Event.description

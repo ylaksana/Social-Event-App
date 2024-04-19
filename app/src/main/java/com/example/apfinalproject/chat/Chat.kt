@@ -10,9 +10,10 @@ import com.google.firebase.firestore.ServerTimestamp
 data class Conversation(
     val id: String = "null conversation",
     val userIDs: List<String> = listOf(),
-    val lastMessage: String = "",
     val messages: List<Message> = listOf(),
-    val lastMessageTimestamp: Timestamp? = null
+    val lastMessage: String = "",
+    val lastMessageTimestamp: Timestamp? = null,
+    val lastMessageSender: String = ""
 ) : Parcelable
 
 @Parcelize

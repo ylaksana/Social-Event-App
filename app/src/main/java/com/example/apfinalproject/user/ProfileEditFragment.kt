@@ -13,12 +13,15 @@ import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.NavController
+import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import com.example.apfinalproject.MainViewModel
+import com.example.apfinalproject.R
 import com.example.apfinalproject.databinding.ProfileEditFragmentBinding
 import java.util.UUID
 import com.example.apfinalproject.ui.InterestAdapter
 import com.example.apfinalproject.interest.InterestCategories
+import com.example.apfinalproject.ui.EditEventFragmentDirections
 import com.google.android.flexbox.FlexDirection
 import com.google.android.flexbox.FlexWrap
 import com.google.android.flexbox.FlexboxLayoutManager
@@ -74,6 +77,7 @@ class ProfileEditFragment: Fragment() {
         navController = findNavController()
 //        initAdapters(binding)
         val user = viewModel.getActiveUser()
+
         if (user != null) {
             binding.userName.text = user.firstName
             if (user.bio != "") {
@@ -118,20 +122,29 @@ class ProfileEditFragment: Fragment() {
             }
             viewModel.interestsLiveData.postValue(interestAdapter.tempInterests)
 
+            val navOptions = NavOptions.Builder()
+                .setPopUpTo(R.id.profileFragment, true)
+                .build()
+
             if (newImageUri.value != null) {
                 Log.d(TAG, "Image URI: $newImageUri")
                 uploadUserPhoto(newImageUri.value!!) {
                     if (newUser != null) {
                         newUser.profileImage = newImageUUID!!
                         viewModel.updateUser(newUser)
+                        navController.navigate(
+                            ProfileEditFragmentDirections.actionProfileEditFragmentToProfileFragment(newUser),
+                            navOptions)
                     }
-                    navController.popBackStack()
                 }
             } else {
                 if (newUser != null) {
                     viewModel.updateUser(newUser)
+                    navController.navigate(
+                        ProfileEditFragmentDirections.actionProfileEditFragmentToProfileFragment(newUser),
+                        navOptions)
                 }
-                navController.popBackStack()
+
             }
         }
     }

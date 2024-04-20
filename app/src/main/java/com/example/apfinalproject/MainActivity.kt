@@ -93,13 +93,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun actionBarLaunchSettings() {
-        // XXX Write me
-        actionBarBinding?.settingsButton?.setOnClickListener {
-            navController.safeNavigate(HomeFragmentDirections.actionHomeFragmentToSettingsFragment())
-        }
-    }
-
     private fun actionBarCreateEvent() {
         // XXX Write me
         actionBarBinding?.createButton?.setOnClickListener {
@@ -111,6 +104,13 @@ class MainActivity : AppCompatActivity() {
         // XXX Write me
         actionBarBinding?.eventListButton?.setOnClickListener {
             navController.safeNavigate(HomeFragmentDirections.actionHomeFragmentToEventListFragment())
+        }
+    }
+
+    private fun actionBarChatList() {
+        // XXX Write me
+        actionBarBinding?.chatButton?.setOnClickListener {
+            navController.safeNavigate(HomeFragmentDirections.actionHomeFragmentToChatListFragment())
         }
     }
 
@@ -193,7 +193,7 @@ class MainActivity : AppCompatActivity() {
         initTitleObservers()
         actionBarTitleLaunchProfile()
         actionBarLaunchMap()
-        actionBarLaunchSettings()
+        actionBarChatList()
         actionBarCreateEvent()
         actionBarEventList()
 

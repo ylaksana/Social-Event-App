@@ -123,9 +123,6 @@ class HomeFragment: Fragment() {
         initAdapters(binding)
         initTouchHelper().attachToRecyclerView(binding.eventRV)
 
-        binding.chatButton.setOnClickListener{
-            navController.safeNavigate(HomeFragmentDirections.actionHomeFragmentToChatListFragment())
-        }
     }
 
 }

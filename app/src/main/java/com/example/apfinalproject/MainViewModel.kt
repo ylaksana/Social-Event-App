@@ -23,8 +23,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
 import java.lang.Exception
-import android.net.Uri
-import com.example.apfinalproject.chat.Conversation
 import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.pow
@@ -178,7 +176,7 @@ class MainViewModel : ViewModel() {
         return events
     }
 
-    fun setFilter(filter: String){
+    fun setFilter(filter: String)  {
         filterTerm.value = filter
         Log.d(TAG, "Filter: $filter")
     }
@@ -272,7 +270,12 @@ class MainViewModel : ViewModel() {
         Glide.fetch(path, imageView)
     }
 
-    fun calculateDistanceInMiles(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Double{
+    fun calculateDistanceInMiles(
+        lat1: Double,
+        lon1: Double,
+        lat2: Double,
+        lon2: Double,
+    ): Double  {
         val earthRadius = 3958.75 // in miles, change to 6371 for kilometer output
 
         val dLat = Math.toRadians((lat2 - lat1))
@@ -288,7 +291,10 @@ class MainViewModel : ViewModel() {
         return earthRadius * c
     }
 
-    fun fetchEventImage(uuid: String, imageView: ImageView) {
+    fun fetchEventImage(
+        uuid: String,
+        imageView: ImageView,
+    ) {
         Log.d(TAG, "fetchEventImage: $uuid")
         val path = storage.getEventPhoto(uuid)
         Log.d(TAG, "fetchEventImage: $path")

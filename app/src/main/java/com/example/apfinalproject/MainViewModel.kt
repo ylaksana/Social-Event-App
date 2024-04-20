@@ -176,7 +176,7 @@ class MainViewModel : ViewModel() {
         return events
     }
 
-    fun setFilter(filter: String)  {
+    fun setFilter(filter: String) {
         filterTerm.value = filter
         Log.d(TAG, "Filter: $filter")
     }
@@ -275,7 +275,7 @@ class MainViewModel : ViewModel() {
         lon1: Double,
         lat2: Double,
         lon2: Double,
-    ): Double  {
+    ): Double {
         val earthRadius = 3958.75 // in miles, change to 6371 for kilometer output
 
         val dLat = Math.toRadians((lat2 - lat1))
@@ -421,5 +421,20 @@ class MainViewModel : ViewModel() {
         val locationCoords = osmRepository.fetchLocation(locationName)
         Log.d("OSM", "Fetched location: $location")
         return locationCoords
+    }
+
+    fun fetchConversationsByUserID(
+        userID: String,
+        resultListener: (List<Conversation>) -> Unit,
+    ) {
+        db.fetchUserConvIDs(userID) { convIDs ->
+            if (convIDs.isEmpty()) {
+                resultListener(listOf())
+            } else {
+                db.fetchConvsByIDs(convIDs) { convs ->
+                    resultListener(convs)
+                }
+            }
+        }
     }
 }

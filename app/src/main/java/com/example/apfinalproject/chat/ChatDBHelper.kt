@@ -1,22 +1,19 @@
 package com.example.apfinalproject.chat
 
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.Query
 import android.util.Log
 import com.example.apfinalproject.user.User
 import com.google.firebase.Timestamp
-
-
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
 
 class ChatDBHelper {
     private val TAG = "ChatDBHelper"
     private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
     private val rootCollection = "chats"
 
-
     fun fetchMessages(
         conversationID: String,
-        resultListener: (List<Message>) -> Unit
+        resultListener: (List<Message>) -> Unit,
     ) {
         db.collection(rootCollection)
             .document(conversationID)
@@ -28,16 +25,18 @@ class ChatDBHelper {
                     resultListener(listOf())
                 } else {
                     Log.d(TAG, "fetchMessages: succeeded")
-                    resultListener(querySnapshot!!.documents.mapNotNull {
-                        it.toObject(Message::class.java)
-                    })
+                    resultListener(
+                        querySnapshot!!.documents.mapNotNull {
+                            it.toObject(Message::class.java)
+                        },
+                    )
                 }
             }
     }
 
     fun fetchConversationIDsByUserID(
         userID: String,
-        resultListener: (List<String>)->Unit
+        resultListener: (List<String>) -> Unit,
     ) {
         Log.d(TAG, "fetchConversationsByUserID started")
         db.collection("users")
@@ -54,11 +53,12 @@ class ChatDBHelper {
             }
     }
 
+    // TODO: handle case where conversastion ID is in user list, but not in database
     fun fetchConversationByID(
         conversationIDs: List<String>,
-        resultListener: (List<Conversation>) -> Unit
+        resultListener: (List<Conversation>) -> Unit,
     ) {
-        //TODO: use where to fetch all conversations at once
+        // TODO: use where to fetch all conversations at once
         Log.d(TAG, "fetchConversationByID started $conversationIDs")
         val conversations = mutableListOf<Conversation>()
         conversationIDs.forEach { conversationID ->
@@ -82,7 +82,7 @@ class ChatDBHelper {
     fun getChatUsers(
         userID: String,
         conversationID: String,
-        resultListener: (List<String>) -> Unit
+        resultListener: (List<String>) -> Unit,
     ) {
         db.collection(rootCollection)
             .document(conversationID)
@@ -106,7 +106,7 @@ class ChatDBHelper {
     fun uploadMessage(
         conversationID: String,
         message: Message,
-        resultListener: (Boolean) -> Unit
+        resultListener: (Boolean) -> Unit,
     ) {
         val senderID = message.senderID
         Log.d(TAG, "uploadMessage: started ${message.messageText} $conversationID $senderID")
@@ -127,7 +127,7 @@ class ChatDBHelper {
     fun updateConversationLastMessage(
         conversationID: String,
         message: Message,
-        resultListener: (Boolean) -> Unit
+        resultListener: (Boolean) -> Unit,
     ) {
         Log.d(TAG, "updateConversationLastMessage: started")
         db.collection(rootCollection)
@@ -136,8 +136,8 @@ class ChatDBHelper {
                 mapOf(
                     "lastMessage" to message.messageText,
                     "lastMessageTimestamp" to Timestamp.now(),
-                    "lastMessageSender" to message.senderID
-                )
+                    "lastMessageSender" to message.senderID,
+                ),
             )
             .addOnSuccessListener {
                 Log.d(TAG, "updateConversationLastMessage: succeeded")
@@ -148,5 +148,4 @@ class ChatDBHelper {
                 resultListener(false)
             }
     }
-
 }

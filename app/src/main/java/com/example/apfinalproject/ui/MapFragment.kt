@@ -29,10 +29,7 @@ import org.osmdroid.views.overlay.Marker
 import com.example.apfinalproject.MainViewModel
 import com.example.apfinalproject.R
 import com.example.apfinalproject.event.Event
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+
 import org.osmdroid.util.BoundingBox
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
@@ -40,8 +37,10 @@ import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
+import org.osmdroid.events.MapListener
+import org.osmdroid.events.ScrollEvent
+import org.osmdroid.events.ZoomEvent
 
-import java.util.Locale
 
 class MapFragment : Fragment() {
     private var _binding: MapFragmentBinding? = null
@@ -50,56 +49,113 @@ class MapFragment : Fragment() {
     private val binding get() = _binding!!
     private lateinit var mapView: MapView
     private lateinit var fusedLocationClient: FusedLocationProviderClient
+    private lateinit var adapter: PastEventAdapter
+    private lateinit var boundingBox: BoundingBox
+    private lateinit var userLocation: GeoPoint
+    private var allEvents: List<Event> = mutableListOf()
+    private var filteredEvents: List<Event> = mutableListOf()
     private var userLatitude: Double = 0.0
     private var userLongitude: Double = 0.0
+    private var distance : String = ""
 
-    private fun initAdapter(binding: MapFragmentBinding, boundingBox: BoundingBox) {
+    private fun initAdapter(binding: MapFragmentBinding) {
         val rv = binding.eventRV
         rv.layoutManager = LinearLayoutManager(context)
-        val adapter = PastEventAdapter(viewModel) {
+        adapter = PastEventAdapter(viewModel) {
             // Navigate to OneEvent
             navController.navigate(
                 MapFragmentDirections.actionMapFragmentToOneEventFragment(it)
             )
         }
         rv.adapter = adapter
-        // Get the min and max for the x and y coordinates
+    }
+
+    private fun updateEventsBasedOnBoundingBox() {
+        filteredEvents = filterEvents(allEvents, boundingBox)
+        adapter.submitList(filteredEvents)
+        setEventMarkers(filteredEvents)
+    }
+
+    // Function for filtering events based on the bounding box
+    private fun filterEvents(events: List<Event>, boundingBox: BoundingBox): List<Event> {
         val minX = boundingBox.lonWest
         val maxX = boundingBox.lonEast
         val minY = boundingBox.latSouth
         val maxY = boundingBox.latNorth
-        // Log the values
         Log.d("MapFragment", "Min X: $minX, Max X: $maxX, Min Y: $minY, Max Y: $maxY")
-        viewModel.setEvents(false)
-        viewModel.observeNetTypeEvents().observe(viewLifecycleOwner) { events ->
-            viewModel.observeLocations().observe(viewLifecycleOwner) { locations ->
-                val filteredEvents = events.filterIndexed { index, _ ->
-                    val lat = locations[index].latitude
-                    val long = locations[index].longitude
-                    lat in minY..maxY && long in minX..maxX
-                }
-                adapter.submitList(filteredEvents)
-                if(filteredEvents.isEmpty()){
-                    binding.noEvents.visibility = View.VISIBLE
-                }
-                else{
-                    binding.noEvents.visibility = View.GONE
-                }
+        return events.filter{ event ->
+            event.latitude in minY..maxY && event.longitude in minX..maxX
+        }
+    }
 
-                // Add a marker for each filtered event
-                filteredEvents.forEachIndexed { index, event ->
-                    val eventLocation = GeoPoint(locations[index].latitude.toDouble(), locations[index].longitude.toDouble())
-                    val marker = Marker(mapView)
-                    marker.position = eventLocation
-                    marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
-                    marker.title = event.title
-                    mapView.overlays.add(marker)
-                    Log.d("MapFragment", "Added marker at: ${marker.position.latitude}, ${marker.position.longitude}")
-                }
-
-                // Redraw the map
-                mapView.invalidate()
+    private fun setEventMarkers(events: List<Event>) {
+        mapView.overlays.clear()
+        Marker(mapView).apply {
+            position = GeoPoint(userLatitude, userLongitude)
+            setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
+            icon = ResourcesCompat.getDrawable(resources, R.drawable.home, null)
+            title = "Current Location"
+            mapView.overlays.add(this)
+        }
+        if(events.isEmpty()){
+            binding.noEvents.visibility = View.VISIBLE
+        }
+        else{
+            binding.noEvents.visibility = View.GONE
+        }
+        events.forEach { nonUserEvent ->
+            Log.d("MapFragment", "Event: ${nonUserEvent.title}, ${nonUserEvent.latitude}, ${nonUserEvent.longitude}")
+            Marker(mapView).apply {
+                position = GeoPoint(nonUserEvent.latitude, nonUserEvent.longitude)
+                distance = String.format("%.2f",
+                    viewModel.calculateDistanceInMiles(userLatitude,
+                        userLongitude,
+                        nonUserEvent.latitude,
+                        nonUserEvent.longitude))
+                setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
+                title = "${nonUserEvent.title}\n${distance} miles away"
+                mapView.overlays.add(this)
+                Log.d("MapFragment", "Added marker at: ${position.latitude}, ${position.longitude}")
             }
+        }
+        // Redraw the map
+        mapView.invalidate()
+    }
+
+    // Function for setting new user location
+    private fun setNewLocation(location:Location?){
+        if (location != null) {
+            userLatitude = location.latitude
+            userLongitude = location.longitude
+            Log.d("MapFragment", "Last Location: Latitude: $userLatitude, Longitude: $userLongitude")
+            Log.d("OSM", "Last Location: $location")
+            // Initialize the map controller here
+            val mapController = mapView.controller
+            mapController.setZoom(12.0)
+            mapController.setCenter(GeoPoint(userLatitude,userLongitude))
+            mapView.overlays.clear()
+
+            userLocation = GeoPoint(location.latitude, location.longitude)
+
+            // Create a new Marker at the user's current location
+            val marker = Marker(mapView)
+            marker.position = userLocation
+            marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
+            marker.title = "Current Location"
+            marker.icon = ResourcesCompat.getDrawable(resources, R.drawable.home, null)
+            // Add the marker to the map's overlays
+            mapView.overlays.add(marker)
+
+            // Get the current bounding box of the visible area
+            boundingBox = mapView.boundingBox
+
+            // Log the values
+            viewModel.setEvents(false)
+            updateEventsBasedOnBoundingBox()
+        }
+        else {
+            Log.d("MapFragment", "Last location is null")
+            binding.noEvents.visibility = View.VISIBLE
         }
     }
 
@@ -130,22 +186,22 @@ class MapFragment : Fragment() {
             fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.myLooper())
         }
     }
-    
-    private fun moveCamera(location: String) {
-        val mapController = mapView.controller
-        viewModel.setLocationTerm(location)
-        viewModel.observeLocations().observe(viewLifecycleOwner) { locations ->
-            Log.d("OSM", "MapFragment, observeLocations: $locations")
-            if (locations.isNotEmpty()) {
-                val lat = locations[0].latitude.toDouble()
-                Log.d("OSM", "Lat: $lat")
-                val long = locations[0].longitude.toDouble()
-                Log.d("OSM", "Long: $long")
-                mapController.setZoom(17.0)
-                mapController.setCenter(GeoPoint(lat, long))
-            }
-        }
-    }
+
+//    private fun moveCamera(location: String) {
+//        val mapController = mapView.controller
+//        viewModel.setLocationTerm(location)
+//        viewModel.observeLocations().observe(viewLifecycleOwner) { locations ->
+//            Log.d("OSM", "MapFragment, observeLocations: $locations")
+//            if (locations.isNotEmpty()) {
+//                val lat = locations[0].latitude.toDouble()
+//                Log.d("OSM", "Lat: $lat")
+//                val long = locations[0].longitude.toDouble()
+//                Log.d("OSM", "Long: $long")
+//                mapController.setZoom(17.0)
+//                mapController.setCenter(GeoPoint(lat, long))
+//            }
+//        }
+//    }
 
     override fun onResume() {
         super.onResume()
@@ -178,63 +234,58 @@ class MapFragment : Fragment() {
         // Now it's safe to request new location data
         requestNewLocationData()
 
+        viewModel.observeNetTypeEvents().observe(viewLifecycleOwner) { events ->
+            // Save the events
+            allEvents = events
+        }
+
+        initAdapter(binding)
+
         mapView = binding.mapFrag
         mapView.setTileSource(TileSourceFactory.MAPNIK)
         mapView.setMultiTouchControls(true)
         mapView.zoomController.setVisibility(CustomZoomButtonsController.Visibility.ALWAYS)
 
+
         fusedLocationClient.lastLocation
             .addOnSuccessListener { location: Location? ->
                 Log.d("MapFragment", "Last Location: $location")
                 // Use the location object as needed
-                if (location != null) {
-                    userLatitude = location.latitude
-                    userLongitude = location.longitude
-                    Log.d("MapFragment", "Last Location: Latitude: $userLatitude, Longitude: $userLongitude")
-                    Log.d("OSM", "Last Location: $location")
-                    // Initialize the map controller here
-                    val mapController = mapView.controller
-                    mapController.setZoom(13.0)
-                    mapController.setCenter(GeoPoint(userLatitude,userLongitude))
-                    mapView.overlays.clear()
+                setNewLocation(location)
 
-                    val userLocation = GeoPoint(location.latitude, location.longitude)
-
-                    // Create a new Marker at the user's current location
-                    val marker = Marker(mapView)
-                    marker.position = userLocation
-                    marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
-                    marker.title = "Current Location"
-                    marker.icon = ResourcesCompat.getDrawable(resources, R.drawable.home, null)
-                    // Add the marker to the map's overlays
-                    mapView.overlays.add(marker)
-
-                    // Get the current bounding box of the visible area
-                    val boundingBox = mapView.boundingBox
-
-                    // Set up adapter for event list
-                    initAdapter(binding, boundingBox)
-                }
-                else {
-                    Log.d("MapFragment", "Last location is null")
-                    binding.noEvents.visibility = View.VISIBLE
-                }
             }
 
+        // Find the navController
         navController = findNavController()
-
 
         // Back Button
         _binding?.backButton?.setOnClickListener{
             navController.popBackStack()
         }
 
-        // Go Button
-        _binding?.goBut?.setOnClickListener{
-            moveCamera(binding.searchBar.text.toString())
-        }
+//        // Go Button
+//        _binding?.goBut?.setOnClickListener{
+//            moveCamera(binding.searchBar.text.toString())
+//        }
 
+        // Add a map listener for when the user moves and zooms the map
+        mapView.addMapListener(object : MapListener {
+            override fun onScroll(event: ScrollEvent?): Boolean {
+                // Code to execute when the map is scrolled
+                Log.d("OSM", "Map scrolled")
+                // Get the current bounding box of the visible area
+                boundingBox = mapView.boundingBox
+                updateEventsBasedOnBoundingBox()
+                return true
+            }
 
+            override fun onZoom(event: ZoomEvent?): Boolean {
+                // Code to execute when the map is zoomed
+                boundingBox = mapView.boundingBox
+                updateEventsBasedOnBoundingBox()
+                return true
+            }
+        })
 
         // Set user agent to prevent getting banned from the OSM servers
         Configuration.getInstance().userAgentValue = "SwipeMeet"

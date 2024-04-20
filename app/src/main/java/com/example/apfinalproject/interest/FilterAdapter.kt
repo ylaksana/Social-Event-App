@@ -14,13 +14,28 @@ class FilterAdapter(private val viewModel: MainViewModel)
     : ListAdapter<InterestCategories.Interest, FilterAdapter.VH>(InterestDiff()){
 
         private var currentPosition = 0
+        private var previousPosition = 0
+
+    private fun getFirstSelectedIndex(): Int {
+        for (i in 0 until itemCount) {
+            if (getItem(i).selected) {
+                return i
+            }
+        }
+        return -1 // return -1 if no item is selected
+    }
 
     inner class VH(val rowPostBinding : InterestItemBinding)
         : RecyclerView.ViewHolder(rowPostBinding.root) {
         init {
             itemView.setOnClickListener {
                 Log.d("Binding index" , "$bindingAdapterPosition")
-                val previousPosition: Int = currentPosition
+                val firstSelectedIndex = getFirstSelectedIndex()
+                previousPosition = if (firstSelectedIndex != -1) {
+                    firstSelectedIndex
+                } else {
+                    bindingAdapterPosition
+                }
                 currentPosition = bindingAdapterPosition
                 val previousItem = getItem(previousPosition)
                 val item = getItem(currentPosition)

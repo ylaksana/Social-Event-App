@@ -12,6 +12,7 @@ import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.apfinalproject.MainActivity
 import com.google.android.flexbox.*
 import com.example.apfinalproject.ui.InterestAdapter
 import com.example.apfinalproject.MainViewModel
@@ -27,41 +28,28 @@ class ProfileFragment: Fragment() {
     private val TAG = "ProfileFragment"
     private val args: ProfileFragmentArgs by navArgs()
 
-    private fun initAdapters(binding: ProfileFragmentBinding) {
+    private fun initEventAdapter() {
         Log.d(TAG, "initAdapters")
         // Event RV
-        viewModel.fetchMyEvents {myEvents ->
-            Log.d(TAG, "fetchMyEvents size = ${myEvents.size}")
-            if (myEvents.isEmpty()) {
-                binding.pastEventsRV.visibility = View.GONE
-                binding.noPastEvents.visibility = View.VISIBLE
+        viewModel.observeAllEvents().observe(viewLifecycleOwner) {allEvents ->
+            Log.d(TAG, "allEvents size = ${allEvents.size}")
+            val userEvents = allEvents.filter { it.creator == args.User.id }
+            Log.d(TAG, "userEvents size = ${userEvents.size}")
+            if (userEvents.isEmpty()) {
+                binding.userEventsRV.visibility = View.GONE
+                binding.noUserEvents.visibility = View.VISIBLE
             } else {
-                binding.noPastEvents.visibility = View.GONE
-                binding.pastEventsRV.visibility = View.VISIBLE
+                binding.noUserEvents.visibility = View.GONE
+                binding.userEventsRVHolder.visibility = View.VISIBLE
 
                 val adapter = PastEventAdapter(viewModel) {
-                    navController.navigate(ProfileFragmentDirections.actionProfileFragmentToOneEventFragment(it))
+                    navController.navigate(
+                        ProfileFragmentDirections.actionProfileFragmentToOneEventFragment(it))
                 }
-                binding.pastEventsRV.adapter = adapter
-                adapter.submitList(myEvents)
-                binding.pastEventsRV.layoutManager = LinearLayoutManager(context)
+                binding.userEventsRV.adapter = adapter
+                adapter.submitList(userEvents)
+                binding.userEventsRV.layoutManager = LinearLayoutManager(context)
             }
-        }
-
-
-        // Don't initialize the adapter if there are no events
-
-
-        // Interest RV
-        val interestAdapter = InterestAdapter(viewModel)
-        binding.interestsRV.adapter = interestAdapter
-        viewModel.observeInterests().observe(viewLifecycleOwner) {
-            interestAdapter.submitList(it)
-        }
-        binding.interestsRV.layoutManager = FlexboxLayoutManager(context).apply {
-            flexDirection = FlexDirection.ROW
-            flexWrap = FlexWrap.WRAP
-            justifyContent = JustifyContent.FLEX_START
         }
     }
 
@@ -85,26 +73,57 @@ class ProfileFragment: Fragment() {
         super.onViewCreated(view, savedInstanceState)
         (activity as? AppCompatActivity)?.supportActionBar?.hide()
         viewModel.hideActionBar()
-
-        initAdapters(binding)
-        val user = args.User
         navController = findNavController()
 
+        val user = args.User
         binding.userName.text = user.firstName
         binding.profileBio.text = user.bio
         viewModel.fetchUserImage(user.profileImage, binding.profileImage)
-
         if (user.id == viewModel.getActiveUser()?.id) {
-            binding.editProfileButton.visibility = View.VISIBLE
-            binding.editProfileButton.setOnClickListener {
-                // Navigate to EditProfile
-                navController.navigate(ProfileFragmentDirections.actionProfileFragmentToProfileEditFragment())
-            }
+            setActiveUserView()
         } else {
-            binding.editProfileButton.visibility = View.GONE
+            setOtherUserView()
         }
+        initInterestAdapter(binding)
+
         binding.backButton.setOnClickListener() {
             navController.popBackStack()
+        }
+    }
+
+    private fun setActiveUserView() {
+        binding.userEventsRVHolder.visibility = View.GONE
+
+        binding.editProfileButton.visibility = View.VISIBLE
+        binding.editProfileButton.setOnClickListener {
+            navController.navigate(
+                ProfileFragmentDirections.actionProfileFragmentToProfileEditFragment())
+        }
+
+        binding.logoutButton.visibility = View.VISIBLE
+        binding.logoutButton.setOnClickListener() {
+            (activity as MainActivity).getAuthUser().logout()
+            navController.navigate(
+                ProfileFragmentDirections.actionProfileFragmentToHomeFragment())
+        }
+    }
+
+    private fun setOtherUserView() {
+        binding.editProfileButton.visibility = View.GONE
+        binding.logoutButton.visibility = View.GONE
+        initEventAdapter()
+    }
+
+    private fun initInterestAdapter(binding: ProfileFragmentBinding) {
+        val interestAdapter = InterestAdapter(viewModel)
+        binding.interestsRV.adapter = interestAdapter
+
+        interestAdapter.submitList(args.User.userInterests)
+
+        binding.interestsRV.layoutManager = FlexboxLayoutManager(context).apply {
+            flexDirection = FlexDirection.ROW
+            flexWrap = FlexWrap.WRAP
+            justifyContent = JustifyContent.FLEX_START
         }
     }
 

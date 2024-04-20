@@ -223,24 +223,26 @@ class ViewModelDBHelper {
             }
     }
 
-    // Fetches event by uid from "events" collection and converts it to an Event object
-    // This is used for grabbing event IDs on a user object (and later converting them to events)
-    fun fetchEventByUid(
-        uid: String,
-        resultListener: (Event?)->Unit
+    // Fetches events in list of ids from "events" collection
+    // and converts it to an Event object
+    fun fetchEventsByUserId(
+        userId: String,
+        resultListener: (List<Event>)->Unit
     ) {
         Log.d(TAG, "fetchEvent started")
         db.collection("events")
-            .document(uid)
+            .whereEqualTo("creator", userId)
             .get()
             .addOnSuccessListener { result ->
-                Log.d(TAG, "event fetch succeeded for $uid")
+                Log.d(TAG, "event fetch succeeded for")
                 // NB: This is done on a background thread
-                resultListener(result.toObject(Event::class.java))
+                resultListener(result.documents.mapNotNull {
+                    it.toObject(Event::class.java)
+                })
             }
             .addOnFailureListener {
                 Log.d(TAG, "event fetch failed", it)
-                resultListener(null)
+                resultListener(listOf())
             }
     }
 

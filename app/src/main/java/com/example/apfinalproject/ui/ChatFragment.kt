@@ -25,8 +25,11 @@ class ChatFragment : Fragment() {
     private val chatDBHelper = ChatDBHelper()
     private val dBHelper = ViewModelDBHelper()
     private var chatAdapter: ChatAdapter? = null
-    private var _binding: ChatFragmentBinding? = null
-    private val binding get() = _binding!!
+
+//    private var binding: ChatFragmentBinding
+    private lateinit var binding: ChatFragmentBinding
+
+//    private val binding get() = _binding!!
     private lateinit var navController: NavController
     private val args: ChatFragmentArgs by navArgs()
 
@@ -36,7 +39,7 @@ class ChatFragment : Fragment() {
         savedInstanceState: Bundle?,
     ): View {
         Log.d(TAG, "onCreateView")
-        _binding = ChatFragmentBinding.inflate(inflater, container, false)
+        binding = ChatFragmentBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -93,14 +96,17 @@ class ChatFragment : Fragment() {
                 chatDBHelper.uploadMessage(conversationID, message) {
                     Log.d(TAG, "Message uploaded")
                     if (it) {
-                        chatAdapter?.notifyItemChanged(chatAdapter!!.itemCount - 1)
+                        // Figure out how to update the last item in the recycler view
+                        // itemChangedAt does update up the time initially, only on reload
+                        // I think this is because the timestamp is set by firestore on upload
+                        chatAdapter?.notifyDataSetChanged()
                         binding.chatRV.scrollToPosition(chatAdapter!!.itemCount - 1)
+                        // Update the conversation's last message and timestamp
+                        chatDBHelper.updateConversationLastMessage(conversationID, message) {
+                            Log.d(TAG, "Conversation updated")
+                        }
                     } else {
                         Log.d(TAG, "Failed to upload message")
-                    }
-                    // Update the conversation's last message and timestamp
-                    chatDBHelper.updateConversationLastMessage(conversationID, message) {
-                        Log.d(TAG, "Conversation updated")
                     }
                 }
             }
@@ -113,10 +119,5 @@ class ChatFragment : Fragment() {
         binding.backButton.setOnClickListener {
             navController.navigate(ChatFragmentDirections.actionChatFragmentToChatListFragment())
         }
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
     }
 }

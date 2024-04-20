@@ -22,6 +22,11 @@ import retrofit2.HttpException
 import java.lang.Exception
 import android.net.Uri
 import com.example.apfinalproject.chat.Conversation
+import kotlin.math.atan2
+import kotlin.math.cos
+import kotlin.math.pow
+import kotlin.math.sin
+import kotlin.math.sqrt
 
 class MainViewModel: ViewModel() {
     companion object {
@@ -225,6 +230,22 @@ class MainViewModel: ViewModel() {
         val path = storage.getUserPhoto(uuid)
         Log.d(TAG, "fetchUserImage: $path")
         Glide.fetch(path, imageView)
+    }
+
+    fun calculateDistanceInMiles(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Double{
+        val earthRadius = 3958.75 // in miles, change to 6371 for kilometer output
+
+        val dLat = Math.toRadians((lat2 - lat1))
+        val dLng = Math.toRadians((lon2 - lon1))
+
+        val sindLat = sin(dLat / 2)
+        val sindLng = sin(dLng / 2)
+
+        val a = sindLat.pow(2.0) + (sindLng.pow(2.0) * cos(Math.toRadians(lat1)) * cos(Math.toRadians(lat2)))
+
+        val c = 2 * atan2(sqrt(a), sqrt(1 - a))
+
+        return earthRadius * c
     }
 
     fun fetchEventImage(uuid: String, imageView: ImageView) {

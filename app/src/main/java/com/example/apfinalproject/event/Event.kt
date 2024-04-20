@@ -10,6 +10,8 @@ class Event(
     var date: String = "No Date",
     var time: String = "No Time",
     var location: String = "No Location",
+    var latitude: Double = 0.0,
+    var longitude: Double = 0.0,
     var creator: String = "No Creator",
     var type: String = "No Type",
     var imageName: String = "default.jpg",

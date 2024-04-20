@@ -51,6 +51,7 @@ class MapFragment : Fragment() {
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var adapter: PastEventAdapter
     private lateinit var boundingBox: BoundingBox
+    private lateinit var userLocation: GeoPoint
     private var allEvents: List<Event> = mutableListOf()
     private var filteredEvents: List<Event> = mutableListOf()
     private var userLatitude: Double = 0.0
@@ -89,6 +90,14 @@ class MapFragment : Fragment() {
     }
 
     private fun setEventMarkers(events: List<Event>) {
+        mapView.overlays.clear()
+        Marker(mapView).apply {
+            position = GeoPoint(userLatitude, userLongitude)
+            setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
+            icon = ResourcesCompat.getDrawable(resources, R.drawable.home, null)
+            title = "Current Location"
+            mapView.overlays.add(this)
+        }
         if(events.isEmpty()){
             binding.noEvents.visibility = View.VISIBLE
         }
@@ -127,7 +136,7 @@ class MapFragment : Fragment() {
             mapController.setCenter(GeoPoint(userLatitude,userLongitude))
             mapView.overlays.clear()
 
-            val userLocation = GeoPoint(location.latitude, location.longitude)
+            userLocation = GeoPoint(location.latitude, location.longitude)
 
             // Create a new Marker at the user's current location
             val marker = Marker(mapView)

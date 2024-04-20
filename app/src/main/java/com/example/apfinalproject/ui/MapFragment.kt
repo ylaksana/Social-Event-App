@@ -58,7 +58,6 @@ class MapFragment : Fragment() {
     private var userLongitude: Double = 0.0
     private var distance : String = ""
 
-
     private fun initAdapter(binding: MapFragmentBinding) {
         val rv = binding.eventRV
         rv.layoutManager = LinearLayoutManager(context)

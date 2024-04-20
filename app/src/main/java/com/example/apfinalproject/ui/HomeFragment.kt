@@ -10,21 +10,18 @@ import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 //import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-
 import androidx.navigation.NavController
 import androidx.navigation.NavDirections
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.example.apfinalproject.MainViewModel
-//import com.example.apfinalproject.api.ImageRepository
 import com.example.apfinalproject.databinding.HomeFragmentBinding
 import com.example.apfinalproject.event.EventAdapter
 import com.example.apfinalproject.interest.FilterAdapter
 import com.example.apfinalproject.interest.InterestCategories
 
 class HomeFragment: Fragment() {
-//     XXX initialize viewModel
     companion object {
         private const val TAG = "HomeFragment"
     }
@@ -69,7 +66,7 @@ class HomeFragment: Fragment() {
                         viewModel.addEventSwipe(eventId, direction)
                         viewModel.removeEventFromView(event)
 
-                        //TODO: find new way to update, itemRemovedAt duplicated bound objects
+                        // find new way to update, itemRemovedAt duplicated bound objects
                         adapter?.notifyDataSetChanged()
                     }
                 }

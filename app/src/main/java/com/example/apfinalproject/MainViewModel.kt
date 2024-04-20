@@ -1,20 +1,23 @@
 package com.example.apfinalproject
 
+import android.location.Location
+import android.net.Uri
 import android.util.Log
 import android.widget.ImageView
 import androidx.core.view.isGone
-import androidx.lifecycle.ViewModel
-import com.example.apfinalproject.databinding.ActionBarBinding
-import com.example.apfinalproject.event.Event
-import com.example.apfinalproject.user.User
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.apfinalproject.chat.Conversation
+import com.example.apfinalproject.databinding.ActionBarBinding
+import com.example.apfinalproject.event.Event
 import com.example.apfinalproject.glide.Glide
 import com.example.apfinalproject.osm.OSMApi
 import com.example.apfinalproject.osm.OSMLocation
 import com.example.apfinalproject.osm.OSMRepository
+import com.example.apfinalproject.user.User
 import com.example.apfinalproject.user.invalidUser
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -28,104 +31,130 @@ import kotlin.math.pow
 import kotlin.math.sin
 import kotlin.math.sqrt
 
-class MainViewModel: ViewModel() {
+class MainViewModel : ViewModel() {
     companion object {
         private const val TAG = "MainViewModel"
     }
-    init {
-        Log.d(TAG, ">>init")
-    }
-    private var actionBarBinding : ActionBarBinding? = null
+
+    private var actionBarBinding: ActionBarBinding? = null
     private val storage = Storage()
     private val db = ViewModelDBHelper()
     private val filterTerm: MutableLiveData<String> = MutableLiveData()
     private var isMyEvents: MutableLiveData<Boolean> = MutableLiveData()
+    private val _location = MutableLiveData<Location>()
+    val location: LiveData<Location> get() = _location
 
-    var activeUser = MutableLiveData<User>().apply {
-        Log.d(TAG, ">>activeUser init")
-        invalidUser
+    fun updateLocation(location: Location) {
+        _location.postValue(location)
     }
+
+    fun observeUserLocation(): LiveData<Location> {
+        return location
+    }
+
+    fun getDistance(
+        lat1: Double,
+        lon1: Double,
+        lat2: Double,
+        lon2: Double,
+    ): Float {
+        val results = FloatArray(1)
+        Location.distanceBetween(lat1, lon1, lat2, lon2, results)
+        return results[0]
+    }
+
+    var activeUser =
+        MutableLiveData<User>().apply {
+            Log.d(TAG, ">>activeUser init")
+            invalidUser
+        }
 
     private var events = MutableLiveData<List<Event>>()
 
-    private var nonUserEvents = MediatorLiveData<List<Event>>().apply {
-        addSource(events) { originalList ->
-            val filteredList = originalList.filter { event ->
-                Log.d(TAG, "Filtering events: ${event.title}")
-                Log.d(TAG, "Active user: ${activeUser.value?.id}")
-                Log.d(TAG, "Event.yesSwipes: ${event.yesSwipes}")
-                Log.d(TAG, "event.noSwipes: ${event.noSwipes}")
-                event.creator != activeUser.value?.id
+    private var nonUserEvents =
+        MediatorLiveData<List<Event>>().apply {
+            addSource(events) { originalList ->
+                val filteredList =
+                    originalList.filter { event ->
+                        Log.d(TAG, "Filtering events: ${event.title}")
+                        Log.d(TAG, "Active user: ${activeUser.value?.id}")
+                        Log.d(TAG, "Event.yesSwipes: ${event.yesSwipes}")
+                        Log.d(TAG, "event.noSwipes: ${event.noSwipes}")
+                        event.creator != activeUser.value?.id
+                    }
+                Log.d("NonUserEvents", "Fetched events: $filteredList")
+                postValue(filteredList)
             }
-            Log.d("NonUserEvents", "Fetched events: $filteredList")
-            postValue(filteredList)
         }
-    }
 
     // OSM
     private val osmAPI = OSMApi.create()
     private val osmRepository = OSMRepository(osmAPI)
     private var searchLocation = MutableLiveData<String>()
 
-    private var netLocations =  MediatorLiveData<List<OSMLocation>>().apply{
-        addSource(nonUserEvents) { events ->
-            Log.d("OSM", "Fetching locations")
-            try {
-                viewModelScope.launch(Dispatchers.IO) {
-                    val locations = osmRepository.fetchLocations(events)
-                    Log.d("OSM", "Fetched locations: $locations")
-                    if (locations.isNotEmpty()) {
-                        // Post the location to a LiveData object
-                        postValue(locations)
+    private var netLocations =
+        MediatorLiveData<List<OSMLocation>>().apply {
+            addSource(nonUserEvents) { events ->
+                Log.d("OSM", "Fetching locations")
+                try {
+                    viewModelScope.launch(Dispatchers.IO) {
+                        val locations = osmRepository.fetchLocations(events)
+                        Log.d("OSM", "Fetched locations: $locations")
+                        if (locations.isNotEmpty()) {
+                            // Post the location to a LiveData object
+                            postValue(locations)
+                        }
                     }
+                } catch (e: HttpException) {
+                    Log.e("HTTP Error", "Error fetching posts: ${e.code()}")
+                } catch (e: Exception) {
+                    Log.e("General Error", "Error in fetching from API: ${e.message}")
                 }
-            } catch(e: HttpException) {
-                Log.e("HTTP Error", "Error fetching posts: ${e.code()}")
-            } catch(e: Exception) {
-                Log.e("General Error", "Error in fetching from API: ${e.message}")
             }
         }
-    }
 
+    private var netTypeEvents =
+        MediatorLiveData<List<Event>>().apply {
+            addSource(nonUserEvents) { events ->
+                val term = filterTerm.value
+                var filteredEvents = events
+                if (!term.isNullOrEmpty()) {
+                    filteredEvents =
+                        events.filter { event ->
+                            event.type == term
+                        }
+                }
+                postValue(filteredEvents)
+            }
+            addSource(filterTerm) { term ->
+                val events = nonUserEvents.value
+                var filteredEvents = events
+                if (!term.isNullOrEmpty() && events != null) {
+                    filteredEvents =
+                        events.filter { event ->
+                            event.type == term
+                        }
+                }
+                postValue(filteredEvents)
+            }
+        }
 
-    private var netTypeEvents = MediatorLiveData<List<Event>>().apply {
-        addSource(nonUserEvents) { events ->
-            val term = filterTerm.value
-            var filteredEvents = events
-            if (!term.isNullOrEmpty()) {
-                filteredEvents = events.filter { event ->
-                    event.type == term
+    private var netUserEvents =
+        MediatorLiveData<List<Event>>().apply {
+            addSource(isMyEvents) { switch ->
+                var userEvents = nonUserEvents.value
+                if (switch) {
+                    userEvents =
+                        events.value?.filter { event ->
+                            event.creator == activeUser.value?.id
+                        }
                 }
+                postValue(userEvents)
             }
-            postValue(filteredEvents)
         }
-        addSource(filterTerm) { term ->
-            val events = nonUserEvents.value
-            var filteredEvents = events
-            if (!term.isNullOrEmpty() && events != null) {
-                filteredEvents = events.filter { event ->
-                    event.type == term
-                }
-            }
-            postValue(filteredEvents)
-        }
-    }
-
-    private var netUserEvents = MediatorLiveData<List<Event>>().apply {
-        addSource(isMyEvents) { switch ->
-            var userEvents = nonUserEvents.value
-            if (switch) {
-                userEvents = events.value?.filter { event ->
-                    event.creator == activeUser.value?.id
-                }
-            }
-            postValue(userEvents)
-        }
-    }
 
     fun getStorage(): Storage {
         return storage
-
     }
 
     fun observeLocations(): LiveData<List<OSMLocation>> {
@@ -136,7 +165,6 @@ class MainViewModel: ViewModel() {
     fun setLocationTerm(term: String) {
         searchLocation.postValue(term)
     }
-
 
     fun observeUserEvents(): LiveData<List<Event>> {
         return netUserEvents
@@ -155,28 +183,32 @@ class MainViewModel: ViewModel() {
         Log.d(TAG, "Filter: $filter")
     }
 
-    fun setEvents(switch: Boolean){
-            isMyEvents.value = switch
+    fun setEvents(switch: Boolean) {
+        isMyEvents.value = switch
     }
 
     // Convert these to Event/Interest objects later
-    private var pastEventsLiveData = MutableLiveData<List<Event>>().apply {
-        this.postValue(listOf())
-    }
-
-    // TODO: need to reset interests when logging out and creating new account
-    var interestsLiveData = MediatorLiveData<List<String>>().apply {
-        value = listOf()
-        addSource(activeUser) { user ->
-            postValue(user.userInterests)
+    private var pastEventsLiveData =
+        MutableLiveData<List<Event>>().apply {
+            this.postValue(listOf())
         }
-    }
+
+    var interestsLiveData =
+        MediatorLiveData<List<String>>().apply {
+            value = listOf()
+            addSource(activeUser) { user ->
+                postValue(user.userInterests)
+            }
+        }
 
     /** Checks if the user has already created a profile, then sets active user
      * @param userId: String - the user's id
      * @param resultListener: (User) -> Unit - navigates to CreateUserFrag if user is invalidUser
      */
-    fun setActiveUser(userId: String, resultListener: (User) -> Unit) {
+    fun setActiveUser(
+        userId: String,
+        resultListener: (User) -> Unit,
+    ) {
         Log.d(TAG, "checking isUserInDB: $userId")
         db.fetchUserByUid(userId) { user ->
             Log.d(TAG, "isUserInDB: ${user?.id} : ${user?.displayName}")
@@ -217,11 +249,11 @@ class MainViewModel: ViewModel() {
         actionBarBinding = it
     }
 
-    fun hideActionBar(){
+    fun hideActionBar() {
         actionBarBinding?.root?.isGone = true
     }
 
-    fun showActionBar(){
+    fun showActionBar() {
         actionBarBinding?.root?.isGone = false
     }
 
@@ -230,7 +262,10 @@ class MainViewModel: ViewModel() {
         activeUser.value?.id?.let { db.updateUser(it, newUser) }
     }
 
-    fun fetchUserImage(uuid: String, imageView: ImageView) {
+    fun fetchUserImage(
+        uuid: String,
+        imageView: ImageView,
+    ) {
         Log.d(TAG, "fetchUserImage: $uuid")
         val path = storage.getUserPhoto(uuid)
         Log.d(TAG, "fetchUserImage: $path")
@@ -272,22 +307,32 @@ class MainViewModel: ViewModel() {
         db.createEvent(newEvent) {}
     }
 
-    fun uploadImage(imageUri: Uri, collection: String, resultListener: (String) -> Unit) {
+    fun uploadImage(
+        imageUri: Uri,
+        collection: String,
+        resultListener: (String) -> Unit,
+    ) {
         Log.d(TAG, "uploadImage to $collection: $imageUri")
         viewModelScope.launch(Dispatchers.IO) {
             storage.uploadImage(imageUri, collection, resultListener)
         }
     }
 
-    fun deleteImage(uuid: String, collection: String) {
+    fun deleteImage(
+        uuid: String,
+        collection: String,
+    ) {
         Log.d(TAG, "deleteImage: $uuid")
         viewModelScope.launch(Dispatchers.IO) {
             storage.deleteImage(uuid, collection)
         }
     }
 
-    fun addEventSwipe(eventId: String, direction: Int) {
-        when(direction) {
+    fun addEventSwipe(
+        eventId: String,
+        direction: Int,
+    ) {
+        when (direction) {
             4 -> db.addEventSwipe(eventId, activeUser.value?.id!!, "noSwipes")
             8 -> db.addEventSwipe(eventId, activeUser.value?.id!!, "yesSwipes")
         }
@@ -299,13 +344,19 @@ class MainViewModel: ViewModel() {
         netTypeEvents.postValue(currentEvents)
     }
 
-    fun fetchUserByUid(uid: String, resultListener: (User?) -> Unit) {
+    fun fetchUserByUid(
+        uid: String,
+        resultListener: (User?) -> Unit,
+    ) {
         db.fetchUserByUid(uid) {
             resultListener(it)
         }
     }
 
-    fun fetchUsersByUids(uids: List<String>, resultListener: (List<User>) -> Unit) {
+    fun fetchUsersByUids(
+        uids: List<String>,
+        resultListener: (List<User>) -> Unit,
+    ) {
         db.fetchUsersByUids(uids) {
             resultListener(it)
         }
@@ -320,9 +371,10 @@ class MainViewModel: ViewModel() {
         }
     }
 
-    fun enterChatRoom(userId: String,
-                      otherUserId: String,
-                      resultListener: (Conversation) -> Unit
+    fun enterChatRoom(
+        userId: String,
+        otherUserId: String,
+        resultListener: (Conversation) -> Unit,
     ) {
         Log.d(TAG, "enterChatRoom start")
         Log.d(TAG, "searching for chat room: $userId, $otherUserId")
@@ -339,9 +391,10 @@ class MainViewModel: ViewModel() {
         }
     }
 
-    private fun createChatRoom(userId: String,
-                      otherUserId: String,
-                      resultListener: (Conversation) -> Unit
+    private fun createChatRoom(
+        userId: String,
+        otherUserId: String,
+        resultListener: (Conversation) -> Unit,
     ) {
         Log.d(TAG, "createChatRoom start")
         Log.d(TAG, "creating chat room: $userId, $otherUserId")
@@ -354,6 +407,13 @@ class MainViewModel: ViewModel() {
     }
 
     fun updateEvent(event: Event) {
+        Log.d(TAG, "updateEvent: ${event.id}")
         db.updateEvent(event)
+    }
+
+    suspend fun getEventCoords(locationName: String): OSMLocation {
+        val locationCoords = osmRepository.fetchLocation(locationName)
+        Log.d("OSM", "Fetched location: $location")
+        return locationCoords
     }
 }

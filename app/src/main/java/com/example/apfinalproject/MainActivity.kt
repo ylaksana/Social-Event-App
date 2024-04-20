@@ -1,16 +1,20 @@
 package com.example.apfinalproject
 
+import android.Manifest
+import android.content.pm.PackageManager
 import android.os.Bundle
-//import android.text.Editable
-//import android.text.TextWatcher
+import android.os.Looper
+// import android.text.Editable
+// import android.text.TextWatcher
 import android.util.Log
 
-//import android.view.inputmethod.InputMethodManager
+// import android.view.inputmethod.InputMethodManager
 import androidx.activity.viewModels
 
 import android.view.inputmethod.InputMethodManager
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import androidx.navigation.NavController
 import androidx.navigation.NavDirections
 import androidx.navigation.findNavController
@@ -21,16 +25,24 @@ import com.example.apfinalproject.databinding.ActivityMainBinding
 import com.example.apfinalproject.ui.HomeFragmentDirections
 import com.example.apfinalproject.user.AuthUser
 import com.example.apfinalproject.user.invalidUser
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationCallback
+import com.google.android.gms.location.LocationResult
+import com.google.android.gms.location.Priority
 
 class MainActivity : AppCompatActivity() {
     companion object {
         const val TAG = "MainActivity"
     }
+
     private var actionBarBinding: ActionBarBinding? = null
+
     private val viewModel: MainViewModel by viewModels()
-    private lateinit var navController : NavController
-    private lateinit var authUser : AuthUser
-    private var firstLogin: Boolean? = null
+    private lateinit var navController: NavController
+    private lateinit var authUser: AuthUser
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
 
     private fun initActionBar(actionBar: ActionBar) {
         // Disable the default and enable the custom
@@ -40,7 +52,6 @@ class MainActivity : AppCompatActivity() {
         // Apply the custom view
         actionBar.customView = actionBarBinding?.root
         viewModel.initActionBarBinding(actionBarBinding!!)
-
     }
 
     // An Android nightmare
@@ -51,26 +62,30 @@ class MainActivity : AppCompatActivity() {
         imm.hideSoftInputFromWindow(window.decorView.rootView.windowToken, 0)
     }
 
-
     // https://nezspencer.medium.com/navigation-components-a-fix-for-navigation-action-cannot-be-found-in-the-current-destination-95b63e16152e
     // You get a NavDirections object from a Directions object like
     // HomeFragmentDirections.
     // safeNavigate checks if you are in the source fragment for the directions
     // object and if not does nothing
     private fun NavController.safeNavigate(direction: NavDirections) {
-        currentDestination?.
-        getAction(direction.actionId)?.
-        run {
-            navigate(direction)
-        }
+        currentDestination
+            ?.getAction(direction.actionId)
+            ?.run {
+                navigate(direction)
+            }
     }
+
     private fun actionBarTitleLaunchProfile() {
         // XXX Write me actionBarBinding, safeNavigate
-        actionBarBinding?.profileButton?.setOnClickListener{
-            navController.safeNavigate(HomeFragmentDirections.actionHomeFragmentToProfileFragment(
-                viewModel.getActiveUser() ?: invalidUser))
+        actionBarBinding?.profileButton?.setOnClickListener {
+            navController.safeNavigate(
+                HomeFragmentDirections.actionHomeFragmentToProfileFragment(
+                    viewModel.getActiveUser() ?: invalidUser,
+                ),
+            )
         }
     }
+
     private fun actionBarLaunchMap() {
         // XXX Write me actionBarBinding, safeNavigate
         actionBarBinding?.mapButton?.setOnClickListener {
@@ -107,11 +122,49 @@ class MainActivity : AppCompatActivity() {
         return authUser
     }
 
+    private var locationCallback: LocationCallback? = null
+
+    fun requestNewLocationData() {
+        val locationRequest =
+            LocationRequest.Builder(10000L)
+                .setPriority(Priority.PRIORITY_HIGH_ACCURACY)
+                .setIntervalMillis(10000L) // Desired interval for active location updates, in milliseconds.
+                .setMinUpdateIntervalMillis(5000L) // Fastest rate for active location updates, in milliseconds.
+                .setMaxUpdates(1) // Limits the total number of location updates.
+                .build()
+
+        val locationCallback =
+            object : LocationCallback() {
+                override fun onLocationResult(locationResult: LocationResult) {
+                    super.onLocationResult(locationResult)
+                    locationResult ?: return
+                    val location = locationResult.lastLocation
+                    if (location != null) {
+                        Log.d("MapFragment", "Updated Location: Latitude: ${location.latitude}, Longitude: ${location.longitude}")
+                        // Use the location as needed
+                        viewModel.updateLocation(location)
+                    } else {
+                        Log.d("MapFragment", "No location retrieved on update!")
+                    }
+                }
+            }
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
+            ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+        ) {
+            fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.myLooper())
+        }
+    }
+
+    fun stopLocationUpdates() {
+        locationCallback?.let {
+            fusedLocationClient.removeLocationUpdates(it)
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.d(TAG, "onCreate")
         super.onCreate(savedInstanceState)
-
-
 
         Log.d(TAG, ">>inflating binding")
         val activityMainBinding = ActivityMainBinding.inflate(layoutInflater)
@@ -119,10 +172,23 @@ class MainActivity : AppCompatActivity() {
         setContentView(activityMainBinding.root)
         Log.d(TAG, ">>setting support action bar")
         setSupportActionBar(activityMainBinding.toolbar)
-        supportActionBar?.let{
+        supportActionBar?.let {
             initActionBar(it)
         }
 
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+            ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED
+        ) {
+            // Request the necessary permissions
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION),
+                1,
+            )
+            return
+        }
+        requestNewLocationData()
 
         initTitleObservers()
         actionBarTitleLaunchProfile()
@@ -131,14 +197,13 @@ class MainActivity : AppCompatActivity() {
         actionBarCreateEvent()
         actionBarEventList()
 
-
         // Set up our nav graph
         navController = findNavController(R.id.main_frame)
         val appBarConfiguration = AppBarConfiguration(navController.graph)
         // If we have a toolbar (not actionbar) we don't need to override
         // onSupportNavigateUp().
         activityMainBinding.toolbar.setupWithNavController(navController, appBarConfiguration)
-        //setupActionBarWithNavController(navController, appBarConfiguration)
+        // setupActionBarWithNavController(navController, appBarConfiguration)
         Log.d(TAG, "onCreate end")
     }
 
@@ -151,7 +216,7 @@ class MainActivity : AppCompatActivity() {
         lifecycle.addObserver(authUser)
         Log.d(TAG, ">>auth user: ${authUser.observeAuthId().value}")
 
-        authUser.observeAuthId().observe(this) {authId ->
+        authUser.observeAuthId().observe(this) { authId ->
             Log.d(TAG, ">>observeAuthId started with $authId")
             // XXX Write me, user status has changed
             if ((authId == null) or (authId == invalidUser.id)) {
@@ -165,8 +230,8 @@ class MainActivity : AppCompatActivity() {
                             HomeFragmentDirections.actionHomeFragmentToCreateUserFragment(
                                 authId,
                                 authUser.getName(),
-                                authUser.getEmail()
-                            )
+                                authUser.getEmail(),
+                            ),
                         )
                     }
                 }

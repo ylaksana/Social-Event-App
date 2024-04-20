@@ -7,53 +7,63 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.NavController
 import androidx.navigation.NavDirections
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import com.example.apfinalproject.MainViewModel
-import com.example.apfinalproject.databinding.OneEventBinding
-import com.example.apfinalproject.UserAdapter
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.apfinalproject.MainActivity
+import com.example.apfinalproject.MainViewModel
+import com.example.apfinalproject.UserAdapter
+import com.example.apfinalproject.databinding.OneEventBinding
 import com.example.apfinalproject.user.User
-import com.example.apfinalproject.R
 
-
-class OneEventFragment: Fragment(){
+class OneEventFragment : Fragment() {
     companion object {
         private const val TAG = "OneEventFragment"
     }
-    private val viewModel : MainViewModel by activityViewModels()
+
+    private val viewModel: MainViewModel by activityViewModels()
     private var _binding: OneEventBinding? = null
-    private lateinit var navController : NavController
+    private lateinit var navController: NavController
+
     //     This property is only valid between onCreateView and onDestroyView.
     private val binding get() = _binding!!
     private val args: OneEventFragmentArgs by navArgs()
 
     private fun NavController.safeNavigate(direction: NavDirections) {
-        currentDestination?.
-        getAction(direction.actionId)?.
-        run {
-            navigate(direction)
-        }
+        currentDestination
+            ?.getAction(direction.actionId)
+            ?.run {
+                navigate(direction)
+            }
     }
+
     override fun onResume() {
         super.onResume()
         (activity as? AppCompatActivity)?.supportActionBar?.hide()
+        (activity as MainActivity).requestNewLocationData()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        (activity as MainActivity).stopLocationUpdates()
     }
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
         _binding = OneEventBinding.inflate(inflater, container, false)
         return binding.root
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    override fun onViewCreated(
+        view: View,
+        savedInstanceState: Bundle?,
+    ) {
         super.onViewCreated(view, savedInstanceState)
         Log.d(TAG, "onViewCreated")
         (activity as? AppCompatActivity)?.supportActionBar?.hide()
@@ -69,6 +79,17 @@ class OneEventFragment: Fragment(){
         viewModel.fetchEventImage(args.Event.imageName, binding.eventImage)
 
         val user = viewModel.getActiveUser()
+        viewModel.observeUserLocation().observe(viewLifecycleOwner) {
+            Log.d(TAG, "userLocation: ${it.latitude}, ${it.longitude}")
+            Log.d(TAG, "eventLocation: ${args.Event.latitude}, ${args.Event.longitude}")
+            val lat1 = it.latitude
+            val lon1 = it.longitude
+            val lat2 = args.Event.latitude
+            val lon2 = args.Event.longitude
+            val distance = viewModel.getDistance(lat1, lon1, lat2, lon2) / 1600
+
+            binding.eventDistance.text = String.format("%.2f", distance) + " miles away"
+        }
 
         if (user?.id == args.Event.creator) {
             setCreatorView(binding, user)
@@ -79,18 +100,22 @@ class OneEventFragment: Fragment(){
                 }
             }
         }
-        binding.backButton.setOnClickListener{
+        binding.backButton.setOnClickListener {
             navController.popBackStack()
         }
     }
 
-    private fun setCreatorView(binding: OneEventBinding, creator: User) {
+    private fun setCreatorView(
+        binding: OneEventBinding,
+        creator: User,
+    ) {
         binding.creatorHolder.visibility = View.GONE
         binding.editEventButton.visibility = View.VISIBLE
         binding.editEventButton.setOnClickListener {
-            //TODO: create editFragment
+            // TODO: create editFragment
             navController.safeNavigate(
-                OneEventFragmentDirections.actionOneEventFragmentToEditEventFragment(args.Event))
+                OneEventFragmentDirections.actionOneEventFragmentToEditEventFragment(args.Event),
+            )
         }
 
         if (args.Event.yesSwipes.isNotEmpty()) {
@@ -101,7 +126,10 @@ class OneEventFragment: Fragment(){
         }
     }
 
-    private fun setVisitorView(binding: OneEventBinding, visitor: User) {
+    private fun setVisitorView(
+        binding: OneEventBinding,
+        visitor: User,
+    ) {
         binding.editEventButton.visibility = View.GONE
         binding.interestedUsersHolder.visibility = View.GONE
         binding.creatorHolder.visibility = View.VISIBLE
@@ -111,22 +139,25 @@ class OneEventFragment: Fragment(){
                 binding.posterName.text = creator.firstName
                 viewModel.fetchUserImage(creator.profileImage, binding.profileImage)
 
-                binding.creatorHolder.setOnClickListener{
+                binding.creatorHolder.setOnClickListener {
                     navController.safeNavigate(
-                        OneEventFragmentDirections.actionOneEventFragmentToProfileFragment(creator))
+                        OneEventFragmentDirections.actionOneEventFragmentToProfileFragment(creator),
+                    )
                 }
             }
         }
     }
 
     private fun initAdapter(binding: OneEventBinding) {
-        val adapter = UserAdapter(viewModel) { clickedUser ->
-            // On Click Callback
-            viewModel.enterChatRoom(args.Event.creator, clickedUser.id) { conv ->
-                navController.safeNavigate(
-                    OneEventFragmentDirections.actionOneEventFragmentToChatFragment(conv))
+        val adapter =
+            UserAdapter(viewModel) { clickedUser ->
+                // On Click Callback
+                viewModel.enterChatRoom(args.Event.creator, clickedUser.id) { conv ->
+                    navController.safeNavigate(
+                        OneEventFragmentDirections.actionOneEventFragmentToChatFragment(conv),
+                    )
+                }
             }
-        }
         binding.interestedUsersRV.adapter = adapter
         viewModel.fetchUsersByUids(args.Event.yesSwipes) {
             adapter.submitList(it)

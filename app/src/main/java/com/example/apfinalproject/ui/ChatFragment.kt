@@ -6,35 +6,34 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.apfinalproject.MainViewModel
 import com.example.apfinalproject.ViewModelDBHelper
-import com.example.apfinalproject.databinding.ChatFragmentBinding
-import com.example.apfinalproject.chat.Message
 import com.example.apfinalproject.chat.ChatAdapter
 import com.example.apfinalproject.chat.ChatDBHelper
-import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.apfinalproject.chat.Message
+import com.example.apfinalproject.databinding.ChatFragmentBinding
 
-
-class ChatFragment: Fragment() {
+class ChatFragment : Fragment() {
     private val TAG = "ChatFragment"
-    private val viewModel : MainViewModel by activityViewModels()
+    private val viewModel: MainViewModel by activityViewModels()
     private val chatDBHelper = ChatDBHelper()
-    private val DBHelper = ViewModelDBHelper()
+    private val dBHelper = ViewModelDBHelper()
     private var chatAdapter: ChatAdapter? = null
     private var _binding: ChatFragmentBinding? = null
     private val binding get() = _binding!!
-    private lateinit var navController : NavController
+    private lateinit var navController: NavController
     private val args: ChatFragmentArgs by navArgs()
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
         Log.d(TAG, "onCreateView")
         _binding = ChatFragmentBinding.inflate(inflater, container, false)
@@ -46,7 +45,10 @@ class ChatFragment: Fragment() {
         (activity as? AppCompatActivity)?.supportActionBar?.hide()
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    override fun onViewCreated(
+        view: View,
+        savedInstanceState: Bundle?,
+    ) {
         Log.d(TAG, "onViewCreated")
         super.onViewCreated(view, savedInstanceState)
         (activity as? AppCompatActivity)?.supportActionBar?.hide()
@@ -55,7 +57,6 @@ class ChatFragment: Fragment() {
 
         val conversationID = args.Conversation.id
 
-
         chatAdapter = ChatAdapter(viewModel, ViewModelDBHelper())
         val activeUser = viewModel.getActiveUser()
 
@@ -63,30 +64,31 @@ class ChatFragment: Fragment() {
         if (activeUser != null) {
             chatDBHelper.getChatUsers(activeUser.id, conversationID) { users ->
                 val otherUser = users.filter { it != activeUser.id }
-                DBHelper.fetchUserByUid(otherUser[0]) {
+                dBHelper.fetchUserByUid(otherUser[0]) {
                     binding.chatTitle.text = it?.firstName
                 }
             }
         }
 
-        chatDBHelper.fetchMessages(conversationID) {messages ->
+        chatDBHelper.fetchMessages(conversationID) { messages ->
             chatAdapter?.submitList(messages)
             binding.chatRV.scrollToPosition(chatAdapter!!.itemCount - 1)
         }
 
-        binding.sendButton.setOnClickListener(){
+        binding.sendButton.setOnClickListener {
             val messageText = binding.messageET.text.toString()
 
             if (messageText.isEmpty()) {
                 return@setOnClickListener
             }
 
-            val message = activeUser?.let { it1 ->
-                Message(
-                    senderID = it1.id,
-                    messageText = messageText,
-                )
-            }
+            val message =
+                activeUser?.let { it1 ->
+                    Message(
+                        senderID = it1.id,
+                        messageText = messageText,
+                    )
+                }
             if (message != null) {
                 chatDBHelper.uploadMessage(conversationID, message) {
                     Log.d(TAG, "Message uploaded")
@@ -108,9 +110,7 @@ class ChatFragment: Fragment() {
         binding.chatRV.adapter = chatAdapter
         binding.chatRV.layoutManager = LinearLayoutManager(context)
 
-
-
-        binding.backButton.setOnClickListener{
+        binding.backButton.setOnClickListener {
             navController.navigate(ChatFragmentDirections.actionChatFragmentToChatListFragment())
         }
     }

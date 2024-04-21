@@ -185,7 +185,7 @@ class MainViewModel : ViewModel() {
         return events
     }
 
-    fun setFilter(filter: String)  {
+    fun setFilter(filter: String) {
         filterTerm.value = filter
         Log.d(TAG, "Filter: $filter")
     }
@@ -430,5 +430,20 @@ class MainViewModel : ViewModel() {
         val locationCoords = osmRepository.fetchLocation(locationName)
         Log.d("OSM", "Fetched location: $location")
         return locationCoords
+    }
+
+    fun fetchConversationsByUserID(
+        userID: String,
+        resultListener: (List<Conversation>) -> Unit,
+    ) {
+        db.fetchUserConvIDs(userID) { convIDs ->
+            if (convIDs.isEmpty()) {
+                resultListener(listOf())
+            } else {
+                db.fetchConvsByIDs(convIDs) { convs ->
+                    resultListener(convs)
+                }
+            }
+        }
     }
 }

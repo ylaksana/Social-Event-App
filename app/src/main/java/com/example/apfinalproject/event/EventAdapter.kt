@@ -46,6 +46,7 @@ class EventAdapter(private val viewModel: MainViewModel,
         eventRowBinding.eventTime.text = event.time
         eventRowBinding.eventLocation.text = event.location
         eventRowBinding.eventDescription.text = event.description
+        eventRowBinding.peopleInterested.text = "${event.yesSwipes.size.toString()} People Interested"
         Log.d("Miles", "User location: $userLocation")
         if(userLocation != null){
             Log.d("Miles", "${userLocation.latitude}, ${userLocation.longitude}, ${event.latitude}, ${event.longitude}")

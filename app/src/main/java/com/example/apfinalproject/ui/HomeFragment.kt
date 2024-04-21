@@ -1,5 +1,6 @@
 package com.example.apfinalproject.ui
 
+import android.location.Location
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -28,6 +29,7 @@ class HomeFragment: Fragment() {
     private val TAG = "HomeFragment"
     private val viewModel: MainViewModel by activityViewModels()
     private var _binding: HomeFragmentBinding? = null
+    private var userLocation: Location? = null
     private lateinit var navController : NavController
     private val filtersList : List<InterestCategories.Interest> = InterestCategories.getInterests()
 //     This property is only valid between onCreateView and onDestroyView.
@@ -74,11 +76,12 @@ class HomeFragment: Fragment() {
         return ItemTouchHelper(simpleItemTouchCallback)
     }
 
-    private fun initAdapters(binding: HomeFragmentBinding) {
+    private fun initAdapters(binding: HomeFragmentBinding, location: Location?) {
         Log.d(TAG, "initAdapters")
         // Event RV
         binding.eventRV.layoutManager = LinearLayoutManager(context)
-        adapter = EventAdapter(viewModel) {event ->
+        Log.d(TAG,">>initAdapters: ${location?.latitude}, ${location?.longitude}")
+        adapter = EventAdapter(viewModel, location) {event ->
             navController.navigate(
                 HomeFragmentDirections.actionHomeFragmentToOneEventFragment(event)
             )
@@ -120,7 +123,13 @@ class HomeFragment: Fragment() {
         Log.d(TAG, "onViewCreated")
         navController = findNavController()
 
-        initAdapters(binding)
+        viewModel.observeUserLocation().observe(viewLifecycleOwner) {
+            Log.d(TAG, "userLocation before observe: ${userLocation?.latitude}, ${userLocation?.longitude}")
+            userLocation = it
+            Log.d(TAG, "userLocation after observe: ${userLocation?.latitude}, ${userLocation?.longitude}")
+            initAdapters(binding, userLocation)
+        }
+
         initTouchHelper().attachToRecyclerView(binding.eventRV)
 
     }

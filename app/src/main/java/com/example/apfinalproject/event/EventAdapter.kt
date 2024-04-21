@@ -1,5 +1,6 @@
 package com.example.apfinalproject.event
 
+import android.location.Location
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -11,6 +12,7 @@ import com.example.apfinalproject.databinding.EventRowBinding
 import com.example.apfinalproject.MainViewModel
 
 class EventAdapter(private val viewModel: MainViewModel,
+                   private val userLocation: Location?,
                    private val navigateToOneEvent: (Event) -> Unit)
     : ListAdapter<Event, EventAdapter.EventViewHolder>(EventDiff()) {
 
@@ -44,6 +46,16 @@ class EventAdapter(private val viewModel: MainViewModel,
         eventRowBinding.eventTime.text = event.time
         eventRowBinding.eventLocation.text = event.location
         eventRowBinding.eventDescription.text = event.description
+        Log.d("Miles", "User location: $userLocation")
+        if(userLocation != null){
+            Log.d("Miles", "${userLocation.latitude}, ${userLocation.longitude}, ${event.latitude}, ${event.longitude}")
+            eventRowBinding.miles.text = String.format("%.2f miles",
+                viewModel.calculateDistanceInMiles
+                    (userLocation.latitude,
+                    userLocation.longitude,
+                    event.latitude,
+                    event.longitude))
+        }
         Log.d("EventAdapter", "fetching image: ${event.imageName}")
         viewModel.fetchEventImage(event.imageName, eventRowBinding.image)
     }

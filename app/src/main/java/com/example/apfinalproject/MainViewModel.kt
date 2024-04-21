@@ -40,14 +40,23 @@ class MainViewModel : ViewModel() {
     private val filterTerm: MutableLiveData<String> = MutableLiveData()
     private var isMyEvents: MutableLiveData<Boolean> = MutableLiveData()
     private val _location = MutableLiveData<Location>()
+    private val userLocation = MutableLiveData<Location?>()
     val location: LiveData<Location> get() = _location
 
     fun updateLocation(location: Location) {
         _location.postValue(location)
     }
 
-    fun observeUserLocation(): LiveData<Location> {
+    fun observeLocation(): LiveData<Location> {
         return location
+    }
+
+    fun observeUserLocation(): LiveData<Location?> {
+        return userLocation
+    }
+
+    fun initUserLocation(location: Location?) {
+        userLocation.postValue(location)
     }
 
     fun getDistance(
@@ -271,20 +280,20 @@ class MainViewModel : ViewModel() {
     }
 
     fun calculateDistanceInMiles(
-        lat1: Double,
-        lon1: Double,
-        lat2: Double,
-        lon2: Double,
-    ): Double  {
+        userLat: Double,
+        userLon: Double,
+        eventLat: Double,
+        eventLon: Double,
+    ): Double {
         val earthRadius = 3958.75 // in miles, change to 6371 for kilometer output
 
-        val dLat = Math.toRadians((lat2 - lat1))
-        val dLng = Math.toRadians((lon2 - lon1))
+        val dLat = Math.toRadians((eventLat - userLat))
+        val dLng = Math.toRadians((eventLon - userLon))
 
         val sindLat = sin(dLat / 2)
         val sindLng = sin(dLng / 2)
 
-        val a = sindLat.pow(2.0) + (sindLng.pow(2.0) * cos(Math.toRadians(lat1)) * cos(Math.toRadians(lat2)))
+        val a = sindLat.pow(2.0) + (sindLng.pow(2.0) * cos(Math.toRadians(userLat)) * cos(Math.toRadians(eventLat)))
 
         val c = 2 * atan2(sqrt(a), sqrt(1 - a))
 

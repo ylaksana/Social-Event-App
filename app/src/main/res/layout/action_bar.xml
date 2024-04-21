@@ -32,12 +32,12 @@
         android:src="@drawable/plus_box_outline" />
 
     <ImageView
-        android:id="@+id/settingsButton"
+        android:id="@+id/chatButton"
         android:layout_width="45dp"
         android:layout_height="45dp"
         android:layout_weight="1"
         android:layout_marginHorizontal="15dp"
-        android:src="@drawable/cog" />
+        android:src="@drawable/chat_outline" />
 
     <ImageView
         android:id="@+id/eventListButton"

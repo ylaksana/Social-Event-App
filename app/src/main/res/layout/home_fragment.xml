@@ -4,31 +4,6 @@
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-    <ImageView
-        android:id="@+id/chatButton"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
-        android:padding="8dp"
-        android:src="@drawable/chat_outline"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@+id/filtersRV"
-        android:contentDescription="chat" />
-
-    <EditText
-        android:id="@+id/searchBar"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        app:layout_constraintStart_toEndOf="@id/chatButton"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="@id/chatButton"
-        app:layout_constraintTop_toTopOf="@id/chatButton"
-        android:maxLines="1"
-        android:hint="Search"
-        android:autofillHints=""
-        android:imeOptions="actionSearch"
-        android:inputType="text"
-        />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/filtersRV"
@@ -37,7 +12,7 @@
         android:padding="8dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/chatButton"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toTopOf="@id/suggestedForYou"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         app:layout_constraintHorizontal_bias="0.0"

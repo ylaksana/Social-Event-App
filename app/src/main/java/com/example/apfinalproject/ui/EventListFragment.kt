@@ -1,5 +1,6 @@
 package com.example.apfinalproject.ui
 
+import android.location.Location
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -15,7 +16,6 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.apfinalproject.MainViewModel
 import com.example.apfinalproject.R
-import com.example.apfinalproject.databinding.ActivityMainBinding
 import com.example.apfinalproject.databinding.FragmentRvBinding
 import com.example.apfinalproject.event.EventAdapter
 
@@ -25,6 +25,7 @@ class EventListFragment : Fragment() {
     }
     private val viewModel: MainViewModel by activityViewModels()
     private var _binding: FragmentRvBinding? = null
+    private var userLocation: Location? = null
     private lateinit var navController : NavController
     //     This property is only valid between onCreateView and onDestroyView.
     private val binding get() = _binding!!
@@ -45,11 +46,15 @@ class EventListFragment : Fragment() {
         viewModel.hideActionBar()
         navController = findNavController()
 
+        viewModel.observeUserLocation().observe(viewLifecycleOwner) {
+            userLocation = it
+        }
+
         // Set up Event RecyclerView
         val rv = binding.rv
         rv.layoutManager = LinearLayoutManager(context)
 
-        val eventAdapter = EventAdapter(viewModel) {event ->
+        val eventAdapter = EventAdapter(viewModel,userLocation) {event ->
             navController.navigate(
                 EventListFragmentDirections.actionEventListFragmentToOneEventFragment(event)
             )

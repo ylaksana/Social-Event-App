@@ -79,7 +79,7 @@ class OneEventFragment : Fragment() {
         viewModel.fetchEventImage(args.Event.imageName, binding.eventImage)
 
         val user = viewModel.getActiveUser()
-        viewModel.observeUserLocation().observe(viewLifecycleOwner) {
+        viewModel.observeLocation().observe(viewLifecycleOwner) {
             Log.d(TAG, "userLocation: ${it.latitude}, ${it.longitude}")
             Log.d(TAG, "eventLocation: ${args.Event.latitude}, ${args.Event.longitude}")
             val lat1 = it.latitude

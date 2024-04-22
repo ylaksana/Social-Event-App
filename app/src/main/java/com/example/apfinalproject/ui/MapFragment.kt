@@ -88,7 +88,7 @@ class MapFragment : Fragment() {
     private fun setEventMarkers(events: List<Event>) {
         mapView.overlays.clear()
         viewModel.observeUserLocation().observe(viewLifecycleOwner) { location ->
-            if(location != null) {
+            if (location != null) {
                 Marker(mapView).apply {
                     position = GeoPoint(userLatitude, userLongitude)
                     setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
@@ -162,9 +162,10 @@ class MapFragment : Fragment() {
         } else {
             Log.d("MapFragment", "Last location is null")
             viewModel.viewModelScope.launch {
-                val nullUserLocation = async(Dispatchers.IO) {
-                    viewModel.getEventCoords("United States")
-                }
+                val nullUserLocation =
+                    async(Dispatchers.IO) {
+                        viewModel.getEventCoords("United States")
+                    }
                 withContext(Dispatchers.Main) {
                     val coords = nullUserLocation.await()
 
@@ -181,50 +182,6 @@ class MapFragment : Fragment() {
             }
         }
     }
-
-//    private fun requestNewLocationData() {
-//        val locationRequest = LocationRequest.Builder(10000L)
-//            .setPriority(Priority.PRIORITY_HIGH_ACCURACY)
-//            .setIntervalMillis(10000L)  // Desired interval for active location updates, in milliseconds.
-//            .setMinUpdateIntervalMillis(5000L)  // Fastest rate for active location updates, in milliseconds.
-//            .setMaxUpdates(1)  // Limits the total number of location updates.
-//            .build()
-//
-//        val locationCallback = object : LocationCallback() {
-//            override fun onLocationResult(locationResult: LocationResult) {
-//                super.onLocationResult(locationResult)
-//                locationResult ?: return
-//                val location = locationResult.lastLocation
-//                if (location != null) {
-//                    Log.d("MapFragment", "Updated Location: Latitude: ${location.latitude}, Longitude: ${location.longitude}")
-//                    // Use the location as needed
-//                } else {
-//                    Log.d("MapFragment", "No location retrieved on update!")
-//                }
-//            }
-//        }
-//
-//        if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
-//            ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-//            fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.myLooper())
-//        }
-//    }
-
-//    private fun moveCamera(location: String) {
-//        val mapController = mapView.controller
-//        viewModel.setLocationTerm(location)
-//        viewModel.observeLocations().observe(viewLifecycleOwner) { locations ->
-//            Log.d("OSM", "MapFragment, observeLocations: $locations")
-//            if (locations.isNotEmpty()) {
-//                val lat = locations[0].latitude.toDouble()
-//                Log.d("OSM", "Lat: $lat")
-//                val long = locations[0].longitude.toDouble()
-//                Log.d("OSM", "Long: $long")
-//                mapController.setZoom(17.0)
-//                mapController.setCenter(GeoPoint(lat, long))
-//            }
-//        }
-//    }
 
     override fun onResume() {
         super.onResume()
@@ -251,20 +208,6 @@ class MapFragment : Fragment() {
         savedInstanceState: Bundle?,
     ) {
         super.onViewCreated(view, savedInstanceState)
-        val activityContext = requireActivity()
-
-//        if (ActivityCompat.checkSelfPermission(activityContext, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-//            ActivityCompat.checkSelfPermission(activityContext, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-//            // Request the necessary permissions
-//            ActivityCompat.requestPermissions(activityContext, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION), 1)
-//            return
-//        }
-//
-//        // Initialize FusedLocationProviderClient
-//        fusedLocationClient = LocationServices.getFusedLocationProviderClient(activityContext)
-
-        // Now it's safe to request new location data
-//        requestNewLocationData()
 
         viewModel.observeNetTypeEvents().observe(viewLifecycleOwner) { events ->
             // Save the events
@@ -289,11 +232,6 @@ class MapFragment : Fragment() {
         _binding?.backButton?.setOnClickListener {
             navController.popBackStack()
         }
-
-//        // Go Button
-//        _binding?.goBut?.setOnClickListener{
-//            moveCamera(binding.searchBar.text.toString())
-//        }
 
         // Add a map listener for when the user moves and zooms the map
         mapView.addMapListener(

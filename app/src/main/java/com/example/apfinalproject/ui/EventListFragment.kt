@@ -1,6 +1,5 @@
 package com.example.apfinalproject.ui
 
-import android.location.Location
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -27,7 +26,6 @@ class EventListFragment : Fragment() {
 
     private val viewModel: MainViewModel by activityViewModels()
     private var _binding: FragmentRvBinding? = null
-    private var userLocation: Location? = null
     private lateinit var navController: NavController
     private var eventAdapter: EventAdapter? = null
 
@@ -68,27 +66,7 @@ class EventListFragment : Fragment() {
         viewModel.hideActionBar()
         navController = findNavController()
 
-//        viewModel.observeUserLocation().observe(viewLifecycleOwner) {
-//            it?.let {
-//                userLocation = it
-//
-//            }
-//        }
         initAdapters(binding)
-        // Set up Event RecyclerView
-//        val rv = binding.rv
-//        rv.layoutManager = LinearLayoutManager(context)
-
-//        val eventAdapter = EventAdapter(viewModel,userLocation) {event ->
-//            navController.navigate(
-//                EventListFragmentDirections.actionEventListFragmentToOneEventFragment(event)
-//            )
-//        }
-//        rv.adapter = eventAdapter
-//        viewModel.fetchMyEvents {events ->
-//            Log.d("MainActivity", "eventList length: ${events.size}")
-//            eventAdapter.submitList(events)
-//        }
 
         // Insert items into spinner
         val spinner = _binding?.titleTextView
@@ -103,7 +81,7 @@ class EventListFragment : Fragment() {
             spinner?.adapter = adapter
         }
 
-        // TODO: add init adapter and init spinners to separate function
+        // add init adapter and init spinners to separate function
         // Set the spinner item selection listener
         spinner?.onItemSelectedListener =
             object : AdapterView.OnItemSelectedListener {
@@ -113,7 +91,7 @@ class EventListFragment : Fragment() {
                     position: Int,
                     id: Long,
                 ) {
-                    // TODO: probably don't need this null check, can view ever be null?
+                    // probably don't need this null check, can view ever be null?
                     if (view != null) {
                         val selectedItem = parent.getItemAtPosition(position).toString()
                         when (selectedItem) {

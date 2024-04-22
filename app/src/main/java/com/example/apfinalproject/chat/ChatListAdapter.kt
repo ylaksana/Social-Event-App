@@ -4,21 +4,21 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.ListAdapter
+import androidx.recyclerview.widget.RecyclerView
 import com.example.apfinalproject.MainViewModel
-import com.example.apfinalproject.databinding.ChatListRowBinding
 import com.example.apfinalproject.ViewModelDBHelper
+import com.example.apfinalproject.databinding.ChatListRowBinding
 import com.example.apfinalproject.user.invalidUser
-import com.example.apfinalproject.glide.Glide
 
-class ChatListAdapter(private val viewModel: MainViewModel,
-                      private val dbHelper: ViewModelDBHelper,
-                      private val navigateToChat: (Conversation) -> Unit)
-    : ListAdapter<Conversation, ChatListAdapter.ChatListViewHolder>(ChatListDiff()) {
-
-    inner class ChatListViewHolder(val chatListRowBinding: ChatListRowBinding)
-        : RecyclerView.ViewHolder(chatListRowBinding.root) {
+class ChatListAdapter(
+    private val viewModel: MainViewModel,
+    private val dbHelper: ViewModelDBHelper,
+    private val navigateToChat: (Conversation) -> Unit,
+) :
+    ListAdapter<Conversation, ChatListAdapter.ChatListViewHolder>(ChatListDiff()) {
+    inner class ChatListViewHolder(val chatListRowBinding: ChatListRowBinding) :
+        RecyclerView.ViewHolder(chatListRowBinding.root) {
         init {
             chatListRowBinding.root.setOnClickListener {
                 val position = bindingAdapterPosition
@@ -30,12 +30,18 @@ class ChatListAdapter(private val viewModel: MainViewModel,
         }
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ChatListAdapter.ChatListViewHolder {
+    override fun onCreateViewHolder(
+        parent: ViewGroup,
+        viewType: Int,
+    ): ChatListAdapter.ChatListViewHolder {
         val chatListRowBinding = ChatListRowBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return ChatListViewHolder(chatListRowBinding)
     }
 
-    override fun onBindViewHolder(holder: ChatListAdapter.ChatListViewHolder, position: Int) {
+    override fun onBindViewHolder(
+        holder: ChatListAdapter.ChatListViewHolder,
+        position: Int,
+    ) {
         val binding = holder.chatListRowBinding
         val conversation = getItem(position)
         val activeUser = viewModel.getActiveUser()
@@ -71,17 +77,20 @@ class ChatListAdapter(private val viewModel: MainViewModel,
         }
     }
 
-
     class ChatListDiff : DiffUtil.ItemCallback<Conversation>() {
-        override fun areItemsTheSame(oldItem: Conversation, newItem: Conversation): Boolean {
+        override fun areItemsTheSame(
+            oldItem: Conversation,
+            newItem: Conversation,
+        ): Boolean {
             return oldItem.id == newItem.id
         }
 
-        override fun areContentsTheSame(oldItem: Conversation, newItem: Conversation): Boolean {
+        override fun areContentsTheSame(
+            oldItem: Conversation,
+            newItem: Conversation,
+        ): Boolean {
             return oldItem.id == newItem.id &&
-//                    oldItem.userIDs == newItem.userIDs &&
-//                    oldItem.messages == newItem.messages &&
-                    oldItem.lastMessage == newItem.lastMessage
+                oldItem.lastMessage == newItem.lastMessage
         }
     }
 }

@@ -1,16 +1,16 @@
 package com.example.apfinalproject.user
 
-import android.content.Intent
 import android.app.Activity
-import androidx.activity.result.contract.ActivityResultContracts
+import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.activityViewModels
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.NavController
 import androidx.navigation.NavOptions
@@ -18,64 +18,49 @@ import androidx.navigation.fragment.findNavController
 import com.example.apfinalproject.MainViewModel
 import com.example.apfinalproject.R
 import com.example.apfinalproject.databinding.ProfileEditFragmentBinding
-import java.util.UUID
-import com.example.apfinalproject.ui.InterestAdapter
 import com.example.apfinalproject.interest.InterestCategories
-import com.example.apfinalproject.ui.EditEventFragmentDirections
+import com.example.apfinalproject.ui.InterestAdapter
 import com.google.android.flexbox.FlexDirection
 import com.google.android.flexbox.FlexWrap
 import com.google.android.flexbox.FlexboxLayoutManager
 import com.google.android.flexbox.JustifyContent
+import java.util.UUID
 
-class ProfileEditFragment: Fragment() {
+class ProfileEditFragment : Fragment() {
     companion object {
         private const val TAG = "ProfileEditFragment"
     }
+
     private val viewModel: MainViewModel by activityViewModels()
     private var _binding: ProfileEditFragmentBinding? = null
-    private lateinit var navController : NavController
+    private lateinit var navController: NavController
     private var newImageUri: MutableLiveData<Uri> = MutableLiveData()
     private var newImageUUID: String? = null
     private val binding get() = _binding!!
 
-    private fun initAdapters(binding: ProfileEditFragmentBinding) {
-        Log.d(TAG, "initAdapters")
-
-//        binding.interestsRV.layoutManager = FlexboxLayoutManager(context).apply {
-//            flexDirection = FlexDirection.ROW
-//            flexWrap = FlexWrap.WRAP
-//            justifyContent = JustifyContent.FLEX_START
-//        }
-//        val interestAdapter = InterestAdapter(viewModel)
-//        binding.interestsRV.adapter = interestAdapter
-//        viewModel.observeInterests().observe(viewLifecycleOwner) {
-//            interestAdapter.submitList(it)
-//        }
-
-
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.d(TAG, "onCreate")
         super.onCreate(savedInstanceState)
-
     }
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
         Log.d(TAG, "onCreateView")
         _binding = ProfileEditFragmentBinding.inflate(inflater, container, false)
         return binding.root
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    override fun onViewCreated(
+        view: View,
+        savedInstanceState: Bundle?,
+    ) {
         Log.d(TAG, "onViewCreated")
         super.onViewCreated(view, savedInstanceState)
         navController = findNavController()
-//        initAdapters(binding)
+
         val user = viewModel.getActiveUser()
 
         if (user != null) {
@@ -87,7 +72,6 @@ class ProfileEditFragment: Fragment() {
             }
             viewModel.fetchUserImage(user.profileImage, binding.profileImage)
         }
-
 
         binding.backButton.setOnClickListener {
             // Exit without saving changes
@@ -101,14 +85,16 @@ class ProfileEditFragment: Fragment() {
         val interestAdapter = InterestAdapter(viewModel, true)
 
         binding.interestsRV.adapter = interestAdapter
-        binding.interestsRV.layoutManager = FlexboxLayoutManager(context).apply {
-            flexDirection = FlexDirection.ROW
-            flexWrap = FlexWrap.WRAP
-            justifyContent = JustifyContent.FLEX_START
-        }
-        val completeInterests = InterestCategories.getInterests().map {
-            it.category
-        }
+        binding.interestsRV.layoutManager =
+            FlexboxLayoutManager(context).apply {
+                flexDirection = FlexDirection.ROW
+                flexWrap = FlexWrap.WRAP
+                justifyContent = JustifyContent.FLEX_START
+            }
+        val completeInterests =
+            InterestCategories.getInterests().map {
+                it.category
+            }
         interestAdapter.submitList(completeInterests)
 
         binding.saveButton.setOnClickListener {
@@ -122,9 +108,10 @@ class ProfileEditFragment: Fragment() {
             }
             viewModel.interestsLiveData.postValue(interestAdapter.tempInterests)
 
-            val navOptions = NavOptions.Builder()
-                .setPopUpTo(R.id.profileFragment, true)
-                .build()
+            val navOptions =
+                NavOptions.Builder()
+                    .setPopUpTo(R.id.profileFragment, true)
+                    .build()
 
             if (newImageUri.value != null) {
                 Log.d(TAG, "Image URI: $newImageUri")
@@ -134,7 +121,8 @@ class ProfileEditFragment: Fragment() {
                         viewModel.updateUser(newUser)
                         navController.navigate(
                             ProfileEditFragmentDirections.actionProfileEditFragmentToProfileFragment(newUser),
-                            navOptions)
+                            navOptions,
+                        )
                     }
                 }
             } else {
@@ -142,9 +130,9 @@ class ProfileEditFragment: Fragment() {
                     viewModel.updateUser(newUser)
                     navController.navigate(
                         ProfileEditFragmentDirections.actionProfileEditFragmentToProfileFragment(newUser),
-                        navOptions)
+                        navOptions,
+                    )
                 }
-
             }
         }
     }
@@ -155,15 +143,19 @@ class ProfileEditFragment: Fragment() {
         imagePickLauncher.launch(intent)
     }
 
-    private var imagePickLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        if (result.resultCode == Activity.RESULT_OK) {
-            val data: Intent? = result.data
-            newImageUri.value = data?.data
-            binding.profileImage.setImageURI(newImageUri.value)
+    private var imagePickLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                val data: Intent? = result.data
+                newImageUri.value = data?.data
+                binding.profileImage.setImageURI(newImageUri.value)
+            }
         }
-    }
 
-    private fun uploadUserPhoto(imageUri: Uri, onComplete: () -> Unit) {
+    private fun uploadUserPhoto(
+        imageUri: Uri,
+        onComplete: () -> Unit,
+    ) {
         // Upload the image to the server and set it as the user's profile image
         val storage = viewModel.getStorage()
         val oldImageUUID = viewModel.getActiveUser()?.profileImage

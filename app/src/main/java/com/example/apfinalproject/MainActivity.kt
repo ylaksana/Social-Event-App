@@ -152,8 +152,7 @@ class MainActivity : AppCompatActivity() {
             ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
         ) {
             fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, null)
-        }
-        else{
+        } else {
             Log.d("MapFragment", "No location permissions")
             viewModel.updateUserLocation(location)
         }
@@ -201,16 +200,6 @@ class MainActivity : AppCompatActivity() {
         actionBarChatList()
         actionBarCreateEvent()
         actionBarEventList()
-
-//        fusedLocationClient.lastLocation.addOnSuccessListener { location ->
-//            location?.let {
-//                Log.d(TAG, ">>initUserLocation: $location")
-//                viewModel.initUserLocation(location)
-//            }
-//        }.addOnFailureListener { exception ->
-//            // Handle any errors here
-//            Log.e(TAG, "Error getting location", exception)
-//        }
 
         // Set up our nav graph
         navController = findNavController(R.id.main_frame)

@@ -25,11 +25,7 @@ class ChatFragment : Fragment() {
     private val chatDBHelper = ChatDBHelper()
     private val dBHelper = ViewModelDBHelper()
     private var chatAdapter: ChatAdapter? = null
-
-//    private var binding: ChatFragmentBinding
     private lateinit var binding: ChatFragmentBinding
-
-//    private val binding get() = _binding!!
     private lateinit var navController: NavController
     private val args: ChatFragmentArgs by navArgs()
 

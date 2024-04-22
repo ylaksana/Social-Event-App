@@ -39,37 +39,15 @@ class MainViewModel : ViewModel() {
     private val db = ViewModelDBHelper()
     private val filterTerm: MutableLiveData<String> = MutableLiveData()
     private var isMyEvents: MutableLiveData<Boolean> = MutableLiveData()
-
-//    private val _location = MutableLiveData<Location>()
     private val userLocation = MutableLiveData<Location?>()
-//    val location: LiveData<Location> get() = _location
 
     fun updateUserLocation(location: Location?) {
         Log.d(TAG, "updateUserLocation: $location")
         userLocation.postValue(location)
     }
 
-//    fun observeLocation(): LiveData<Location> {
-//        return location
-//    }
-
     fun observeUserLocation(): LiveData<Location?> {
         return userLocation
-    }
-
-    fun initUserLocation(location: Location?) {
-        userLocation.postValue(location)
-    }
-
-    fun getDistance(
-        lat1: Double,
-        lon1: Double,
-        lat2: Double,
-        lon2: Double,
-    ): Float {
-        val results = FloatArray(1)
-        Location.distanceBetween(lat1, lon1, lat2, lon2, results)
-        return results[0]
     }
 
     var activeUser =
@@ -151,30 +129,22 @@ class MainViewModel : ViewModel() {
     private var netUserEvents =
         MediatorLiveData<List<Event>>().apply {
             addSource(isMyEvents) { switch ->
-                val userEvents: List<Event>? = if (switch) {
-                    events.value?.filter { event ->
-                        event.creator == activeUser.value?.id
+                val userEvents: List<Event>? =
+                    if (switch) {
+                        events.value?.filter { event ->
+                            event.creator == activeUser.value?.id
+                        }
+                    } else {
+                        events.value?.filter { event ->
+                            activeUser.value?.id in event.yesSwipes
+                        }
                     }
-                } else{
-                    events.value?.filter { event ->
-                        activeUser.value?.id in event.yesSwipes
-                    }
-                }
                 postValue(userEvents)
             }
         }
 
     fun getStorage(): Storage {
         return storage
-    }
-
-    fun observeLocations(): LiveData<List<OSMLocation>> {
-        Log.d("ObserveLocations", "Fetched locations: ${netLocations.value}")
-        return netLocations
-    }
-
-    fun setLocationTerm(term: String) {
-        searchLocation.postValue(term)
     }
 
     fun observeUserEvents(): LiveData<List<Event>> {
@@ -246,10 +216,6 @@ class MainViewModel : ViewModel() {
 
     fun getActiveUser(): User? {
         return activeUser.value
-    }
-
-    fun observePastEvents(): LiveData<List<Event>> {
-        return pastEventsLiveData
     }
 
     fun observeInterests(): LiveData<List<String>> {
@@ -334,16 +300,6 @@ class MainViewModel : ViewModel() {
         Log.d(TAG, "uploadImage to $collection: $imageUri")
         viewModelScope.launch(Dispatchers.IO) {
             storage.uploadImage(imageUri, collection, resultListener)
-        }
-    }
-
-    fun deleteImage(
-        uuid: String,
-        collection: String,
-    ) {
-        Log.d(TAG, "deleteImage: $uuid")
-        viewModelScope.launch(Dispatchers.IO) {
-            storage.deleteImage(uuid, collection)
         }
     }
 

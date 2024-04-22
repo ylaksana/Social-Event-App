@@ -1,4 +1,5 @@
 package com.example.apfinalproject.event
+
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 
@@ -18,7 +19,6 @@ class Event(
     var yesSwipes: List<String> = listOf(),
     var noSwipes: List<String> = listOf(),
 ) : Parcelable {
-
     // Events with the same ID are considered equal.
     // Not sure if this is the best way to do it, but it works for now.
     override fun equals(other: Any?): Boolean =

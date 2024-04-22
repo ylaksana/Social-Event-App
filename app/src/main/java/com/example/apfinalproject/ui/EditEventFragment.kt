@@ -30,7 +30,6 @@ class EditEventFragment : Fragment() {
     private val viewModel: MainViewModel by activityViewModels()
     private var _binding: EditEventFragmentBinding? = null
     private var newImageUri: Uri? = null
-    private var newImageUUID: String? = null
     private val binding get() = _binding!!
     private val args: EditEventFragmentArgs by navArgs()
     private lateinit var navController: NavController

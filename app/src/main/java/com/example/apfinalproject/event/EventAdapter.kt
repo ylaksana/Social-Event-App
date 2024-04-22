@@ -5,15 +5,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.ListAdapter
-import com.example.apfinalproject.databinding.EventRowBinding
-// import com.example.apfinalproject.api.ImageRepository
+import androidx.recyclerview.widget.RecyclerView
 import com.example.apfinalproject.MainViewModel
+import com.example.apfinalproject.databinding.EventRowBinding
 
 class EventAdapter(
     private val viewModel: MainViewModel,
-//    private val userLocation: Location?,
     private val navigateToOneEvent: (Event) -> Unit,
 ) :
     ListAdapter<Event, EventAdapter.EventViewHolder>(EventDiff()) {
@@ -50,11 +48,7 @@ class EventAdapter(
 
         eventRowBinding.eventTitle.text = event.title
         eventRowBinding.eventDate.text = event.date
-//        eventRowBinding.eventTime.text = event.time
-//        eventRowBinding.eventLocation.text = event.location
-//        eventRowBinding.eventDescription.text = event.description
         eventRowBinding.peopleInterested.text = "${event.yesSwipes.size} People Interested"
-//        Log.d("Miles", "User location: $userLocation")
 
         val userLocation = viewModel.observeUserLocation().value
 

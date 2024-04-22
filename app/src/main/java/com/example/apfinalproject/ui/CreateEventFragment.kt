@@ -18,7 +18,6 @@ import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.example.apfinalproject.MainViewModel
 import com.example.apfinalproject.R
-import com.example.apfinalproject.databinding.ActivityMainBinding
 import com.example.apfinalproject.databinding.CreateEventBinding
 import com.example.apfinalproject.event.Event
 import com.google.android.material.snackbar.Snackbar
@@ -36,7 +35,6 @@ class CreateEventFragment : Fragment() {
     private val viewModel: MainViewModel by activityViewModels()
     private var _binding: CreateEventBinding? = null
     private lateinit var navController: NavController
-    private val activityMainBinding: ActivityMainBinding? = null
 
     //     This property is only valid between onCreateView and onDestroyView.
     private val binding get() = _binding!!

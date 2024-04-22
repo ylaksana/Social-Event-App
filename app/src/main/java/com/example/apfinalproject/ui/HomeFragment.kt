@@ -1,20 +1,18 @@
 package com.example.apfinalproject.ui
 
-import android.location.Location
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.Fragment
-import androidx.recyclerview.widget.LinearLayoutManager
-// import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import androidx.fragment.app.activityViewModels
 import androidx.navigation.NavController
 import androidx.navigation.NavDirections
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.apfinalproject.MainActivity
 import com.example.apfinalproject.MainViewModel
@@ -31,7 +29,6 @@ class HomeFragment : Fragment() {
     private val TAG = "HomeFragment"
     private val viewModel: MainViewModel by activityViewModels()
     private var _binding: HomeFragmentBinding? = null
-    private var userLocation: Location? = null
     private lateinit var navController: NavController
     private val filtersList: List<InterestCategories.Interest> = InterestCategories.getInterests()
 
@@ -134,14 +131,7 @@ class HomeFragment : Fragment() {
         Log.d(TAG, "onViewCreated")
         navController = findNavController()
 
-//        viewModel.observeUserLocation().observe(viewLifecycleOwner) {
-//            Log.d(TAG, "userLocation before observe: ${userLocation?.latitude}, ${userLocation?.longitude}")
-//            userLocation = it
-//            Log.d(TAG, "userLocation after observe: ${userLocation?.latitude}, ${userLocation?.longitude}")
-//            initAdapters(binding, userLocation)
-//        }
         initAdapters(binding)
-
         initTouchHelper().attachToRecyclerView(binding.eventRV)
     }
 

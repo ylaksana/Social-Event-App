@@ -43,12 +43,9 @@ class EventListFragment : Fragment() {
         return binding.root
     }
 
-    private fun initAdapters(
-        binding: FragmentRvBinding,
-        location: Location,
-    ) {
+    private fun initAdapters(binding: FragmentRvBinding) {
         eventAdapter =
-            EventAdapter(viewModel, location) { event ->
+            EventAdapter(viewModel) { event ->
                 navController.navigate(
                     EventListFragmentDirections.actionEventListFragmentToOneEventFragment(event),
                 )
@@ -71,13 +68,13 @@ class EventListFragment : Fragment() {
         viewModel.hideActionBar()
         navController = findNavController()
 
-        viewModel.observeUserLocation().observe(viewLifecycleOwner) {
-            it?.let {
-                userLocation = it
-                initAdapters(binding, it)
-            }
-        }
-
+//        viewModel.observeUserLocation().observe(viewLifecycleOwner) {
+//            it?.let {
+//                userLocation = it
+//
+//            }
+//        }
+        initAdapters(binding)
         // Set up Event RecyclerView
 //        val rv = binding.rv
 //        rv.layoutManager = LinearLayoutManager(context)

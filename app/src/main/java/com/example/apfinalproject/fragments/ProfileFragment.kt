@@ -31,10 +31,10 @@ class ProfileFragment : Fragment() {
         Log.d(TAG, "initAdapters")
         // Event RV
         viewModel.observeAllEvents().observe(viewLifecycleOwner) { allEvents ->
-            Log.d(TAG, "allEvents size = ${allEvents.size}")
-            val userEvents = allEvents.filter { it.creator == args.User.id }
-            Log.d(TAG, "userEvents size = ${userEvents.size}")
-            if (userEvents.isEmpty()) {
+            Log.d(TAG, "allEvents size = ${allEvents?.size}")
+            val userEvents = allEvents?.filter { it.creator == args.User.id }
+            Log.d(TAG, "userEvents size = ${userEvents?.size}")
+            if (userEvents?.isEmpty() == true) {
                 binding.userEventsRV.visibility = View.GONE
                 binding.noUserEvents.visibility = View.VISIBLE
             } else {

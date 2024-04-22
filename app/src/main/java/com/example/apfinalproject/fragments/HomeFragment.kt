@@ -61,6 +61,9 @@ class HomeFragment : Fragment() {
                         val eventId = it.id
                         viewModel.addEventSwipe(eventId, direction)
                         viewModel.removeEventFromView(event)
+                        viewModel.fetchEventList()
+
+                        Log.d(TAG, "event removed: ${event.title}")
 
                         // find new way to update, itemRemovedAt duplicated bound objects
                         eventAdapter?.notifyDataSetChanged()
@@ -84,11 +87,12 @@ class HomeFragment : Fragment() {
 
         val activeUser = viewModel.getActiveUser()
         viewModel.observeNetTypeEvents().observe(viewLifecycleOwner) { events ->
-            Log.d("Filter", "filterList length: ${events.size}")
+            Log.d("Filter", "filterList length before: ${events.size}")
             events.filter { event ->
                 !event.yesSwipes.contains(activeUser?.id) &&
                     !event.noSwipes.contains(activeUser?.id)
             }
+            Log.d("Filter", "filterList length after: ${events.size}")
             eventAdapter?.submitList(events)
         }
         viewModel.observeUserLocation().observe(viewLifecycleOwner) {

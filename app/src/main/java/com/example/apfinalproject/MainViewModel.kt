@@ -56,18 +56,20 @@ class MainViewModel : ViewModel() {
             invalidUser
         }
 
-    private var events = MutableLiveData<List<Event>>()
+    private var events = MutableLiveData<List<Event>?>()
 
     private var nonUserEvents =
         MediatorLiveData<List<Event>>().apply {
             addSource(events) { originalList ->
                 val filteredList =
-                    originalList.filter { event ->
+                    originalList?.filter { event ->
                         Log.d(TAG, "Filtering events: ${event.title}")
                         Log.d(TAG, "Active user: ${activeUser.value?.id}")
                         Log.d(TAG, "Event.yesSwipes: ${event.yesSwipes}")
                         Log.d(TAG, "event.noSwipes: ${event.noSwipes}")
-                        event.creator != activeUser.value?.id
+                        event.creator != activeUser.value?.id &&
+                                (activeUser.value?.id !in event.yesSwipes &&
+                        activeUser.value?.id !in event.noSwipes)
                     }
                 Log.d("NonUserEvents", "Fetched events: $filteredList")
                 postValue(filteredList)
@@ -93,7 +95,7 @@ class MainViewModel : ViewModel() {
             addSource(filterTerm) { term ->
                 val events = nonUserEvents.value
                 var filteredEvents = events
-                if (!term.isNullOrEmpty() && events != null) {
+                if (!term.isNullOrEmpty() && !events.isNullOrEmpty()){
                     filteredEvents =
                         events.filter { event ->
                             event.type == term
@@ -103,22 +105,30 @@ class MainViewModel : ViewModel() {
             }
         }
 
-    private var netUserEvents =
-        MediatorLiveData<List<Event>>().apply {
-            addSource(isMyEvents) { switch ->
-                val userEvents: List<Event>? =
-                    if (switch) {
-                        events.value?.filter { event ->
-                            event.creator == activeUser.value?.id
-                        }
-                    } else {
-                        events.value?.filter { event ->
-                            activeUser.value?.id in event.yesSwipes
-                        }
-                    }
-                postValue(userEvents)
+    private var netUserEvents = MediatorLiveData<List<Event>>().apply {
+        // Respond to changes in the switch
+        addSource(isMyEvents) { filterAndPostEvents() }
+
+        // Respond to changes in the events list
+        addSource(events) { filterAndPostEvents() }
+
+        // Respond to changes in the active user
+        addSource(activeUser) { filterAndPostEvents() }
+    }
+
+    private fun filterAndPostEvents() {
+        val switch = isMyEvents.value ?: true // Optionally handle the default case
+        val userEvents: List<Event>? = if (switch) {
+            events.value?.filter { event ->
+                event.creator == activeUser.value?.id
+            }
+        } else {
+            events.value?.filter { event ->
+                activeUser.value?.id in event.yesSwipes
             }
         }
+        netUserEvents.postValue(userEvents)
+    }
 
     fun getStorage(): Storage {
         return storage
@@ -132,7 +142,7 @@ class MainViewModel : ViewModel() {
         return netTypeEvents
     }
 
-    fun observeAllEvents(): LiveData<List<Event>> {
+    fun observeAllEvents(): LiveData<List<Event>?> {
         return events
     }
 
@@ -276,6 +286,7 @@ class MainViewModel : ViewModel() {
         eventId: String,
         direction: Int,
     ) {
+        Log.d(TAG, "addEventSwipe: $eventId, $direction")
         when (direction) {
             4 -> db.addEventSwipe(eventId, activeUser.value?.id!!, "noSwipes")
             8 -> db.addEventSwipe(eventId, activeUser.value?.id!!, "yesSwipes")
@@ -283,9 +294,9 @@ class MainViewModel : ViewModel() {
     }
 
     fun removeEventFromView(event: Event) {
-        val currentEvents = netTypeEvents.value?.toMutableList()
+        val currentEvents = nonUserEvents.value?.toMutableList()
         currentEvents?.remove(event)
-        netTypeEvents.postValue(currentEvents)
+        nonUserEvents.postValue(currentEvents)
     }
 
     fun fetchUserByUid(
@@ -373,6 +384,12 @@ class MainViewModel : ViewModel() {
                     resultListener(convs)
                 }
             }
+        }
+    }
+
+    fun fetchEventList() {
+        db.fetchEvents { eventList ->
+            events.postValue(eventList)
         }
     }
 }

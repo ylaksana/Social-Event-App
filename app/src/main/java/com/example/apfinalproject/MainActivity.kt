@@ -3,7 +3,8 @@ package com.example.apfinalproject
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Bundle
-import android.os.Looper
+import android.os.Handler
+import android.os.HandlerThread
 // import android.text.Editable
 // import android.text.TextWatcher
 import android.util.Log
@@ -124,7 +125,8 @@ class MainActivity : AppCompatActivity() {
 
     private var locationCallback: LocationCallback? = null
 
-    fun requestNewLocationData() {
+    private fun requestNewLocationData() {
+        Log.d(TAG, "Requesting new location data")
         val locationRequest =
             LocationRequest.Builder(10000L)
                 .setPriority(Priority.PRIORITY_HIGH_ACCURACY)
@@ -142,7 +144,7 @@ class MainActivity : AppCompatActivity() {
                     if (location != null) {
                         Log.d("MapFragment", "Updated Location: Latitude: ${location.latitude}, Longitude: ${location.longitude}")
                         // Use the location as needed
-                        viewModel.updateLocation(location)
+                        viewModel.updateUserLocation(location)
                     } else {
                         Log.d("MapFragment", "No location retrieved on update!")
                     }
@@ -152,7 +154,17 @@ class MainActivity : AppCompatActivity() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
             ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
         ) {
-            fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.myLooper())
+            fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, null)
+        }
+    }
+
+    fun requestLocationUpdates() {
+        val backgroundThread = HandlerThread("BackgroundThread")
+        backgroundThread.start()
+        val backgroundHandler = Handler(backgroundThread.looper)
+
+        backgroundHandler.post {
+            requestNewLocationData()
         }
     }
 
@@ -177,18 +189,10 @@ class MainActivity : AppCompatActivity() {
         }
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-            ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED
-        ) {
-            // Request the necessary permissions
-            ActivityCompat.requestPermissions(
-                this,
-                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION),
-                1,
-            )
-            return
+        if (!hasLocationPermissions()) {
+            requestLocationPermissions()
         }
-        requestNewLocationData()
+        requestLocationUpdates()
 
         initTitleObservers()
         actionBarTitleLaunchProfile()
@@ -196,15 +200,16 @@ class MainActivity : AppCompatActivity() {
         actionBarChatList()
         actionBarCreateEvent()
         actionBarEventList()
-        fusedLocationClient.lastLocation.addOnSuccessListener { location ->
-            location?.let {
-                Log.d(TAG, ">>initUserLocation: $location")
-                viewModel.initUserLocation(location)
-            }
-        }.addOnFailureListener { exception ->
-            // Handle any errors here
-            Log.e(TAG, "Error getting location", exception)
-        }
+
+//        fusedLocationClient.lastLocation.addOnSuccessListener { location ->
+//            location?.let {
+//                Log.d(TAG, ">>initUserLocation: $location")
+//                viewModel.initUserLocation(location)
+//            }
+//        }.addOnFailureListener { exception ->
+//            // Handle any errors here
+//            Log.e(TAG, "Error getting location", exception)
+//        }
 
         // Set up our nav graph
         navController = findNavController(R.id.main_frame)
@@ -214,6 +219,32 @@ class MainActivity : AppCompatActivity() {
         activityMainBinding.toolbar.setupWithNavController(navController, appBarConfiguration)
         // setupActionBarWithNavController(navController, appBarConfiguration)
         Log.d(TAG, "onCreate end")
+    }
+
+    private fun requestLocationPermissions() {
+        ActivityCompat.requestPermissions(
+            this,
+            arrayOf(
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+            ),
+            1,
+        )
+    }
+
+    private fun hasLocationPermissions(): Boolean {
+        return (
+            ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION,
+            ) == PackageManager.PERMISSION_GRANTED
+        ) &&
+            (
+                ActivityCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.ACCESS_COARSE_LOCATION,
+                ) == PackageManager.PERMISSION_GRANTED
+            )
     }
 
     override fun onStart() {

@@ -39,17 +39,19 @@ class MainViewModel : ViewModel() {
     private val db = ViewModelDBHelper()
     private val filterTerm: MutableLiveData<String> = MutableLiveData()
     private var isMyEvents: MutableLiveData<Boolean> = MutableLiveData()
-    private val _location = MutableLiveData<Location>()
+
+//    private val _location = MutableLiveData<Location>()
     private val userLocation = MutableLiveData<Location?>()
-    val location: LiveData<Location> get() = _location
+//    val location: LiveData<Location> get() = _location
 
-    fun updateLocation(location: Location) {
-        _location.postValue(location)
+    fun updateUserLocation(location: Location) {
+        Log.d(TAG, "updateUserLocation: $location")
+        userLocation.postValue(location)
     }
 
-    fun observeLocation(): LiveData<Location> {
-        return location
-    }
+//    fun observeLocation(): LiveData<Location> {
+//        return location
+//    }
 
     fun observeUserLocation(): LiveData<Location?> {
         return userLocation
@@ -428,7 +430,7 @@ class MainViewModel : ViewModel() {
 
     suspend fun getEventCoords(locationName: String): OSMLocation {
         val locationCoords = osmRepository.fetchLocation(locationName)
-        Log.d("OSM", "Fetched location: $location")
+        Log.d("OSM", "Fetched location: $userLocation")
         return locationCoords
     }
 

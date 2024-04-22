@@ -16,7 +16,8 @@ class Event(
     var type: String = "No Type",
     var imageName: String = "default.jpg",
     var yesSwipes: List<String> = listOf(),
-    var noSwipes: List<String> = listOf()) : Parcelable{
+    var noSwipes: List<String> = listOf(),
+) : Parcelable {
 
     // Events with the same ID are considered equal.
     // Not sure if this is the best way to do it, but it works for now.
@@ -26,7 +27,6 @@ class Event(
         } else {
             false
         }
-
 
     override fun hashCode(): Int {
         var result = id.hashCode()

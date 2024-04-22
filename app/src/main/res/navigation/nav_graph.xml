@@ -7,10 +7,9 @@
     <!--Home Fragment-->
     <fragment
         android:id="@+id/homeFragment"
-        android:name="com.example.apfinalproject.ui.HomeFragment">
+        android:name="com.example.apfinalproject.fragments.HomeFragment">
 
         <!--Navigation to other fragments-->
-
         <!--Home to OneEvent-->
         <action
             android:id="@+id/action_homeFragment_to_oneEventFragment"
@@ -41,11 +40,6 @@
             android:id="@+id/action_homeFragment_to_createUserFragment"
             app:destination="@id/createUserFragment" />
 
-        <!--Home to Settings-->
-        <action
-            android:id="@+id/action_homeFragment_to_settingsFragment"
-            app:destination="@id/settingsFragment" />
-
         <!--Home to Event List-->
         <action
             android:id="@+id/action_homeFragment_to_eventListFragment"
@@ -61,7 +55,7 @@
     <!--OneEvent Fragment-->
     <fragment
         android:id="@+id/oneEventFragment"
-        android:name="com.example.apfinalproject.ui.OneEventFragment">
+        android:name="com.example.apfinalproject.fragments.OneEventFragment">
 
         <!--OneEvent to Profile-->
         <action
@@ -80,14 +74,14 @@
 
         <argument
             android:name="Event"
-            app:argType="com.example.apfinalproject.event.Event" />
+            app:argType="com.example.apfinalproject.model.Event" />
 
     </fragment>
 
     <!--New User Fragment-->
     <fragment
         android:id="@+id/createUserFragment"
-        android:name="com.example.apfinalproject.user.CreateUserFragment">
+        android:name="com.example.apfinalproject.fragments.CreateUserFragment">
 
         <!--Create User to Home-->
         <action
@@ -109,7 +103,7 @@
     <!--createEvent Fragment-->
     <fragment
         android:id="@+id/createEventFragment"
-        android:name="com.example.apfinalproject.ui.CreateEventFragment">
+        android:name="com.example.apfinalproject.fragments.CreateEventFragment">
 
         <!--CreateEvent to OneEvent-->
         <action
@@ -123,7 +117,7 @@
     <!--Chat List Fragment-->
     <fragment
         android:id="@+id/chatListFragment"
-        android:name="com.example.apfinalproject.ui.ChatListFragment" >
+        android:name="com.example.apfinalproject.fragments.ChatListFragment" >
 
         <!--ChatList to Chat-->
         <action
@@ -140,7 +134,7 @@
     <!--Chat Fragment-->
     <fragment
         android:id="@+id/chatFragment"
-        android:name="com.example.apfinalproject.ui.ChatFragment">
+        android:name="com.example.apfinalproject.fragments.ChatFragment">
 
         <!--Chat to ChatList-->
         <action
@@ -149,7 +143,7 @@
 
         <argument
             android:name="Conversation"
-            app:argType="com.example.apfinalproject.chat.Conversation"/>
+            app:argType="com.example.apfinalproject.model.Conversation"/>
 
     </fragment>
 
@@ -157,7 +151,7 @@
     <!--Map Fragment-->
     <fragment
         android:id="@+id/mapFragment"
-        android:name="com.example.apfinalproject.ui.MapFragment">
+        android:name="com.example.apfinalproject.fragments.MapFragment">
 
             <!--Map to OneEvent-->
         <action
@@ -169,7 +163,7 @@
     <!--Profile Fragment-->
     <fragment
         android:id="@+id/profileFragment"
-        android:name="com.example.apfinalproject.user.ProfileFragment" >
+        android:name="com.example.apfinalproject.fragments.ProfileFragment" >
 
         <!--Profile to EditProfile-->
         <action
@@ -188,14 +182,14 @@
 
         <argument
             android:name="User"
-            app:argType="com.example.apfinalproject.user.User" />
+            app:argType="com.example.apfinalproject.model.User" />
 
     </fragment>
 
     <!--Profile Edit Fragment-->
     <fragment
         android:id="@+id/profileEditFragment"
-        android:name="com.example.apfinalproject.user.ProfileEditFragment" >
+        android:name="com.example.apfinalproject.fragments.ProfileEditFragment" >
 
         <!--EditProfile to Profile-->
         <action
@@ -204,23 +198,10 @@
 
     </fragment>
 
-
-
-    <!--Settings Fragment-->
-    <fragment
-        android:id="@+id/settingsFragment"
-        android:name="com.example.apfinalproject.ui.SettingsFragment">
-
-        <action
-            android:id="@+id/action_settingsFragment_to_homeFragment"
-            app:destination="@id/homeFragment" />
-
-    </fragment>
-
     <!--EventList Fragment-->
     <fragment
         android:id="@+id/eventListFragment"
-        android:name="com.example.apfinalproject.ui.EventListFragment">
+        android:name="com.example.apfinalproject.fragments.EventListFragment">
 
         <!--EventList to Event-->
         <action
@@ -232,7 +213,7 @@
     <!--Edit Event Fragment-->
     <fragment
         android:id="@+id/editEventFragment"
-        android:name="com.example.apfinalproject.ui.EditEventFragment">
+        android:name="com.example.apfinalproject.fragments.EditEventFragment">
 
         <action
             android:id="@+id/action_editEventFragment_to_oneEventFragment"
@@ -240,7 +221,7 @@
 
         <argument
             android:name="Event"
-            app:argType="com.example.apfinalproject.event.Event" />
+            app:argType="com.example.apfinalproject.model.Event" />
 
     </fragment>
 

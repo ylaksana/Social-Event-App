@@ -10,19 +10,19 @@ import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.apfinalproject.chat.Conversation
+import com.example.apfinalproject.api.OSMApi
+import com.example.apfinalproject.api.OSMRepository
 import com.example.apfinalproject.databinding.ActionBarBinding
-import com.example.apfinalproject.event.Event
 import com.example.apfinalproject.glide.Glide
-import com.example.apfinalproject.osm.OSMApi
-import com.example.apfinalproject.osm.OSMLocation
-import com.example.apfinalproject.osm.OSMRepository
-import com.example.apfinalproject.user.User
-import com.example.apfinalproject.user.invalidUser
+import com.example.apfinalproject.model.Conversation
+import com.example.apfinalproject.model.Event
+import com.example.apfinalproject.model.OSMLocation
+import com.example.apfinalproject.model.User
+import com.example.apfinalproject.model.invalidUser
+import com.example.apfinalproject.storage.Storage
+import com.example.apfinalproject.storage.ViewModelDBHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import retrofit2.HttpException
-import java.lang.Exception
 import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.pow
@@ -77,29 +77,6 @@ class MainViewModel : ViewModel() {
     // OSM
     private val osmAPI = OSMApi.create()
     private val osmRepository = OSMRepository(osmAPI)
-    private var searchLocation = MutableLiveData<String>()
-
-    private var netLocations =
-        MediatorLiveData<List<OSMLocation>>().apply {
-            addSource(nonUserEvents) { events ->
-                Log.d("OSM", "Fetching locations")
-                try {
-                    viewModelScope.launch(Dispatchers.IO) {
-                        val locations = osmRepository.fetchLocations(events)
-                        Log.d("OSM", "Fetched locations: $locations")
-                        if (locations.isNotEmpty()) {
-                            // Post the location to a LiveData object
-                            postValue(locations)
-                        }
-                    }
-                } catch (e: HttpException) {
-                    Log.e("HTTP Error", "Error fetching posts: ${e.code()}")
-                } catch (e: Exception) {
-                    Log.e("General Error", "Error in fetching from API: ${e.message}")
-                }
-            }
-        }
-
     private var netTypeEvents =
         MediatorLiveData<List<Event>>().apply {
             addSource(nonUserEvents) { events ->
@@ -167,12 +144,6 @@ class MainViewModel : ViewModel() {
     fun setEvents(switch: Boolean) {
         isMyEvents.value = switch
     }
-
-    // Convert these to Event/Interest objects later
-    private var pastEventsLiveData =
-        MutableLiveData<List<Event>>().apply {
-            this.postValue(listOf())
-        }
 
     var interestsLiveData =
         MediatorLiveData<List<String>>().apply {
@@ -260,13 +231,11 @@ class MainViewModel : ViewModel() {
         val dLat = Math.toRadians((eventLat - userLat))
         val dLng = Math.toRadians((eventLon - userLon))
 
-        val sindLat = sin(dLat / 2)
-        val sindLng = sin(dLng / 2)
+        val sinLatDeg = sin(dLat / 2)
+        val sinLngDeg = sin(dLng / 2)
 
-        val a = sindLat.pow(2.0) + (sindLng.pow(2.0) * cos(Math.toRadians(userLat)) * cos(Math.toRadians(eventLat)))
-
+        val a = sinLatDeg.pow(2.0) + (sinLngDeg.pow(2.0) * cos(Math.toRadians(userLat)) * cos(Math.toRadians(eventLat)))
         val c = 2 * atan2(sqrt(a), sqrt(1 - a))
-
         return earthRadius * c
     }
 
@@ -328,11 +297,11 @@ class MainViewModel : ViewModel() {
         }
     }
 
-    fun fetchUsersByUids(
-        uids: List<String>,
+    fun fetchUsersByIds(
+        ids: List<String>,
         resultListener: (List<User>) -> Unit,
     ) {
-        db.fetchUsersByUids(uids) {
+        db.fetchUsersByIds(ids) {
             resultListener(it)
         }
     }

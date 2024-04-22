@@ -1,32 +1,38 @@
 package com.example.apfinalproject.ui
 
+import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.apfinalproject.MainViewModel
-import com.example.apfinalproject.databinding.InterestItemBinding
-import android.content.Context
 import com.example.apfinalproject.R
-import androidx.appcompat.content.res.AppCompatResources
+import com.example.apfinalproject.databinding.InterestItemBinding
 
 class InterestAdapter(
     private val viewModel: MainViewModel,
-    private val editMode: Boolean = false)
-    : ListAdapter<String, InterestAdapter.InterestViewHolder>(InterestDiff()) {
-
+    private val editMode: Boolean = false,
+) :
+    ListAdapter<String, InterestAdapter.InterestViewHolder>(InterestDiff()) {
     var tempInterests = viewModel.observeInterests().value?.toMutableList() ?: mutableListOf()
 
-    inner class InterestViewHolder(val interestItemBinding: InterestItemBinding)
-        : RecyclerView.ViewHolder(interestItemBinding.root) {}
+    inner class InterestViewHolder(val interestItemBinding: InterestItemBinding) :
+        RecyclerView.ViewHolder(interestItemBinding.root)
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): InterestViewHolder {
+    override fun onCreateViewHolder(
+        parent: ViewGroup,
+        viewType: Int,
+    ): InterestViewHolder {
         val interestItemBinding = InterestItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return InterestViewHolder(interestItemBinding)
     }
 
-    override fun onBindViewHolder(holder: InterestViewHolder, position: Int) {
+    override fun onBindViewHolder(
+        holder: InterestViewHolder,
+        position: Int,
+    ) {
         val interest = getItem(position)
         holder.interestItemBinding.interestName.text = interest
         if (editMode) {
@@ -49,7 +55,8 @@ class InterestAdapter(
     private fun setInterestColor(
         binding: InterestItemBinding,
         interest: String,
-        context: Context) {
+        context: Context,
+    ) {
         if (tempInterests.contains(interest)) {
             val drawable = AppCompatResources.getDrawable(context, R.drawable.interest_selected)
             binding.interestName.text = interest
@@ -62,12 +69,22 @@ class InterestAdapter(
     }
 
     class InterestDiff : DiffUtil.ItemCallback<String>() {
-        override fun areItemsTheSame(oldItem: String, newItem: String): Boolean {
+        override fun areItemsTheSame(
+            oldItem: String,
+            newItem: String,
+        ): Boolean {
             return oldItem == newItem
         }
 
-        override fun areContentsTheSame(oldItem: String, newItem: String): Boolean {
+        override fun areContentsTheSame(
+            oldItem: String,
+            newItem: String,
+        ): Boolean {
             return oldItem == newItem
         }
+    }
+
+    fun clearInterests() {
+        tempInterests.clear()
     }
 }

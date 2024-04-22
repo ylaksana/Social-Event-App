@@ -43,7 +43,7 @@ class OneEventFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         (activity as? AppCompatActivity)?.supportActionBar?.hide()
-        (activity as MainActivity).requestNewLocationData()
+        (activity as MainActivity).requestLocationUpdates()
     }
 
     override fun onPause() {
@@ -79,16 +79,18 @@ class OneEventFragment : Fragment() {
         viewModel.fetchEventImage(args.Event.imageName, binding.eventImage)
 
         val user = viewModel.getActiveUser()
-        viewModel.observeLocation().observe(viewLifecycleOwner) {
-            Log.d(TAG, "userLocation: ${it.latitude}, ${it.longitude}")
+        viewModel.observeUserLocation().observe(viewLifecycleOwner) {
+            Log.d(TAG, "userLocation: ${it?.latitude}, ${it?.longitude}")
             Log.d(TAG, "eventLocation: ${args.Event.latitude}, ${args.Event.longitude}")
-            val lat1 = it.latitude
-            val lon1 = it.longitude
-            val lat2 = args.Event.latitude
-            val lon2 = args.Event.longitude
-            val distance = viewModel.getDistance(lat1, lon1, lat2, lon2) / 1600
+            it?.let {
+                val lat1 = it.latitude
+                val lon1 = it.longitude
+                val lat2 = args.Event.latitude
+                val lon2 = args.Event.longitude
+                val distance = viewModel.calculateDistanceInMiles(lat1, lon1, lat2, lon2)
 
-            binding.eventDistance.text = String.format("%.2f", distance) + " miles away"
+                binding.eventDistance.text = String.format("%.2f", distance) + " miles away"
+            }
         }
 
         if (user?.id == args.Event.creator) {

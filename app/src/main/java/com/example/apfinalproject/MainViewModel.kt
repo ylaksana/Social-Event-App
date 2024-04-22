@@ -44,7 +44,7 @@ class MainViewModel : ViewModel() {
     private val userLocation = MutableLiveData<Location?>()
 //    val location: LiveData<Location> get() = _location
 
-    fun updateUserLocation(location: Location) {
+    fun updateUserLocation(location: Location?) {
         Log.d(TAG, "updateUserLocation: $location")
         userLocation.postValue(location)
     }
@@ -151,12 +151,14 @@ class MainViewModel : ViewModel() {
     private var netUserEvents =
         MediatorLiveData<List<Event>>().apply {
             addSource(isMyEvents) { switch ->
-                var userEvents = nonUserEvents.value
-                if (switch) {
-                    userEvents =
-                        events.value?.filter { event ->
-                            event.creator == activeUser.value?.id
-                        }
+                val userEvents: List<Event>? = if (switch) {
+                    events.value?.filter { event ->
+                        event.creator == activeUser.value?.id
+                    }
+                } else{
+                    events.value?.filter { event ->
+                        activeUser.value?.id in event.yesSwipes
+                    }
                 }
                 postValue(userEvents)
             }

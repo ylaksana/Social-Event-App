@@ -44,6 +44,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var navController: NavController
     private lateinit var authUser: AuthUser
     private lateinit var fusedLocationClient: FusedLocationProviderClient
+    private var location: android.location.Location? = null
 
     private fun initActionBar(actionBar: ActionBar) {
         // Disable the default and enable the custom
@@ -140,14 +141,10 @@ class MainActivity : AppCompatActivity() {
                 override fun onLocationResult(locationResult: LocationResult) {
                     super.onLocationResult(locationResult)
                     locationResult ?: return
-                    val location = locationResult.lastLocation
-                    if (location != null) {
-                        Log.d("MapFragment", "Updated Location: Latitude: ${location.latitude}, Longitude: ${location.longitude}")
-                        // Use the location as needed
-                        viewModel.updateUserLocation(location)
-                    } else {
-                        Log.d("MapFragment", "No location retrieved on update!")
-                    }
+                    location = locationResult.lastLocation
+                    Log.d("MapFragment", "Updated Location: Latitude: ${location?.latitude}, Longitude: ${location?.longitude}")
+                    // Use the location as needed
+                    viewModel.updateUserLocation(location)
                 }
             }
 
@@ -155,6 +152,10 @@ class MainActivity : AppCompatActivity() {
             ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
         ) {
             fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, null)
+        }
+        else{
+            Log.d("MapFragment", "No location permissions")
+            viewModel.updateUserLocation(location)
         }
     }
 

@@ -83,16 +83,13 @@ class HomeFragment : Fragment() {
         return ItemTouchHelper(simpleItemTouchCallback)
     }
 
-    private fun initAdapters(
-        binding: HomeFragmentBinding,
-        location: Location?,
-    ) {
+    private fun initAdapters(binding: HomeFragmentBinding) {
         Log.d(TAG, "initAdapters")
         // Event RV
         binding.eventRV.layoutManager = LinearLayoutManager(context)
-        Log.d(TAG, ">>initAdapters: ${location?.latitude}, ${location?.longitude}")
+//        Log.d(TAG, ">>initAdapters: ${location?.latitude}, ${location?.longitude}")
         adapter =
-            EventAdapter(viewModel, location) { event ->
+            EventAdapter(viewModel) { event ->
                 navController.navigate(
                     HomeFragmentDirections.actionHomeFragmentToOneEventFragment(event),
                 )
@@ -137,12 +134,13 @@ class HomeFragment : Fragment() {
         Log.d(TAG, "onViewCreated")
         navController = findNavController()
 
-        viewModel.observeUserLocation().observe(viewLifecycleOwner) {
-            Log.d(TAG, "userLocation before observe: ${userLocation?.latitude}, ${userLocation?.longitude}")
-            userLocation = it
-            Log.d(TAG, "userLocation after observe: ${userLocation?.latitude}, ${userLocation?.longitude}")
-            initAdapters(binding, userLocation)
-        }
+//        viewModel.observeUserLocation().observe(viewLifecycleOwner) {
+//            Log.d(TAG, "userLocation before observe: ${userLocation?.latitude}, ${userLocation?.longitude}")
+//            userLocation = it
+//            Log.d(TAG, "userLocation after observe: ${userLocation?.latitude}, ${userLocation?.longitude}")
+//            initAdapters(binding, userLocation)
+//        }
+        initAdapters(binding)
 
         initTouchHelper().attachToRecyclerView(binding.eventRV)
     }

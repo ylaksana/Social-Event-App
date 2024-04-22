@@ -10,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -19,6 +20,10 @@ import com.example.apfinalproject.R
 import com.example.apfinalproject.databinding.MapFragmentBinding
 import com.example.apfinalproject.event.Event
 import com.google.android.gms.location.FusedLocationProviderClient
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.osmdroid.config.Configuration
 import org.osmdroid.events.MapListener
 import org.osmdroid.events.ScrollEvent
@@ -82,12 +87,16 @@ class MapFragment : Fragment() {
 
     private fun setEventMarkers(events: List<Event>) {
         mapView.overlays.clear()
-        Marker(mapView).apply {
-            position = GeoPoint(userLatitude, userLongitude)
-            setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
-            icon = ResourcesCompat.getDrawable(resources, R.drawable.home, null)
-            title = "Current Location"
-            mapView.overlays.add(this)
+        viewModel.observeUserLocation().observe(viewLifecycleOwner) { location ->
+            if(location != null) {
+                Marker(mapView).apply {
+                    position = GeoPoint(userLatitude, userLongitude)
+                    setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
+                    icon = ResourcesCompat.getDrawable(resources, R.drawable.home, null)
+                    title = "Current Location"
+                    mapView.overlays.add(this)
+                }
+            }
         }
         if (events.isEmpty()) {
             binding.noEvents.visibility = View.VISIBLE
@@ -120,13 +129,15 @@ class MapFragment : Fragment() {
 
     // Function for setting new user location
     private fun setNewLocation(location: Location?) {
+        Log.d("MapFragment", "Setting new location: $location")
+
+        val mapController = mapView.controller
         if (location != null) {
             userLatitude = location.latitude
             userLongitude = location.longitude
             Log.d("MapFragment", "Last Location: Latitude: $userLatitude, Longitude: $userLongitude")
             Log.d("OSM", "Last Location: $location")
             // Initialize the map controller here
-            val mapController = mapView.controller
             mapController.setZoom(12.0)
             mapController.setCenter(GeoPoint(userLatitude, userLongitude))
             mapView.overlays.clear()
@@ -150,7 +161,24 @@ class MapFragment : Fragment() {
             updateEventsBasedOnBoundingBox()
         } else {
             Log.d("MapFragment", "Last location is null")
-            binding.noEvents.visibility = View.VISIBLE
+            viewModel.viewModelScope.launch {
+                val nullUserLocation = async(Dispatchers.IO) {
+                    viewModel.getEventCoords("United States")
+                }
+                withContext(Dispatchers.Main) {
+                    val coords = nullUserLocation.await()
+
+                    mapController.setZoom(4.5)
+                    mapController.setCenter(GeoPoint(coords.latitude, coords.longitude))
+
+                    // Get the current bounding box of the visible area
+                    boundingBox = mapView.boundingBox
+
+                    // Log the values
+                    viewModel.setEvents(false)
+                    updateEventsBasedOnBoundingBox()
+                }
+            }
         }
     }
 

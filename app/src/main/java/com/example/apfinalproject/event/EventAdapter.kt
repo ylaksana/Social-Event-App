@@ -1,8 +1,8 @@
 package com.example.apfinalproject.event
 
-import android.location.Location
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
@@ -13,7 +13,7 @@ import com.example.apfinalproject.MainViewModel
 
 class EventAdapter(
     private val viewModel: MainViewModel,
-    private val userLocation: Location?,
+//    private val userLocation: Location?,
     private val navigateToOneEvent: (Event) -> Unit,
 ) :
     ListAdapter<Event, EventAdapter.EventViewHolder>(EventDiff()) {
@@ -54,21 +54,28 @@ class EventAdapter(
 //        eventRowBinding.eventLocation.text = event.location
 //        eventRowBinding.eventDescription.text = event.description
         eventRowBinding.peopleInterested.text = "${event.yesSwipes.size} People Interested"
-        Log.d("Miles", "User location: $userLocation")
-        if (userLocation != null)
-            {
-                Log.d("Miles", "${userLocation.latitude}, ${userLocation.longitude}, ${event.latitude}, ${event.longitude}")
-                eventRowBinding.miles.text =
-                    String.format(
-                        "%.2f miles",
-                        viewModel.calculateDistanceInMiles(
-                            userLocation.latitude,
-                            userLocation.longitude,
-                            event.latitude,
-                            event.longitude,
-                        ),
-                    )
-            }
+//        Log.d("Miles", "User location: $userLocation")
+
+        val userLocation = viewModel.observeUserLocation().value
+
+        if (userLocation != null) {
+            eventRowBinding.miles.visibility = View.VISIBLE
+            eventRowBinding.timeDot.visibility = View.VISIBLE
+            Log.d("Miles", "${userLocation.latitude}, ${userLocation.longitude}, ${event.latitude}, ${event.longitude}")
+            eventRowBinding.miles.text =
+                String.format(
+                    "%.2f miles",
+                    viewModel.calculateDistanceInMiles(
+                        userLocation.latitude,
+                        userLocation.longitude,
+                        event.latitude,
+                        event.longitude,
+                    ),
+                )
+        } else {
+            eventRowBinding.miles.visibility = View.GONE
+            eventRowBinding.timeDot.visibility = View.GONE
+        }
         Log.d("EventAdapter", "fetching image: ${event.imageName}")
         viewModel.fetchEventImage(event.imageName, eventRowBinding.image)
     }

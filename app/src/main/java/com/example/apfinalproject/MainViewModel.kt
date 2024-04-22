@@ -10,19 +10,19 @@ import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.apfinalproject.chat.Conversation
+import com.example.apfinalproject.api.OSMApi
+import com.example.apfinalproject.api.OSMRepository
 import com.example.apfinalproject.databinding.ActionBarBinding
-import com.example.apfinalproject.event.Event
 import com.example.apfinalproject.glide.Glide
-import com.example.apfinalproject.osm.OSMApi
-import com.example.apfinalproject.osm.OSMLocation
-import com.example.apfinalproject.osm.OSMRepository
-import com.example.apfinalproject.user.User
-import com.example.apfinalproject.user.invalidUser
+import com.example.apfinalproject.model.Conversation
+import com.example.apfinalproject.model.Event
+import com.example.apfinalproject.model.OSMLocation
+import com.example.apfinalproject.model.User
+import com.example.apfinalproject.model.invalidUser
+import com.example.apfinalproject.storage.Storage
+import com.example.apfinalproject.storage.ViewModelDBHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import retrofit2.HttpException
-import java.lang.Exception
 import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.pow
@@ -39,37 +39,15 @@ class MainViewModel : ViewModel() {
     private val db = ViewModelDBHelper()
     private val filterTerm: MutableLiveData<String> = MutableLiveData()
     private var isMyEvents: MutableLiveData<Boolean> = MutableLiveData()
-
-//    private val _location = MutableLiveData<Location>()
     private val userLocation = MutableLiveData<Location?>()
-//    val location: LiveData<Location> get() = _location
 
     fun updateUserLocation(location: Location?) {
         Log.d(TAG, "updateUserLocation: $location")
         userLocation.postValue(location)
     }
 
-//    fun observeLocation(): LiveData<Location> {
-//        return location
-//    }
-
     fun observeUserLocation(): LiveData<Location?> {
         return userLocation
-    }
-
-    fun initUserLocation(location: Location?) {
-        userLocation.postValue(location)
-    }
-
-    fun getDistance(
-        lat1: Double,
-        lon1: Double,
-        lat2: Double,
-        lon2: Double,
-    ): Float {
-        val results = FloatArray(1)
-        Location.distanceBetween(lat1, lon1, lat2, lon2, results)
-        return results[0]
     }
 
     var activeUser =
@@ -99,29 +77,6 @@ class MainViewModel : ViewModel() {
     // OSM
     private val osmAPI = OSMApi.create()
     private val osmRepository = OSMRepository(osmAPI)
-    private var searchLocation = MutableLiveData<String>()
-
-    private var netLocations =
-        MediatorLiveData<List<OSMLocation>>().apply {
-            addSource(nonUserEvents) { events ->
-                Log.d("OSM", "Fetching locations")
-                try {
-                    viewModelScope.launch(Dispatchers.IO) {
-                        val locations = osmRepository.fetchLocations(events)
-                        Log.d("OSM", "Fetched locations: $locations")
-                        if (locations.isNotEmpty()) {
-                            // Post the location to a LiveData object
-                            postValue(locations)
-                        }
-                    }
-                } catch (e: HttpException) {
-                    Log.e("HTTP Error", "Error fetching posts: ${e.code()}")
-                } catch (e: Exception) {
-                    Log.e("General Error", "Error in fetching from API: ${e.message}")
-                }
-            }
-        }
-
     private var netTypeEvents =
         MediatorLiveData<List<Event>>().apply {
             addSource(nonUserEvents) { events ->
@@ -151,30 +106,22 @@ class MainViewModel : ViewModel() {
     private var netUserEvents =
         MediatorLiveData<List<Event>>().apply {
             addSource(isMyEvents) { switch ->
-                val userEvents: List<Event>? = if (switch) {
-                    events.value?.filter { event ->
-                        event.creator == activeUser.value?.id
+                val userEvents: List<Event>? =
+                    if (switch) {
+                        events.value?.filter { event ->
+                            event.creator == activeUser.value?.id
+                        }
+                    } else {
+                        events.value?.filter { event ->
+                            activeUser.value?.id in event.yesSwipes
+                        }
                     }
-                } else{
-                    events.value?.filter { event ->
-                        activeUser.value?.id in event.yesSwipes
-                    }
-                }
                 postValue(userEvents)
             }
         }
 
     fun getStorage(): Storage {
         return storage
-    }
-
-    fun observeLocations(): LiveData<List<OSMLocation>> {
-        Log.d("ObserveLocations", "Fetched locations: ${netLocations.value}")
-        return netLocations
-    }
-
-    fun setLocationTerm(term: String) {
-        searchLocation.postValue(term)
     }
 
     fun observeUserEvents(): LiveData<List<Event>> {
@@ -197,12 +144,6 @@ class MainViewModel : ViewModel() {
     fun setEvents(switch: Boolean) {
         isMyEvents.value = switch
     }
-
-    // Convert these to Event/Interest objects later
-    private var pastEventsLiveData =
-        MutableLiveData<List<Event>>().apply {
-            this.postValue(listOf())
-        }
 
     var interestsLiveData =
         MediatorLiveData<List<String>>().apply {
@@ -248,10 +189,6 @@ class MainViewModel : ViewModel() {
         return activeUser.value
     }
 
-    fun observePastEvents(): LiveData<List<Event>> {
-        return pastEventsLiveData
-    }
-
     fun observeInterests(): LiveData<List<String>> {
         return interestsLiveData
     }
@@ -294,13 +231,11 @@ class MainViewModel : ViewModel() {
         val dLat = Math.toRadians((eventLat - userLat))
         val dLng = Math.toRadians((eventLon - userLon))
 
-        val sindLat = sin(dLat / 2)
-        val sindLng = sin(dLng / 2)
+        val sinLatDeg = sin(dLat / 2)
+        val sinLngDeg = sin(dLng / 2)
 
-        val a = sindLat.pow(2.0) + (sindLng.pow(2.0) * cos(Math.toRadians(userLat)) * cos(Math.toRadians(eventLat)))
-
+        val a = sinLatDeg.pow(2.0) + (sinLngDeg.pow(2.0) * cos(Math.toRadians(userLat)) * cos(Math.toRadians(eventLat)))
         val c = 2 * atan2(sqrt(a), sqrt(1 - a))
-
         return earthRadius * c
     }
 
@@ -337,16 +272,6 @@ class MainViewModel : ViewModel() {
         }
     }
 
-    fun deleteImage(
-        uuid: String,
-        collection: String,
-    ) {
-        Log.d(TAG, "deleteImage: $uuid")
-        viewModelScope.launch(Dispatchers.IO) {
-            storage.deleteImage(uuid, collection)
-        }
-    }
-
     fun addEventSwipe(
         eventId: String,
         direction: Int,
@@ -372,11 +297,11 @@ class MainViewModel : ViewModel() {
         }
     }
 
-    fun fetchUsersByUids(
-        uids: List<String>,
+    fun fetchUsersByIds(
+        ids: List<String>,
         resultListener: (List<User>) -> Unit,
     ) {
-        db.fetchUsersByUids(uids) {
+        db.fetchUsersByIds(ids) {
             resultListener(it)
         }
     }

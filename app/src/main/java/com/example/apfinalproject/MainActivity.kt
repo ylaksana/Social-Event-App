@@ -5,14 +5,8 @@ import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.Handler
 import android.os.HandlerThread
-// import android.text.Editable
-// import android.text.TextWatcher
 import android.util.Log
-
-// import android.view.inputmethod.InputMethodManager
 import androidx.activity.viewModels
-
-import android.view.inputmethod.InputMethodManager
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -23,14 +17,13 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
 import com.example.apfinalproject.databinding.ActionBarBinding
 import com.example.apfinalproject.databinding.ActivityMainBinding
-import com.example.apfinalproject.ui.HomeFragmentDirections
-import com.example.apfinalproject.user.AuthUser
-import com.example.apfinalproject.user.invalidUser
+import com.example.apfinalproject.fragments.HomeFragmentDirections
+import com.example.apfinalproject.model.invalidUser
 import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationServices
-import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationCallback
+import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
+import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 
 class MainActivity : AppCompatActivity() {
@@ -54,14 +47,6 @@ class MainActivity : AppCompatActivity() {
         // Apply the custom view
         actionBar.customView = actionBarBinding?.root
         viewModel.initActionBarBinding(actionBarBinding!!)
-    }
-
-    // An Android nightmare
-    // https://stackoverflow.com/questions/1109022/close-hide-the-android-soft-keyboard
-    // https://stackoverflow.com/questions/7789514/how-to-get-activitys-windowtoken-without-view
-    fun hideKeyboard() {
-        val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
-        imm.hideSoftInputFromWindow(window.decorView.rootView.windowToken, 0)
     }
 
     // https://nezspencer.medium.com/navigation-components-a-fix-for-navigation-action-cannot-be-found-in-the-current-destination-95b63e16152e
@@ -140,7 +125,6 @@ class MainActivity : AppCompatActivity() {
             object : LocationCallback() {
                 override fun onLocationResult(locationResult: LocationResult) {
                     super.onLocationResult(locationResult)
-                    locationResult ?: return
                     location = locationResult.lastLocation
                     Log.d("MapFragment", "Updated Location: Latitude: ${location?.latitude}, Longitude: ${location?.longitude}")
                     // Use the location as needed
@@ -152,8 +136,7 @@ class MainActivity : AppCompatActivity() {
             ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
         ) {
             fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, null)
-        }
-        else{
+        } else {
             Log.d("MapFragment", "No location permissions")
             viewModel.updateUserLocation(location)
         }
@@ -201,16 +184,6 @@ class MainActivity : AppCompatActivity() {
         actionBarChatList()
         actionBarCreateEvent()
         actionBarEventList()
-
-//        fusedLocationClient.lastLocation.addOnSuccessListener { location ->
-//            location?.let {
-//                Log.d(TAG, ">>initUserLocation: $location")
-//                viewModel.initUserLocation(location)
-//            }
-//        }.addOnFailureListener { exception ->
-//            // Handle any errors here
-//            Log.e(TAG, "Error getting location", exception)
-//        }
 
         // Set up our nav graph
         navController = findNavController(R.id.main_frame)

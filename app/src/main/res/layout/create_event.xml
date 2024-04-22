@@ -55,12 +55,22 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 android:layout_margin="8dp"/>
 
+            <TextView
+                android:id="@+id/eventDate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="When is your event?"
+                android:textSize="18sp"
+                app:layout_constraintTop_toBottomOf="@id/editTextAddress"
+                app:layout_constraintStart_toStartOf="parent"
+                android:layout_margin="8dp"/>
+
             <Spinner
                 android:id="@+id/spinnerMonth"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:layout_constraintBottom_toTopOf="@id/editTextDescription"
-                app:layout_constraintTop_toBottomOf="@id/editTextAddress"
+                app:layout_constraintTop_toBottomOf="@id/eventDate"
                 app:layout_constraintStart_toStartOf="parent"
                 android:layout_margin="8dp"/>
 
@@ -69,7 +79,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:layout_constraintBottom_toTopOf="@id/editTextDescription"
-                app:layout_constraintTop_toBottomOf="@id/editTextAddress"
+                app:layout_constraintTop_toBottomOf="@id/eventDate"
                 app:layout_constraintStart_toEndOf="@id/spinnerMonth"
                 android:layout_margin="8dp"/>
 
@@ -78,7 +88,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:layout_constraintBottom_toTopOf="@id/editTextDescription"
-                app:layout_constraintTop_toBottomOf="@id/editTextAddress"
+                app:layout_constraintTop_toBottomOf="@id/eventDate"
                 app:layout_constraintStart_toEndOf="@id/spinnerDay"
                 android:layout_margin="8dp"/>
 
@@ -91,7 +101,7 @@
                 android:inputType="textMultiLine"
                 android:gravity="top|start"
                 android:maxLines="20"
-                android:minLines="6"
+                android:minLines="3"
                 android:scrollbars="vertical"
                 app:layout_constraintBottom_toTopOf="@id/timeTitle"
                 app:layout_constraintTop_toBottomOf="@id/spinnerMonth"
@@ -172,22 +182,24 @@
 
             <TextView
                 android:id="@+id/eventImageTitle"
-                android:text="Upload Photo"
+                android:text="Upload Photo Here"
                 android:textSize="18sp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="8dp"
-                app:layout_constraintTop_toBottomOf="@id/spinnerEvent"
+                app:layout_constraintTop_toTopOf="@id/eventImage"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintBottom_toTopOf="@+id/eventImage"/>
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintBottom_toBottomOf="@+id/eventImage"/>
 
             <ImageView
                 android:id="@+id/eventImage"
-                android:src="@drawable/image"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="250dp"
+                android:scaleType="centerCrop"
+                android:background="@drawable/outline"
                 app:layout_constraintBottom_toTopOf="@id/finishButton"
-                app:layout_constraintTop_toBottomOf="@id/eventImageTitle"
+                app:layout_constraintTop_toBottomOf="@id/spinnerEvent"
                 app:layout_constraintStart_toStartOf="parent"
                 android:layout_margin="8dp"/>
 

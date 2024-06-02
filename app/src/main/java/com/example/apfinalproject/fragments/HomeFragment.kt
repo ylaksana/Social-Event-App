@@ -22,7 +22,7 @@ import com.example.apfinalproject.model.InterestCategories
 
 class HomeFragment : Fragment() {
     companion object {
-        private const val TAG = "HomeFragment"
+        const val TAG = "HomeFragment"
     }
 
     private val viewModel: MainViewModel by activityViewModels()

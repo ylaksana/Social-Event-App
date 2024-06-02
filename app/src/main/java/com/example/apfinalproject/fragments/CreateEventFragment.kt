@@ -175,7 +175,7 @@ class CreateEventFragment : Fragment() {
         event.title = binding.editTextTitle.text.toString()
         event.description = binding.editTextDescription.text.toString()
         event.location = binding.editTextAddress.text.toString()
-        event.date = "${binding.spinnerMonth.selectedItem} ${binding.spinnerDay.selectedItem}, ${binding.spinnerYear.selectedItem}"
+        event.date = "${binding.spinnerYear.selectedItem}-${binding.spinnerMonth.selectedItem}-${binding.spinnerDay.selectedItem}"
         event.time = "${binding.spinnerHours.selectedItem}:${binding.spinnerMinutes.selectedItem} ${binding.spinnerAMPM.selectedItem}"
         event.type = binding.spinnerEvent.selectedItem.toString()
         event.creator = viewModel.getActiveUser()?.id ?: "-1"

@@ -13,10 +13,13 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.apfinalproject.MainActivity
 import com.example.apfinalproject.MainViewModel
 import com.example.apfinalproject.R
+import com.example.apfinalproject.adapters.MapEventAdapter
 import com.example.apfinalproject.adapters.PastEventAdapter
 import com.example.apfinalproject.databinding.MapFragmentBinding
 import com.example.apfinalproject.model.Event
@@ -41,7 +44,7 @@ class MapFragment : Fragment() {
     private lateinit var navController: NavController
     private val binding get() = _binding!!
     private lateinit var mapView: MapView
-    private lateinit var adapter: PastEventAdapter
+    private lateinit var adapter: MapEventAdapter
     private lateinit var boundingBox: BoundingBox
     private lateinit var userLocation: GeoPoint
     private var allEvents: List<Event> = mutableListOf()
@@ -50,17 +53,54 @@ class MapFragment : Fragment() {
     private var userLongitude: Double = 0.0
     private var distance: String = ""
 
+    private fun initTouchHelper(): ItemTouchHelper {
+        val simpleItemTouchCallback =
+            object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
+                override fun onMove(
+                    recyclerView: RecyclerView,
+                    viewHolder: RecyclerView.ViewHolder,
+                    target: RecyclerView.ViewHolder,
+                ): Boolean {
+                    return true
+                }
+
+                override fun onSwiped(
+                    viewHolder: RecyclerView.ViewHolder,
+                    direction: Int,
+                ) {
+                    val position = viewHolder.bindingAdapterPosition
+                    val event = adapter.currentList[position]
+                    Log.d(HomeFragment.TAG, "Swipe delete $direction")
+                    Log.d(HomeFragment.TAG, "adapter: $adapter")
+                    Log.d(HomeFragment.TAG, "position: $position")
+                    Log.d(HomeFragment.TAG, "event: ${adapter.currentList}")
+                    Log.d(HomeFragment.TAG, "event: ${event?.title}")
+
+                    event?.let {
+                        val eventId = it.id
+                        viewModel.addEventSwipe(eventId, direction)
+                        viewModel.removeEventFromView(event)
+                        viewModel.fetchEventList()
+
+                        Log.d(HomeFragment.TAG, "event removed: ${event.title}")
+
+                        // find new way to update, itemRemovedAt duplicated bound objects
+                        adapter.notifyItemRemoved(position)
+                    }
+                }
+            }
+        return ItemTouchHelper(simpleItemTouchCallback)
+    }
+
     private fun initAdapter(binding: MapFragmentBinding) {
         val rv = binding.eventRV
         rv.layoutManager = LinearLayoutManager(context)
-        adapter =
-            PastEventAdapter(viewModel) {
-                // Navigate to OneEvent
-                navController.navigate(
-                    MapFragmentDirections.actionMapFragmentToOneEventFragment(it),
-                )
-            }
+        adapter = MapEventAdapter(viewModel) { event ->
+            val action = MapFragmentDirections.actionMapFragmentToOneEventFragment(event)
+            navController.navigate(action)
+        }
         rv.adapter = adapter
+        initTouchHelper().attachToRecyclerView(rv)
     }
 
     private fun updateEventsBasedOnBoundingBox() {

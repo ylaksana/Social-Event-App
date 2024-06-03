@@ -23,6 +23,10 @@ import com.example.apfinalproject.storage.Storage
 import com.example.apfinalproject.storage.ViewModelDBHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.time.DayOfWeek
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.time.temporal.TemporalAdjusters
 import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.pow
@@ -96,10 +100,42 @@ class MainViewModel : ViewModel() {
                 val events = nonUserEvents.value
                 var filteredEvents = events
                 if (!term.isNullOrEmpty() && !events.isNullOrEmpty()){
-                    filteredEvents =
-                        events.filter { event ->
-                            event.type == term
+
+                    val today = LocalDate.now()
+
+                    when(term){
+                        "Today" -> {
+                            Log.d("Today", today.toString())
+                            filteredEvents = events.filter { event ->
+                                Log.d("Today", "event.date = ${event.date}")
+                                val eventDate = LocalDate.parse(event.date) // Replace "event.date" with the actual property name
+                                eventDate.isEqual(today)
+                            }
                         }
+                        "This Week" -> {
+                            val startOfWeek = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY))
+                            val endOfWeek = today.with(TemporalAdjusters.nextOrSame(DayOfWeek.SATURDAY))
+                            filteredEvents = events.filter { event ->
+                                val eventDate = LocalDate.parse(event.date) // Replace "event.date" with the actual property name
+                                eventDate.isAfter(startOfWeek.minusDays(1)) && eventDate.isBefore(endOfWeek)
+                            }
+                        }
+                        "This Month" -> {
+                            val endOfMonth = today.withDayOfMonth(today.lengthOfMonth())
+                            val startOfMonth = today.withDayOfMonth(1)
+                            filteredEvents = events.filter { event ->
+                                val eventDate = LocalDate.parse(event.date) // Replace "event.date" with the actual property name
+                                eventDate.isAfter(startOfMonth.minusDays(1)) && eventDate.isBefore(endOfMonth)
+                            }
+                        }
+                        else -> {
+                            filteredEvents =
+                                events.filter { event ->
+                                    event.type == term
+                                }
+                        }
+                    }
+
                 }
                 postValue(filteredEvents)
             }

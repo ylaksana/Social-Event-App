@@ -12,6 +12,9 @@ object InterestCategories {
 
     private val eventCategories: List<Interest> =
         listOf(
+            Interest("Today", false),
+            Interest("This Week", false),
+            Interest("This Month", false),
             Interest("Business", false),
             Interest("Health", false),
             Interest("Music", false),

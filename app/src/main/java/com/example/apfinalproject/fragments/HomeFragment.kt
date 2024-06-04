@@ -34,44 +34,6 @@ class HomeFragment : Fragment() {
     private val binding get() = _binding!!
     private var eventAdapter: EventAdapter? = null
 
-    private fun initTouchHelper(): ItemTouchHelper {
-        val simpleItemTouchCallback =
-            object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
-                override fun onMove(
-                    recyclerView: RecyclerView,
-                    viewHolder: RecyclerView.ViewHolder,
-                    target: RecyclerView.ViewHolder,
-                ): Boolean {
-                    return true
-                }
-
-                override fun onSwiped(
-                    viewHolder: RecyclerView.ViewHolder,
-                    direction: Int,
-                ) {
-                    val position = viewHolder.bindingAdapterPosition
-                    val event = eventAdapter?.currentList?.get(position)
-                    Log.d(TAG, "Swipe delete $direction")
-                    Log.d(TAG, "adapter: $eventAdapter")
-                    Log.d(TAG, "position: $position")
-                    Log.d(TAG, "event: ${eventAdapter?.currentList}")
-                    Log.d(TAG, "event: ${event?.title}")
-
-                    event?.let {
-                        val eventId = it.id
-                        viewModel.addEventSwipe(eventId, direction)
-                        viewModel.removeEventFromView(event)
-                        viewModel.fetchEventList()
-
-                        Log.d(TAG, "event removed: ${event.title}")
-
-                        // find new way to update, itemRemovedAt duplicated bound objects
-                        eventAdapter?.notifyDataSetChanged()
-                    }
-                }
-            }
-        return ItemTouchHelper(simpleItemTouchCallback)
-    }
 
     private fun initAdapters(binding: HomeFragmentBinding) {
         Log.d(TAG, "initAdapters")
@@ -129,7 +91,6 @@ class HomeFragment : Fragment() {
         navController = findNavController()
 
         initAdapters(binding)
-        initTouchHelper().attachToRecyclerView(binding.eventRV)
     }
 
     override fun onResume() {

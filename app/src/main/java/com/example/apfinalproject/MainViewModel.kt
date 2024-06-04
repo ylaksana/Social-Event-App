@@ -320,12 +320,12 @@ class MainViewModel : ViewModel() {
 
     fun addEventSwipe(
         eventId: String,
-        direction: Int,
+        choice: Boolean,
     ) {
-        Log.d(TAG, "addEventSwipe: $eventId, $direction")
-        when (direction) {
-            4 -> db.addEventSwipe(eventId, activeUser.value?.id!!, "noSwipes")
-            8 -> db.addEventSwipe(eventId, activeUser.value?.id!!, "yesSwipes")
+        Log.d(TAG, "addEventSwipe: $eventId, $choice")
+        when (choice) {
+            false -> db.addEventSwipe(eventId, activeUser.value?.id!!, "noSwipes")
+            true -> db.addEventSwipe(eventId, activeUser.value?.id!!, "yesSwipes")
         }
     }
 

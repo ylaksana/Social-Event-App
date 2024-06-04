@@ -53,44 +53,6 @@ class MapFragment : Fragment() {
     private var userLongitude: Double = 0.0
     private var distance: String = ""
 
-    private fun initTouchHelper(): ItemTouchHelper {
-        val simpleItemTouchCallback =
-            object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
-                override fun onMove(
-                    recyclerView: RecyclerView,
-                    viewHolder: RecyclerView.ViewHolder,
-                    target: RecyclerView.ViewHolder,
-                ): Boolean {
-                    return true
-                }
-
-                override fun onSwiped(
-                    viewHolder: RecyclerView.ViewHolder,
-                    direction: Int,
-                ) {
-                    val position = viewHolder.bindingAdapterPosition
-                    val event = adapter.currentList[position]
-                    Log.d(HomeFragment.TAG, "Swipe delete $direction")
-                    Log.d(HomeFragment.TAG, "adapter: $adapter")
-                    Log.d(HomeFragment.TAG, "position: $position")
-                    Log.d(HomeFragment.TAG, "event: ${adapter.currentList}")
-                    Log.d(HomeFragment.TAG, "event: ${event?.title}")
-
-                    event?.let {
-                        val eventId = it.id
-                        viewModel.addEventSwipe(eventId, direction)
-                        viewModel.removeEventFromView(event)
-                        viewModel.fetchEventList()
-
-                        Log.d(HomeFragment.TAG, "event removed: ${event.title}")
-
-                        // find new way to update, itemRemovedAt duplicated bound objects
-                        adapter.notifyItemRemoved(position)
-                    }
-                }
-            }
-        return ItemTouchHelper(simpleItemTouchCallback)
-    }
 
     private fun initAdapter(binding: MapFragmentBinding) {
         val rv = binding.eventRV
@@ -100,7 +62,11 @@ class MapFragment : Fragment() {
             navController.navigate(action)
         }
         rv.adapter = adapter
-        initTouchHelper().attachToRecyclerView(rv)
+
+        viewModel.observeUserEvents().observe(viewLifecycleOwner) {
+            // This will be called every time the event list changes
+            adapter.notifyDataSetChanged() // Update the entire list
+        }
     }
 
     private fun updateEventsBasedOnBoundingBox() {
@@ -274,6 +240,8 @@ class MapFragment : Fragment() {
         viewModel.observeUserLocation().observe(viewLifecycleOwner) { location ->
             setNewLocation(location)
         }
+
+
 
         // Find the navController
         navController = findNavController()

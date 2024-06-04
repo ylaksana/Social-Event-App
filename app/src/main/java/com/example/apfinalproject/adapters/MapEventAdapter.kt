@@ -11,6 +11,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.apfinalproject.MainViewModel
 import com.example.apfinalproject.databinding.MapEventRowBinding
 import com.example.apfinalproject.model.Event
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 class MapEventAdapter(
     private val viewModel: MainViewModel,
@@ -50,7 +52,26 @@ ListAdapter<Event, MapEventAdapter.MapEventViewHolder>(MapEventDiff()) {
             navigateToOneEvent(event)
         }
         eventRowBinding.eventName.text = event.title
-        eventRowBinding.eventDate.text = event.date
+        val originalDate = event.date // assuming event.date is in "YYYY-MM-DD" format
+        val originalFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+        val targetFormat = DateTimeFormatter.ofPattern("MM/dd/yyyy")
+
+        val date = LocalDate.parse(originalDate, originalFormat)
+        val reformattedDate = date.format(targetFormat)
+
+        eventRowBinding.acceptButton.setOnClickListener{
+            viewModel.addEventSwipe(event.id, true)
+            viewModel.removeEventFromView(event)
+            viewModel.fetchEventList()
+        }
+
+        eventRowBinding.rejectButton.setOnClickListener{
+            viewModel.addEventSwipe(event.id, false)
+            viewModel.removeEventFromView(event)
+            viewModel.fetchEventList()
+        }
+
+        eventRowBinding.eventDate.text = reformattedDate
         userLocation?.let {
             eventRowBinding.miles.visibility = View.VISIBLE
             eventRowBinding.timeDot.visibility = View.VISIBLE

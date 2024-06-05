@@ -39,6 +39,19 @@ class EventAdapter(
                     viewModel.hideActionBar()
                 }
             }
+
+            eventRowBinding.dropdownBar.setOnClickListener {
+                if (eventRowBinding.hiddenLayout.visibility == View.GONE) {
+                    eventRowBinding.hiddenLayout.visibility = View.VISIBLE
+                    eventRowBinding.dropdownArrow.visibility = View.GONE
+                    eventRowBinding.upArrow.visibility = View.VISIBLE
+                } else {
+                    eventRowBinding.hiddenLayout.visibility = View.GONE
+                    eventRowBinding.dropdownArrow.visibility = View.VISIBLE
+                    eventRowBinding.upArrow.visibility = View.GONE
+                }
+
+            }
         }
     }
 

@@ -40,6 +40,7 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:id="@+id/eventCard"
             android:background="#CCFFFFFF"
             app:layout_constraintBottom_toBottomOf="@id/image"
             app:layout_constraintStart_toStartOf="parent">
@@ -89,12 +90,69 @@
                 app:layout_constraintStart_toEndOf="@id/timeDot"
                 app:layout_constraintTop_toTopOf="@id/eventDate" />
 
+            <TextView
+                android:id="@+id/dropdownBar"
+                android:layout_width="match_parent"
+                android:layout_height="24dp"
+                android:background="@color/grey"
+                app:layout_constraintTop_toBottomOf="@id/eventTitle"
+                app:layout_constraintBottom_toBottomOf="parent"
+                />
+
+            <ImageView
+                android:id="@+id/dropdownArrow"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/menu_down"
+                app:layout_constraintStart_toStartOf="@id/dropdownBar"
+                app:layout_constraintEnd_toEndOf="@id/dropdownBar"
+                app:layout_constraintTop_toTopOf="@id/dropdownBar"
+                app:layout_constraintBottom_toBottomOf="@id/dropdownBar"
+                    />
+
+            <ImageView
+                android:id="@+id/upArrow"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/menu_up"
+                android:visibility="gone"
+                app:layout_constraintStart_toStartOf="@id/dropdownBar"
+                app:layout_constraintEnd_toEndOf="@id/dropdownBar"
+                app:layout_constraintTop_toTopOf="@id/dropdownBar"
+                app:layout_constraintBottom_toBottomOf="@id/dropdownBar"
+                />
+
         </androidx.constraintlayout.widget.ConstraintLayout>
+        <LinearLayout
+            android:id="@+id/hiddenLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:visibility="gone"
+            app:layout_constraintTop_toBottomOf="@id/eventCard"
+            app:layout_constraintStart_toStartOf="parent">
 
+            <Button
+                android:id="@+id/acceptButton"
+                android:text="ACCEPT"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/green_button"
+                android:layout_marginVertical="10dp"
+                android:layout_marginHorizontal="4dp" />
 
+            <Button
+                android:id="@+id/rejectButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="4dp"
+                android:background="@drawable/red_button"
+                android:text="REJECT" />
 
-
-
+        </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
+
 </androidx.cardview.widget.CardView>

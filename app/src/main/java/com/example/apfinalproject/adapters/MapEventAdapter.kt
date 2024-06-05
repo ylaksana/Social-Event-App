@@ -24,7 +24,8 @@ ListAdapter<Event, MapEventAdapter.MapEventViewHolder>(MapEventDiff()) {
     inner class MapEventViewHolder(val mapEventRowBinding: MapEventRowBinding) :
         RecyclerView.ViewHolder(mapEventRowBinding.root) {
         init {
-
+//            mapEventRowBinding.acceptButton.visibility = View.GONE
+//            mapEventRowBinding.rejectButton.visibility = View.GONE
         }
     }
 

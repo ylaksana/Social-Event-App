@@ -63,12 +63,14 @@ ListAdapter<Event, MapEventAdapter.MapEventViewHolder>(MapEventDiff()) {
             viewModel.addEventSwipe(event.id, true)
             viewModel.removeEventFromView(event)
             viewModel.fetchEventList()
+            notifyItemChanged(position)
         }
 
         eventRowBinding.rejectButton.setOnClickListener{
             viewModel.addEventSwipe(event.id, false)
             viewModel.removeEventFromView(event)
             viewModel.fetchEventList()
+            notifyItemChanged(position)
         }
 
         eventRowBinding.eventDate.text = reformattedDate

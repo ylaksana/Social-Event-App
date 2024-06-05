@@ -63,9 +63,10 @@ class MapFragment : Fragment() {
         }
         rv.adapter = adapter
 
-        viewModel.observeUserEvents().observe(viewLifecycleOwner) {
+        viewModel.observeNetTypeEvents().observe(viewLifecycleOwner) {
             // This will be called every time the event list changes
-            adapter.notifyDataSetChanged() // Update the entire list
+            adapter.submitList(it)
+//            adapter.notifyDataSetChanged() // Update the entire list
         }
     }
 

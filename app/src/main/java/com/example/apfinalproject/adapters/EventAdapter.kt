@@ -81,6 +81,7 @@ class EventAdapter(
         eventRowBinding.eventDate.text = reformattedDate
         eventRowBinding.peopleInterested.text = "${event.yesSwipes.size} People Interested"
 
+
         userLocation?.let {
             eventRowBinding.miles.visibility = View.VISIBLE
             eventRowBinding.timeDot.visibility = View.VISIBLE
@@ -102,6 +103,20 @@ class EventAdapter(
 
         Log.d("EventAdapter", "fetching image: ${event.imageName}")
         viewModel.fetchEventImage(event.imageName, eventRowBinding.image)
+
+        eventRowBinding.acceptButton.setOnClickListener{
+            viewModel.addEventSwipe(event.id, true)
+            viewModel.removeEventFromView(event)
+            viewModel.fetchEventList()
+            notifyItemChanged(position)
+        }
+
+        eventRowBinding.rejectButton.setOnClickListener{
+            viewModel.addEventSwipe(event.id, false)
+            viewModel.removeEventFromView(event)
+            viewModel.fetchEventList()
+            notifyItemChanged(position)
+        }
     }
 
     class EventDiff : DiffUtil.ItemCallback<Event>() {

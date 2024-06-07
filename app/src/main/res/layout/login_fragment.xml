@@ -10,12 +10,15 @@
         android:layout_height="wrap_content"
         android:text="Welcome to SwipeMeet!"
         android:textSize="30sp"
-        android:padding="10dp"
+        android:layout_marginVertical="50dp"
+        android:padding="8dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/loginLayout"
         />
 
     <LinearLayout
+        android:id="@+id/loginLayout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
@@ -44,7 +47,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginVertical="4dp"
+            android:layout_marginTop="10dp"
+            android:padding="8dp"
+            android:background="@drawable/edit_text_container_grey"
             app:layout_constraintTop_toBottomOf="@id/loginTitle"
             app:layout_constraintBottom_toTopOf="@id/passwordLayout"
             app:layout_constraintStart_toStartOf="parent"
@@ -71,7 +76,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginVertical="4dp"
+            android:layout_marginVertical="14dp"
+            android:padding="8dp"
+            android:background="@drawable/edit_text_container_grey"
             app:layout_constraintTop_toBottomOf="@id/usernameLayout"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent">
@@ -84,13 +91,24 @@
                 android:textSize="25sp" />
 
             <EditText
-                android:id="@+id/userInput"
+                android:id="@+id/passwordInput"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="20sp"
                 android:hint="Enter your password" />
 
         </LinearLayout>
+
+        <TextView
+            android:id="@+id/loginButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:padding="15dp"
+            android:text="LOGIN >"
+            android:background="@drawable/login_button"
+            android:textSize="20sp"
+            app:layout_constraintTop_toBottomOf="@id/loginLayout" />
 
     </LinearLayout>
 

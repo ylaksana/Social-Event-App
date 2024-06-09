@@ -42,7 +42,7 @@
         android:id="@+id/loginButton"
         android:layout_width="350dp"
         android:layout_height="wrap_content"
-        android:text="Login"
+        android:text="Log in"
         android:textSize="20sp"
         android:padding="10dp"
         android:background="@drawable/login_button"

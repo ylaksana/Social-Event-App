@@ -7,6 +7,15 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/arrow_left_circle_outline"
+        android:layout_margin="8dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        />
+
+    <ImageView
         android:layout_width="210dp"
         android:layout_height="210dp"
         android:src="@drawable/vecteezy_group_of_cheerful_young_people_standing_t"
@@ -120,22 +129,25 @@
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <TextView
-            android:id="@+id/loginButton"
-            android:layout_width="350dp"
-            android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            android:padding="10dp"
-            android:textAlignment="center"
-            android:text="Login"
-            android:background="@drawable/login_button"
-            android:textSize="20sp"
-            app:layout_constraintTop_toBottomOf="@id/loginLayout" />
 
     </LinearLayout>
 
 
-
+    <TextView
+        android:id="@+id/loginButton"
+        android:layout_width="350dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:padding="10dp"
+        android:textAlignment="center"
+        android:text="Log in"
+        android:background="@drawable/login_button"
+        android:textSize="20sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraint_Bottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/loginLayout"
+        />
 
 
 

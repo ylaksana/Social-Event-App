@@ -53,7 +53,7 @@
         >
 
         <LinearLayout
-            android:id="@+id/usernameLayout"
+            android:id="@+id/emailLayout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
@@ -64,14 +64,14 @@
             app:layout_constraintEnd_toEndOf="parent">
 
             <TextView
-                android:id="@+id/userText"
+                android:id="@+id/emailText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Username: "
                 android:textSize="20sp" />
 
             <EditText
-                android:id="@+id/userInput"
+                android:id="@+id/emailInput"
                 android:layout_width="350dp"
                 android:layout_height="wrap_content"
                 android:padding="10dp"

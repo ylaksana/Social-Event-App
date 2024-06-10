@@ -131,10 +131,10 @@
         />
 
     <TextView
-        android:id="@+id/loginButton"
+        android:id="@+id/createAccountButton"
         android:layout_width="350dp"
         android:layout_height="wrap_content"
-        android:text="Log in"
+        android:text="Create Account"
         android:textSize="20sp"
         android:padding="10dp"
         android:background="@drawable/login_button"

@@ -11,6 +11,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.apfinalproject.MainViewModel
 import com.example.apfinalproject.databinding.EventRowBinding
 import com.example.apfinalproject.model.Event
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 class EventAdapter(
     private val viewModel: MainViewModel,
@@ -37,6 +39,19 @@ class EventAdapter(
                     viewModel.hideActionBar()
                 }
             }
+
+            eventRowBinding.dropdownBar.setOnClickListener {
+                if (eventRowBinding.hiddenLayout.visibility == View.GONE) {
+                    eventRowBinding.hiddenLayout.visibility = View.VISIBLE
+                    eventRowBinding.dropdownArrow.visibility = View.GONE
+                    eventRowBinding.upArrow.visibility = View.VISIBLE
+                } else {
+                    eventRowBinding.hiddenLayout.visibility = View.GONE
+                    eventRowBinding.dropdownArrow.visibility = View.VISIBLE
+                    eventRowBinding.upArrow.visibility = View.GONE
+                }
+
+            }
         }
     }
 
@@ -56,8 +71,16 @@ class EventAdapter(
         val event = getItem(position)
 
         eventRowBinding.eventTitle.text = event.title
-        eventRowBinding.eventDate.text = event.date
+        val originalDate = event.date // assuming event.date is in "YYYY-MM-DD" format
+        val originalFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+        val targetFormat = DateTimeFormatter.ofPattern("MM/dd/yyyy")
+
+        val date = LocalDate.parse(originalDate, originalFormat)
+        val reformattedDate = date.format(targetFormat)
+
+        eventRowBinding.eventDate.text = reformattedDate
         eventRowBinding.peopleInterested.text = "${event.yesSwipes.size} People Interested"
+
 
         userLocation?.let {
             eventRowBinding.miles.visibility = View.VISIBLE
@@ -80,6 +103,20 @@ class EventAdapter(
 
         Log.d("EventAdapter", "fetching image: ${event.imageName}")
         viewModel.fetchEventImage(event.imageName, eventRowBinding.image)
+
+        eventRowBinding.acceptButton.setOnClickListener{
+            viewModel.addEventSwipe(event.id, true)
+            viewModel.removeEventFromView(event)
+            viewModel.fetchEventList()
+            notifyItemChanged(position)
+        }
+
+        eventRowBinding.rejectButton.setOnClickListener{
+            viewModel.addEventSwipe(event.id, false)
+            viewModel.removeEventFromView(event)
+            viewModel.fetchEventList()
+            notifyItemChanged(position)
+        }
     }
 
     class EventDiff : DiffUtil.ItemCallback<Event>() {

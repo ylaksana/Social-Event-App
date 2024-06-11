@@ -39,11 +39,13 @@ class ChatAdapter(
 
         if (activeUser != null) {
             if (message.senderID == activeUser.id) {
-                messageRowBinding.chatMessageTV.gravity = Gravity.END
+                messageRowBinding.chatMessageContainer.gravity = Gravity.END
                 messageRowBinding.chatTimeTV.gravity = Gravity.END
+                messageRowBinding.chatMessageTV.setBackgroundResource(com.example.apfinalproject.R.drawable.user_message)
             } else {
-                messageRowBinding.chatMessageTV.gravity = Gravity.START
+                messageRowBinding.chatMessageContainer.gravity = Gravity.START
                 messageRowBinding.chatTimeTV.gravity = Gravity.START
+                messageRowBinding.chatMessageTV.setBackgroundResource(com.example.apfinalproject.R.drawable.recipient_message)
             }
         }
         messageRowBinding.chatMessageTV.text = message.messageText
